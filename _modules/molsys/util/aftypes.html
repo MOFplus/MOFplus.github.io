@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.aftypes &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.aftypes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.aftypes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Sun Mar 26 18:09:01 2017</span>
+
+<span class="sd">@author: rochus</span>
+
+<span class="sd">          aftype</span>
+
+<span class="sd">          a class for an aftype (atomtype and fragmenttype)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># generates the missing rich comparison methods</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">total_ordering</span>
+<span class="c1"># import regular expressions module</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<div class="viewcode-block" id="aftype"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype">[docs]</a><span class="nd">@total_ordering</span>
+<span class="k">class</span> <span class="nc">aftype</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="n">fragtype</span><span class="p">):</span>
+        <span class="c1"># boolean for * fragtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wild_ft</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># boolean for * atype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wild_at</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># boolean for pure elem atype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pure</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># boolean for truncated atype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_truncated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atype</span> <span class="o">=</span> <span class="n">atype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragtype</span> <span class="o">=</span> <span class="n">fragtype</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">atype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atype</span>
+
+    <span class="nd">@atype</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">atype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">at</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_atype</span> <span class="o">=</span> <span class="n">at</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;[0123456789]&quot;</span><span class="p">,</span> <span class="n">at</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">at</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wild_at</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># check for trucated type like c3</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">at</span><span class="p">:</span>
+            <span class="c1"># check for pure elem type like c</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+                <span class="c1"># we have a pure elem type</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pure</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_atype_pure</span> <span class="o">=</span> <span class="n">at</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_atype_trunc</span> <span class="o">=</span> <span class="n">at</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_truncated</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_atype_trunc</span> <span class="o">=</span> <span class="n">at</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_atype_pure</span> <span class="o">=</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_atype_trunc</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_atype_pure</span> <span class="o">=</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()]</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fragtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span>
+
+    <span class="nd">@fragtype</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fragtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ft</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span> <span class="o">=</span> <span class="n">ft</span>
+        <span class="k">if</span> <span class="n">ft</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wild_ft</span> <span class="o">==</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">)</span>
+
+    <span class="c1"># comparison methods for all possibilities</span>
+<div class="viewcode-block" id="aftype.full_compare"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype.full_compare">[docs]</a>    <span class="k">def</span> <span class="nf">full_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="aftype.trunc_compare"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype.trunc_compare">[docs]</a>    <span class="k">def</span> <span class="nf">trunc_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_truncated</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_truncated</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype_trunc</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype_trunc</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="aftype.pure_compare"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype.pure_compare">[docs]</a>    <span class="k">def</span> <span class="nf">pure_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pure</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_pure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype_pure</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype_pure</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trunc_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="aftype.wildat_compare"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype.wildat_compare">[docs]</a>    <span class="k">def</span> <span class="nf">wildat_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wild_at</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_wild_at</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pure_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="aftype.wildft_compare"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype.wildft_compare">[docs]</a>    <span class="k">def</span> <span class="nf">wildft_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragtype</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_wild_ft</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wild_at</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_wild_at</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pure</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_pure</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atype_pure</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype_pure</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_truncated</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_truncated</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atype_trunc</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype_trunc</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atype</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_atype</span>          
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wildat_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+  
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">other</span><span class="p">,</span> <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;full&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;trunc&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trunc_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;pure&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pure_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;wild_at&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wildat_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;wild_ft&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wildft_compare</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">is</span> <span class="n">aftype</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">))</span> <span class="o">&lt;</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_atype</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">is</span> <span class="n">aftype</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">))</span> <span class="o">&gt;</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">@</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">_atype</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_fragtype</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="aftype_sort"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.aftype_sort">[docs]</a><span class="k">def</span> <span class="nf">aftype_sort</span><span class="p">(</span><span class="n">afl</span><span class="p">,</span> <span class="n">ic</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    helper function to sort a list of aftype objects according to the type (ic)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;bnd&quot;</span><span class="p">:</span>
+        <span class="n">afl</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;ang&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">afl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">afl</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">afl</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;dih&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">afl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">afl</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">afl</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">afl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">afl</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">afl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">afl</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">afl</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;oop&quot;</span><span class="p">:</span>
+        <span class="n">plane</span> <span class="o">=</span> <span class="n">afl</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">plane</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">afl</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">plane</span>
+    <span class="k">elif</span> <span class="n">ic</span> <span class="o">==</span> <span class="s2">&quot;vdwpr&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">aftype_sort</span><span class="p">(</span><span class="n">afl</span><span class="p">,</span> <span class="s2">&quot;bnd&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">afl</span></div>
+
+<div class="viewcode-block" id="afdict"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.afdict">[docs]</a><span class="k">class</span> <span class="nc">afdict</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this is a &quot;pseudo&quot; dicitionary using two lists for key and value</span>
+<span class="sd">    the reason is that the keys can not be hashed since strange comparsion is used.</span>
+<span class="sd">    this is definetly less efficient than a real dictionary but carries only a few entries</span>
+<span class="sd">    and is just used to store parameters for easy lookup</span>
+
+<span class="sd">    one important limitation: you can only set a key that does not exist!</span>
+<span class="sd">    so to change an entry you need to delete it first and then set it new.</span>
+<span class="sd">    this is to prevent having multiple keys giving the same value.</span>
+
+<span class="sd">    with apenditem it is however possible to append to an existing value (must be appendable)</span>
+
+<span class="sd">    further more: if you use truncated aftypes during lookup it is possible that more than</span>
+<span class="sd">    one full key in the afdict matches. only the first stored will be returned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="afdict.index"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.afdict.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">comp_level</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">):</span>
+        <span class="c1"># we need to write a custom search/index method for the _keys list</span>
+        <span class="c1"># since we have to use different comparison leves because of</span>
+        <span class="c1"># wildcards</span>
+        <span class="c1"># first loop over keys, list of tuples of aftypes</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keys</span><span class="p">):</span>
+            <span class="c1"># now check if k and key have the same length</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="c1"># now we have to compare in a second loop each entry of</span>
+                <span class="c1"># key and k in respect to self._comp_level</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">comp_level</span><span class="p">):</span>
+                        <span class="k">break</span>
+                    <span class="k">elif</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+                        <span class="c1"># found it</span>
+                        <span class="k">return</span> <span class="n">i</span>
+        <span class="c1"># have not found it</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># in principle we have to check already here if the given key</span>
+        <span class="c1"># contains wildcards, then we have to in pri</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;key </span><span class="si">%s</span><span class="s2"> exists in afdict&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="afdict.appenditem"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.aftypes.afdict.appenditem">[docs]</a>    <span class="k">def</span> <span class="nf">appenditem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="nb">list</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;key </span><span class="si">%s</span><span class="s2"> not in afdict&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">return</span></div>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">wildcards</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">wildcards</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;trunc&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;pure&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;wild_at&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s2">&quot;wild_ft&quot;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;key </span><span class="si">%s</span><span class="s2"> not in afdict&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;key </span><span class="si">%s</span><span class="s2"> not in afdict&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">wildcards</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="c1"># not found, coherent w/ &quot;def index&quot; return</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">keystring</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keys</span><span class="p">:</span>
+            <span class="n">ks</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">maxlen</span><span class="p">:</span> <span class="n">maxlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+            <span class="n">keystring</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%%</span><span class="s2">-</span><span class="si">%d</span><span class="s2">s = </span><span class="si">%%</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">maxlen</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keystring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">form</span><span class="o">%</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c3&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c2h1&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3&quot;</span><span class="p">,</span> <span class="s2">&quot;co2&quot;</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">d</span><span class="p">)</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">]</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">sort</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">aftype_sort</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s2">&quot;ang&quot;</span><span class="p">))</span>
+    <span class="c1">#exit()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tuple comparison&quot;</span><span class="p">)</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">t3</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t1</span> <span class="o">==</span> <span class="n">t2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t1</span> <span class="o">==</span> <span class="n">t3</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test afdict&quot;</span><span class="p">)</span>
+    <span class="c1"># afd is non-political and means afdict!!!</span>
+    <span class="n">afd</span> <span class="o">=</span> <span class="n">afdict</span><span class="p">()</span>
+
+    <span class="n">afd</span><span class="p">[</span><span class="n">t1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">t1</span><span class="p">)]</span>
+    <span class="n">afd</span><span class="p">[(</span><span class="n">a</span><span class="p">,</span><span class="n">d</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="n">d</span><span class="p">,))]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">afd</span><span class="p">[</span><span class="n">t1</span><span class="p">])</span>
+    <span class="c1">#print(afd[t3])</span>
+    <span class="c1">#print(c,c) in afd</span>
+    <span class="n">afd</span><span class="o">.</span><span class="n">appenditem</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">afd</span><span class="p">)</span>
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

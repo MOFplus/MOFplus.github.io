@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>1.1.1.1.2. molsys.fileIO package &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1.1.1.1.3. molsys.util package" href="molsys.util.html" />
+    <link rel="prev" title="1.1.1.1.1. molsys.addon package" href="molsys.addon.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_addon.html">2. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../tech_api.html">1. API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="modules.html">1.1. molsys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="molsys.html">1.1.1. molsys package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="molsys.addon.html">1.1.1.1.1. molsys.addon package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1.1.1.1.2. molsys.fileIO package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">1.1.1.1.2.1. Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.aginp">1.1.1.1.2.2. molsys.fileIO.aginp module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.array">1.1.1.1.2.3. molsys.fileIO.array module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.cif">1.1.1.1.2.4. molsys.fileIO.cif module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.formats">1.1.1.1.2.5. molsys.fileIO.formats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.lammpstrj">1.1.1.1.2.6. molsys.fileIO.lammpstrj module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.mfpx">1.1.1.1.2.7. molsys.fileIO.mfpx module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.mol2">1.1.1.1.2.8. molsys.fileIO.mol2 module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.plain">1.1.1.1.2.9. molsys.fileIO.plain module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.turbo">1.1.1.1.2.10. molsys.fileIO.turbo module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.txyz">1.1.1.1.2.11. molsys.fileIO.txyz module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO.xyz">1.1.1.1.2.12. molsys.fileIO.xyz module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-molsys.fileIO">1.1.1.1.2.13. Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="molsys.util.html">1.1.1.1.3. molsys.util package</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../tech_api.html"><span class="section-number">1. </span>API Documentation</a> &raquo;</li>
+        
+          <li><a href="modules.html"><span class="section-number">1.1. </span>molsys</a> &raquo;</li>
+        
+          <li><a href="molsys.html"><span class="section-number">1.1.1. </span>molsys package</a> &raquo;</li>
+        
+      <li><span class="section-number">1.1.1.1.2. </span>molsys.fileIO package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api/molsys.fileIO.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="molsys-fileio-package">
+<h1><span class="section-number">1.1.1.1.2. </span>molsys.fileIO package<a class="headerlink" href="#molsys-fileio-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2><span class="section-number">1.1.1.1.2.1. </span>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-molsys.fileIO.aginp">
+<span id="molsys-fileio-aginp-module"></span><h2><span class="section-number">1.1.1.1.2.2. </span>molsys.fileIO.aginp module<a class="headerlink" href="#module-molsys.fileIO.aginp" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.aginp.ag2weaver_connectors">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.aginp.</span></code><code class="sig-name descname"><span class="pre">ag2weaver_connectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agconn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/aginp.html#ag2weaver_connectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.aginp.ag2weaver_connectors" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj) : instance of a molclass</p>
+</dd>
+</dl>
+<p>-agconn(list of int): AuToGraFS connectors by indices (atoms starts from 0)</p>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><p>-agneigh(nested list of int): list of connectors, grouped by multiplicity
+-newconn(list of int): list of connectors, ungrouped</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.aginp.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.aginp.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">morebonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/aginp.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.aginp.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads an AuToGraFS input file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj) : AuToGraFS input file object</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj) : instance of a molclass</p>
+</dd>
+</dl>
+<p>-connectors(bool): additional connectors information
+-morebonds (bool): additional bonds information</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.array">
+<span id="molsys-fileio-array-module"></span><h2><span class="section-number">1.1.1.1.2.3. </span>molsys.fileIO.array module<a class="headerlink" href="#module-molsys.fileIO.array" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.array.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.array.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pconn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/array.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.array.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read array as coordinates
+:Arguments:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-a<var>rr</var></span></kbd></dt>
+<dd><p>(ndarray): name of the coordinate array</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+<p>-use_pconn (bool): True to set empty pconn</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.cif">
+<span id="molsys-fileio-cif-module"></span><h2><span class="section-number">1.1.1.1.2.4. </span>molsys.fileIO.cif module<a class="headerlink" href="#module-molsys.fileIO.cif" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.cif.format_float">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.cif.</span></code><code class="sig-name descname"><span class="pre">format_float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/cif.html#format_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.cif.format_float" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.cif.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.cif.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_P1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_conn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn_thresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/cif.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.cif.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>read CIF file
+:Arguments:
+- make_P1(bool): if True: make P1 unit cell from primitive cell
+- detect_conn(bool): if True: detect connectivity
+- disorder(dict or None): choose disorder group per each disorder assembly</p>
+<blockquote>
+<div><p>to consider. Use a dictionary of disorder assembly keys to disorder
+group items, e.g. {“A”:”2”, “B”:”3”, “C”:2, …}
+if None: first disordered group in lexical sort is taken per each</p>
+<blockquote>
+<div><p>disorder assembly (e.g. {“A”:”1”, “B”:”1”, …}</p>
+</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.cif.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.cif.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/cif.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.cif.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes a cif file in P1
+:Parameters:</p>
+<blockquote>
+<div><p>-mol (obj) : instance of a molclass
+-f (obj) : file object or writable object</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.formats">
+<span id="molsys-fileio-formats-module"></span><h2><span class="section-number">1.1.1.1.2.5. </span>molsys.fileIO.formats module<a class="headerlink" href="#module-molsys.fileIO.formats" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-molsys.fileIO.lammpstrj">
+<span id="molsys-fileio-lammpstrj-module"></span><h2><span class="section-number">1.1.1.1.2.6. </span>molsys.fileIO.lammpstrj module<a class="headerlink" href="#module-molsys.fileIO.lammpstrj" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.lammpstrj.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.lammpstrj.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triclinic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/lammpstrj.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.lammpstrj.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.lammpstrj.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.lammpstrj.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/lammpstrj.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.lammpstrj.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write lammpstrj to visualize GCMD runs, write lambda into velocities
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.lammpstrj.write_raw">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.lammpstrj.</span></code><code class="sig-name descname"><span class="pre">write_raw</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stepcount</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xyz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lamb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/lammpstrj.html#write_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.lammpstrj.write_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write lammpstrj to visualize GCMD runs, write lambda into velocities
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f<var>name</var></span></kbd></dt>
+<dd><p>(str): name of the xyz file</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.mfpx">
+<span id="molsys-fileio-mfpx-module"></span><h2><span class="section-number">1.1.1.1.2.7. </span>molsys.fileIO.mfpx module<a class="headerlink" href="#module-molsys.fileIO.mfpx" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.mfpx.parse_connstring">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mfpx.</span></code><code class="sig-name descname"><span class="pre">parse_connstring</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">con_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mfpx.html#parse_connstring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mfpx.parse_connstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routines which parses the con_info string of a txyz or an mfpx file
+:Parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mol      (obj) : instance of a molclass</p></li>
+<li><p>con_info (str) : string holding the connectors info</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mfpx.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mfpx.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mfpx.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mfpx.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read mfpx file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj): mfpx file object or mfpx-like readable object</p>
+</dd>
+</dl>
+<p>-mol (obj): instance of a molclass</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mfpx.read_body">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mfpx.</span></code><code class="sig-name descname"><span class="pre">read_body</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cromo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo_new</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mfpx.html#read_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mfpx.read_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads the body of a txyz or a mfpx file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj)  : fileobject</p>
+</dd>
+</dl>
+<p>-natoms (int)  : number of atoms in body
+-frags  (bool) : flag to specify if fragment info is in body or not
+-topo   (bool) : flag to specify if pconn info is in body or not
+-cromo  (bool) : flag to specify if oconn info is in body or not</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mfpx.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mfpx.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fullcell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topoformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'new'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mfpx.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mfpx.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes an mfpx file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj) : instance of a molsys class</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object
+-fullcell  (bool): flag to specify if complete cellvectors arre written</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mfpx.write_body">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mfpx.</span></code><code class="sig-name descname"><span class="pre">write_body</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo_new</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mfpx.html#write_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mfpx.write_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes the body of a txyz or a mfpx file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj)  : fileobject</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj)  : instance of molsys object</p>
+</dd>
+<dt><kbd><span class="option">-f<var>rags</var></span></kbd></dt>
+<dd><p>(bool) : flag to specify if fragment info should be in body or not</p>
+</dd>
+<dt><kbd><span class="option">-t<var>opo</var></span></kbd></dt>
+<dd><p>(bool) : flag to specigy if pconn info should be in body or not</p>
+</dd>
+<dt><kbd><span class="option">-p<var>bc</var></span></kbd></dt>
+<dd><p>(bool) : if False, removes connectivity out of the box (meant for visualization)</p>
+</dd>
+<dt><kbd><span class="option">-p<var>lain</var></span></kbd></dt>
+<dd><p>(bool) : plain Tinker file supported by molden</p>
+</dd>
+</dl>
+<p>-topo_new(bool): if True the new format with skey mapping (hidden in fragnumbers) is written</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.mol2">
+<span id="molsys-fileio-mol2-module"></span><h2><span class="section-number">1.1.1.1.2.8. </span>molsys.fileIO.mol2 module<a class="headerlink" href="#module-molsys.fileIO.mol2" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="molsys.fileIO.mol2.Bunch">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">Bunch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#Bunch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.Bunch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_read_blocks">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_read_blocks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_read_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_read_blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MOL2 body as blocks
+Blocks supported: ATOM, BOND, SUBSTRUCTURE, CRYSIN
+Sharped ends are stored as comments
+Not assignable lines are stored in the anonymous block</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_setup_ATOM">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_setup_ATOM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_setup_ATOM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_setup_ATOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MOL2 ATOM block as mol attributes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_setup_BOND">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_setup_BOND</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_bond</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_setup_BOND"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_setup_BOND" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MOL2 BOND block as mol attributes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_setup_CRYSIN">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_setup_CRYSIN</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_crysin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_setup_CRYSIN"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_setup_CRYSIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MOL2 CRYSIN block as mol attributes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_setup_MOLECULE">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_setup_MOLECULE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_molecule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_setup_MOLECULE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_setup_MOLECULE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MOL2 MOLECULE block as mol attributes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.MOL2_setup_SUBSTRUCTURE">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">MOL2_setup_SUBSTRUCTURE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block_substructure</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#MOL2_setup_SUBSTRUCTURE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.MOL2_setup_SUBSTRUCTURE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup MOL2 SUBSTRUCTURE block as mol attributes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.make_cellparams">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">make_cellparams</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">al</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">be</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ga</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#make_cellparams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.make_cellparams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.make_ctab">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">make_ctab</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">itab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jtab</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#make_ctab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.make_ctab" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.make_elems">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">make_elems</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">anames</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#make_elems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.make_elems" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads a mol2 formatted file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj): mol2 file object</p>
+</dd>
+</dl>
+<p>-mol (obj): instance of a molclass</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.mol2.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.mol2.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/mol2.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.mol2.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write mol sytem in mol2 format
+### NOT YET IMPLEMENTED
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.plain">
+<span id="molsys-fileio-plain-module"></span><h2><span class="section-number">1.1.1.1.2.9. </span>molsys.fileIO.plain module<a class="headerlink" href="#module-molsys.fileIO.plain" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.plain.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.plain.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/plain.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.plain.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads a plain file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj): plain file object</p>
+</dd>
+</dl>
+<p>-mol (obj): instance of a molclass
+-delimiter=’,’ (str): coordinate delimiter</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.plain.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.plain.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/plain.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.plain.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes an xyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.turbo">
+<span id="molsys-fileio-turbo-module"></span><h2><span class="section-number">1.1.1.1.2.10. </span>molsys.fileIO.turbo module<a class="headerlink" href="#module-molsys.fileIO.turbo" title="Permalink to this headline">¶</a></h2>
+<p>Created on Fri Jun  9 18:17:13 2017</p>
+<p>&#64;author: johannes</p>
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajectory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.read_gradfile">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">read_gradfile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#read_gradfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.read_gradfile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.read_trajfile">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">read_trajfile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#read_trajfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.read_trajfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a raw turbomole MD log and get a mol instance including the trajectory</p>
+<p>(JK)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>[</em><a class="reference internal" href="molsys.html#molsys.mol" title="molsys.mol"><em>molsys.mol</em></a><em>]</em>) – [mol instance to write the data to]</p></li>
+<li><p><strong>f</strong> (<em>[</em><em>string</em><em>]</em>) – [basename of the trajectory file]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.read_trajfile_v">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">read_trajfile_v</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#read_trajfile_v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.read_trajfile_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a turbomole MD log and get a mol instance including the trajectory</p>
+<p>(JK)
+The MD log file has to be generated via ‘log2egy -g &gt; foo.bar’, which is a plain xyz file including the gradients as column 4-7
+IMPORTANT NOTE: Beware, development here has stopped due to the ‘gradient’ as they claim, actually is the velocity.</p>
+<blockquote>
+<div><p>We need to grasp the gradient from the raw mdlog files!</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>[</em><a class="reference internal" href="molsys.html#molsys.mol" title="molsys.mol"><em>molsys.mol</em></a><em>]</em>) – [mol instance to write the data to]</p></li>
+<li><p><strong>f</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.9)"><em>type</em></a><em>]</em>) – [file handle]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.turbo.write_gradient">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.turbo.</span></code><code class="sig-name descname"><span class="pre">write_gradient</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/turbo.html#write_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.turbo.write_gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.txyz">
+<span id="molsys-fileio-txyz-module"></span><h2><span class="section-number">1.1.1.1.2.11. </span>molsys.fileIO.txyz module<a class="headerlink" href="#module-molsys.fileIO.txyz" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.txyz.parse_connstring_new">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.txyz.</span></code><code class="sig-name descname"><span class="pre">parse_connstring_new</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">con_info</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/txyz.html#parse_connstring_new"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.txyz.parse_connstring_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routines which parses the con_info string of a txyz or an mfpx file
+:Parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mol      (obj) : instance of a molclass</p></li>
+<li><p>con_info (str) : string holding the connectors info</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.txyz.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.txyz.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/txyz.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.txyz.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads an txyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj) : txyz file object</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj) : instance of a molclass</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.txyz.read_body">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.txyz.</span></code><code class="sig-name descname"><span class="pre">read_body</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">natoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cromo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/txyz.html#read_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.txyz.read_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads the body of a txyz or a mfpx file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj)  : fileobject</p>
+</dd>
+</dl>
+<p>-natoms (int)  : number of atoms in body
+-frags  (bool) : flag to specify if fragment info is in body or not
+-topo   (bool) : flag to specify if pconn info is in body or not
+-cromo  (bool) : flag to specify if oconn info is in body or not</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.txyz.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.txyz.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/txyz.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.txyz.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes an txyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj) : instance of a molclass</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object
+-topo   (bool): flag top specify if pconn should be in txyz file or not</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.txyz.write_body">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.txyz.</span></code><code class="sig-name descname"><span class="pre">write_body</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/txyz.html#write_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.txyz.write_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes the body of a txyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj)  : fileobject</p>
+</dd>
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj)  : instance of molsys object</p>
+</dd>
+<dt><kbd><span class="option">-f<var>rags</var></span></kbd></dt>
+<dd><p>(bool) : flag to specify if fragment info should be in body or not</p>
+</dd>
+<dt><kbd><span class="option">-t<var>opo</var></span></kbd></dt>
+<dd><p>(bool) : flag to specigy if pconn info should be in body or not</p>
+</dd>
+<dt><kbd><span class="option">-p<var>bc</var></span></kbd></dt>
+<dd><p>(bool) : if False, removes connectivity out of the box (meant for visualization)</p>
+</dd>
+<dt><kbd><span class="option">-p<var>lain</var></span></kbd></dt>
+<dd><p>(bool) : plain Tinker file supported by molden</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO.xyz">
+<span id="molsys-fileio-xyz-module"></span><h2><span class="section-number">1.1.1.1.2.12. </span>molsys.fileIO.xyz module<a class="headerlink" href="#module-molsys.fileIO.xyz" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="molsys.fileIO.xyz.read">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.xyz.</span></code><code class="sig-name descname"><span class="pre">read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/xyz.html#read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.xyz.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which reads an xyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-f</span></kbd></dt>
+<dd><p>(obj): xyz file object</p>
+</dd>
+</dl>
+<p>-mol (obj): instance of a molclass</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="molsys.fileIO.xyz.write">
+<code class="sig-prename descclassname"><span class="pre">molsys.fileIO.xyz.</span></code><code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/molsys/fileIO/xyz.html#write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#molsys.fileIO.xyz.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Routine, which writes an xyz file
+:Parameters:</p>
+<blockquote>
+<div><dl class="option-list">
+<dt><kbd><span class="option">-m<var>ol</var></span></kbd></dt>
+<dd><p>(obj): instance of a molclass</p>
+</dd>
+</dl>
+<p>-f (obj) : file object or writable object</p>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-molsys.fileIO">
+<span id="module-contents"></span><h2><span class="section-number">1.1.1.1.2.13. </span>Module contents<a class="headerlink" href="#module-molsys.fileIO" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="molsys.util.html" class="btn btn-neutral float-right" title="1.1.1.1.3. molsys.util package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="molsys.addon.html" class="btn btn-neutral float-left" title="1.1.1.1.1. molsys.addon package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

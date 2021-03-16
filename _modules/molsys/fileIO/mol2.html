@@ -1,0 +1,608 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.fileIO.mol2 &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.fileIO.mol2</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.fileIO.mol2</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="k">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="Bunch"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.Bunch">[docs]</a><span class="k">class</span> <span class="nc">Bunch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span></div>
+
+<span class="c1">### CONSTANTS ###</span>
+
+<span class="n">digits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="s1">&#39;0123456789&#39;</span><span class="p">)</span>
+
+<span class="c1">### molecule ###</span>
+<span class="n">avail_mol_type</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SMALL&#39;</span><span class="p">,</span> <span class="s1">&#39;BIOPOLYMER&#39;</span><span class="p">,</span> <span class="s1">&#39;PROTEIN&#39;</span><span class="p">,</span> <span class="s1">&#39;NUCLEIC_ACID&#39;</span><span class="p">,</span> <span class="s1">&#39;SACCHARIDE&#39;</span><span class="p">]</span>
+<span class="n">avail_mstatus_bits</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid_charges&#39;</span><span class="p">,</span> <span class="s1">&#39;analyzed&#39;</span><span class="p">,</span> <span class="s1">&#39;substituted&#39;</span><span class="p">,</span> <span class="s1">&#39;altered&#39;</span><span class="p">,</span> <span class="s1">&#39;ref_angle&#39;</span><span class="p">]</span>
+<span class="c1">### atom ###</span>
+<span class="n">avail_charge_type</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NO_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;DEL_RE&#39;</span><span class="p">,</span> <span class="s1">&#39;GASTEIGER&#39;</span><span class="p">,</span> <span class="s1">&#39;GAST_HUCK&#39;</span><span class="p">,</span> <span class="s1">&#39;HUCKEL&#39;</span><span class="p">,</span> <span class="s1">&#39;PULLMAN&#39;</span><span class="p">,</span> <span class="s1">&#39;GAUSS80_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;AMPAC_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;MULLIKEN_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;DICT_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;MMFF94_CHARGES&#39;</span><span class="p">,</span> <span class="s1">&#39;USER_CHARGES&#39;</span><span class="p">]</span>
+<span class="c1">### bond ###</span>
+<span class="n">avail_bond_type</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;1&#39;</span> <span class="p">:</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;2&#39;</span> <span class="p">:</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;3&#39;</span> <span class="p">:</span> <span class="s1">&#39;triple&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;am&#39;</span><span class="p">:</span> <span class="s1">&#39;amide&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ar&#39;</span><span class="p">:</span> <span class="s1">&#39;aromatic&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;du&#39;</span><span class="p">:</span> <span class="s1">&#39;dummy&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;un&#39;</span><span class="p">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;nc&#39;</span><span class="p">:</span> <span class="s1">&#39;notconnected&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;po&#39;</span><span class="p">:</span> <span class="s1">&#39;polymeric&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dl&#39;</span><span class="p">:</span> <span class="s1">&#39;delocalized&#39;</span>
+<span class="p">}</span>
+<span class="n">avail_bstatus_bits</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;TYPECOL&#39;</span><span class="p">,</span> <span class="s1">&#39;GROUP&#39;</span><span class="p">,</span> <span class="s1">&#39;CAP&#39;</span><span class="p">,</span> <span class="s1">&#39;BACKBONE&#39;</span><span class="p">,</span> <span class="s1">&#39;DICT&#39;</span><span class="p">,</span> <span class="s1">&#39;INTERRES&#39;</span><span class="p">]</span>
+<span class="c1">### substructure ###</span>
+<span class="n">avail_subst_type</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">,</span> <span class="s1">&#39;perm&#39;</span><span class="p">,</span> <span class="s1">&#39;residue&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;domain&#39;</span><span class="p">]</span>
+<span class="n">avail_subst_status</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;LEAF&#39;</span><span class="p">,</span> <span class="s1">&#39;ROOT&#39;</span><span class="p">,</span> <span class="s1">&#39;TYPECOL&#39;</span><span class="p">,</span> <span class="s1">&#39;DICT&#39;</span><span class="p">,</span> <span class="s1">&#39;BACKWARD&#39;</span><span class="p">,</span> <span class="s1">&#39;BLOCK&#39;</span><span class="p">]</span>
+
+<span class="c1">### MARKERS ### by specification</span>
+<span class="n">markers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;@&lt;TRIPOS&gt;MOLECULE&quot;</span><span class="p">:</span>     <span class="s2">&quot;molecule&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;@&lt;TRIPOS&gt;ATOM&quot;</span><span class="p">:</span>         <span class="s2">&quot;atom&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;@&lt;TRIPOS&gt;BOND&quot;</span><span class="p">:</span>         <span class="s2">&quot;bond&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;@&lt;TRIPOS&gt;SUBSTRUCTURE&quot;</span><span class="p">:</span> <span class="s2">&quot;substructure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;@&lt;TRIPOS&gt;CRYSIN&quot;</span><span class="p">:</span>       <span class="s2">&quot;crysin&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="MOL2_read_blocks"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_read_blocks">[docs]</a><span class="k">def</span> <span class="nf">MOL2_read_blocks</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read MOL2 body as blocks</span>
+<span class="sd">    Blocks supported: ATOM, BOND, SUBSTRUCTURE, CRYSIN</span>
+<span class="sd">    Sharped ends are stored as comments</span>
+<span class="sd">    Not assignable lines are stored in the anonymous block</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">### INITIALIZE ###</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;comments&quot;</span>     <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;anonymous&quot;</span>    <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;molecule&quot;</span>     <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;atom&quot;</span>         <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;bond&quot;</span>         <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;substructure&quot;</span> <span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;crysin&quot;</span>       <span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="c1">### READ ###</span>
+    <span class="n">collector</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;anonymous&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">strip</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">strip</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s1">&#39;#&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">if</span> <span class="n">comment</span><span class="p">:</span>
+            <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">markers</span><span class="p">:</span>
+            <span class="n">collector</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="n">markers</span><span class="p">[</span><span class="n">text</span><span class="p">]]</span>
+            <span class="k">continue</span>
+        <span class="n">collector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">blocks</span></div>
+
+<span class="c1">### MOLECULE ###</span>
+
+<div class="viewcode-block" id="MOL2_setup_MOLECULE"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_setup_MOLECULE">[docs]</a><span class="k">def</span> <span class="nf">MOL2_setup_MOLECULE</span><span class="p">(</span><span class="n">block_molecule</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup MOL2 MOLECULE block as mol attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="c1">### get ###</span>
+    <span class="n">group_molecule</span> <span class="o">=</span> <span class="n">block_molecule</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_molecule</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># by specifications, either both or none</span>
+        <span class="n">mstatus_bits</span> <span class="o">=</span> <span class="n">block_molecule</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">mol_comment</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">block_molecule</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
+    <span class="n">mol_name</span><span class="p">,</span> <span class="n">num_misc</span><span class="p">,</span> <span class="n">mol_type</span><span class="p">,</span> <span class="n">charge_type</span> <span class="o">=</span> <span class="n">group_molecule</span>
+
+    <span class="c1">### edit ###</span>
+    <span class="n">mol_name</span> <span class="o">=</span> <span class="n">mol_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">mol_type</span> <span class="o">=</span> <span class="n">mol_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">charge_type</span> <span class="o">=</span> <span class="n">charge_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">num_misc</span> <span class="o">=</span> <span class="n">num_misc</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="c1">### set ###</span>
+    <span class="n">num_atoms</span><span class="p">,</span> <span class="n">num_bonds</span><span class="p">,</span> <span class="n">num_subst</span><span class="p">,</span> <span class="n">num_feat</span><span class="p">,</span> <span class="n">num_sets</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_misc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_misc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">num_bonds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_misc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_misc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">num_subst</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_misc</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_misc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">num_feat</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="n">num_misc</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_misc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">num_sets</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="n">num_misc</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="c1">### check ###</span>
+    <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mstatus_bits</span><span class="p">))</span> <span class="o">!=</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">mstatus_bits</span> <span class="ow">in</span> <span class="n">avail_mstatus_bits</span>
+    <span class="k">assert</span> <span class="n">mol_type</span> <span class="ow">in</span> <span class="n">avail_mol_type</span>
+    <span class="k">assert</span> <span class="n">charge_type</span> <span class="ow">in</span> <span class="n">avail_charge_type</span>
+
+    <span class="c1">### return ###</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">mol_name</span>    <span class="o">=</span> <span class="n">mol_name</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">num_atoms</span>   <span class="o">=</span> <span class="n">num_atoms</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">num_bonds</span>   <span class="o">=</span> <span class="n">num_bonds</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">num_subst</span>   <span class="o">=</span> <span class="n">num_subst</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">num_feat</span>    <span class="o">=</span> <span class="n">num_feat</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">num_sets</span>    <span class="o">=</span> <span class="n">num_sets</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">mol_type</span>    <span class="o">=</span> <span class="n">mol_type</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">charge_type</span> <span class="o">=</span> <span class="n">charge_type</span>
+    <span class="k">return</span> <span class="n">block</span></div>
+
+<span class="c1">### ATOM ###</span>
+
+<div class="viewcode-block" id="MOL2_setup_ATOM"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_setup_ATOM">[docs]</a><span class="k">def</span> <span class="nf">MOL2_setup_ATOM</span><span class="p">(</span><span class="n">block_atom</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup MOL2 ATOM block as mol attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="c1">### get ###</span>
+    <span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_atom</span><span class="p">)</span>
+    <span class="c1">#assert natoms == num_atoms</span>
+    <span class="n">aidxs</span>    <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">anames</span>   <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">atypes</span>   <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">resids</span>   <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">resnames</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">charges</span>  <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">natoms</span>
+    <span class="n">coords</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">natoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c1">### set ###</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">block_atom</span><span class="p">):</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">aidx</span><span class="p">,</span> <span class="n">aname</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">resname</span><span class="p">,</span> <span class="n">charge</span> <span class="o">=</span> <span class="n">split</span>
+        <span class="n">aidxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">anames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">atypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">resids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">resnames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">charges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aidx</span><span class="p">),</span> <span class="n">aname</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">resid</span><span class="p">),</span> <span class="n">resname</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span>
+        <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+
+    <span class="c1">### check ###</span>
+    <span class="c1"># idxs</span>
+    <span class="k">assert</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">natoms</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">aidxs</span>
+
+    <span class="c1">### edit ###</span>
+    <span class="c1"># back to python indexing</span>
+    <span class="n">aidxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">aidxs</span><span class="p">]</span>
+    <span class="n">resids</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">resids</span><span class="p">]</span>
+
+    <span class="c1">### return ###</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">natoms</span>   <span class="o">=</span> <span class="n">natoms</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">aidxs</span>    <span class="o">=</span> <span class="n">aidxs</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">anames</span>   <span class="o">=</span> <span class="n">anames</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">atypes</span>   <span class="o">=</span> <span class="n">atypes</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">resids</span>   <span class="o">=</span> <span class="n">resids</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">resnames</span> <span class="o">=</span> <span class="n">resnames</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">charges</span>  <span class="o">=</span> <span class="n">charges</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">coords</span>   <span class="o">=</span> <span class="n">coords</span>
+    <span class="k">return</span> <span class="n">block</span></div>
+
+<span class="c1">### BOND ###</span>
+
+<div class="viewcode-block" id="MOL2_setup_BOND"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_setup_BOND">[docs]</a><span class="k">def</span> <span class="nf">MOL2_setup_BOND</span><span class="p">(</span><span class="n">block_bond</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup MOL2 BOND block as mol attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="c1">### get ###</span>
+    <span class="n">nbonds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_bond</span><span class="p">)</span>
+    <span class="c1">#assert nbonds == num_bonds</span>
+    <span class="n">bidxs</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbonds</span>
+    <span class="n">asrcs</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbonds</span>
+    <span class="n">atgts</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbonds</span>
+    <span class="n">btypes</span>        <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbonds</span>
+    <span class="n">bstatus_bitss</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nbonds</span>
+
+    <span class="c1">### set ###</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">block_bond</span><span class="p">):</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">bstatus_bits</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">bidx</span><span class="p">,</span> <span class="n">asrc</span><span class="p">,</span> <span class="n">atgt</span><span class="p">,</span> <span class="n">btype</span> <span class="o">=</span> <span class="n">split</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">bstatus_bits</span> <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bidxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">asrcs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">atgts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">btypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bstatus_bitss</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bidx</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">asrc</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">atgt</span><span class="p">),</span> <span class="n">btype</span><span class="p">,</span> <span class="n">bstatus_bits</span>
+
+    <span class="c1">### check ###</span>
+    <span class="c1"># idxs</span>
+    <span class="k">assert</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nbonds</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">bidxs</span>
+    <span class="c1"># avail</span>
+    <span class="n">notavail_bstatus_bits</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">bstatus_bitss</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">avail_bstatus_bits</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">notavail_bstatus_bits</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;This is not available: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">notavail_bstatus_bits</span>
+    <span class="c1">### edit ###</span>
+    <span class="c1"># back to python indexing</span>
+    <span class="n">bidxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bidxs</span><span class="p">]</span>
+    <span class="n">asrcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">asrcs</span><span class="p">]</span>
+    <span class="n">atgts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">atgts</span><span class="p">]</span>
+
+    <span class="c1">### return ###</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">nbonds</span>        <span class="o">=</span> <span class="n">nbonds</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">bidxs</span>         <span class="o">=</span> <span class="n">bidxs</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">asrcs</span>         <span class="o">=</span> <span class="n">asrcs</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">atgts</span>         <span class="o">=</span> <span class="n">atgts</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">btypes</span>        <span class="o">=</span> <span class="n">btypes</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">bstatus_bitss</span> <span class="o">=</span> <span class="n">bstatus_bitss</span>
+    <span class="k">return</span> <span class="n">block</span></div>
+
+<span class="c1">### SUBSTRUCTURE ###</span>
+
+<div class="viewcode-block" id="MOL2_setup_SUBSTRUCTURE"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_setup_SUBSTRUCTURE">[docs]</a><span class="k">def</span> <span class="nf">MOL2_setup_SUBSTRUCTURE</span><span class="p">(</span><span class="n">block_substructure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup MOL2 SUBSTRUCTURE block as mol attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="c1">### get ###</span>
+    <span class="n">nsubst</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_substructure</span><span class="p">)</span>
+    <span class="c1">#assert nsubst == num_subst</span>
+    <span class="n">sidxs</span>          <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">snames</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">sroots</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">stypes</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">sdicts</span>         <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">schains</span>        <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">sctypes</span>        <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">sninter_bondss</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">sstatuss</span>       <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+    <span class="n">scomments</span>      <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nsubst</span>
+
+    <span class="c1">### set ###</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">block_substructure</span><span class="p">):</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">stype</span><span class="p">,</span> <span class="n">sdict</span><span class="p">,</span> <span class="n">schain</span><span class="p">,</span> <span class="n">sctype</span><span class="p">,</span> <span class="n">sstatus</span><span class="p">,</span> <span class="n">scomment</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">6</span>
+        <span class="n">sninter_bonds</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">sidx</span><span class="p">,</span> <span class="n">sname</span><span class="p">,</span> <span class="n">sroot</span> <span class="o">=</span> <span class="n">split</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">stype</span>         <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">sdict</span>         <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">schain</span>        <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">sctype</span>        <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">sninter_bonds</span> <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">sstatus</span>       <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">scomment</span>      <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="mi">9</span><span class="p">:]</span>
+            <span class="n">scomment</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">scomment</span><span class="p">)</span> <span class="c1"># to recover the space splitted after 9th position</span>
+        <span class="n">sidxs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">snames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sroots</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">stypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sdicts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">schains</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sctypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sninter_bondss</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">sstatuss</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">scomments</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sidx</span><span class="p">),</span> <span class="n">sname</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sroot</span><span class="p">),</span> <span class="n">stype</span><span class="p">,</span> <span class="n">sdict</span><span class="p">,</span> <span class="n">schain</span><span class="p">,</span> <span class="n">sctype</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sninter_bonds</span><span class="p">),</span> <span class="n">sstatus</span><span class="p">,</span> <span class="n">scomment</span>
+
+    <span class="c1">### check ###</span>
+    <span class="c1"># idxs</span>
+    <span class="k">assert</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nsubst</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">sidxs</span>
+    <span class="c1"># avail</span>
+    <span class="c1">#avail_subst_type #todo</span>
+    <span class="c1">#avail_subst_status #todo</span>
+    <span class="c1">### edit ###</span>
+    <span class="c1"># back to python indexing</span>
+    <span class="n">sidxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sidxs</span><span class="p">]</span>
+    <span class="n">sroots</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sroots</span><span class="p">]</span>
+
+    <span class="c1">### return ###</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">nsubst</span>         <span class="o">=</span> <span class="n">nsubst</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sidxs</span>          <span class="o">=</span> <span class="n">sidxs</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">snames</span>         <span class="o">=</span> <span class="n">snames</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sroots</span>         <span class="o">=</span> <span class="n">sroots</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">stypes</span>         <span class="o">=</span> <span class="n">stypes</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sdicts</span>         <span class="o">=</span> <span class="n">sdicts</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">schains</span>        <span class="o">=</span> <span class="n">schains</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sctypes</span>        <span class="o">=</span> <span class="n">sctypes</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sninter_bondss</span> <span class="o">=</span> <span class="n">sninter_bondss</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">sstatuss</span>       <span class="o">=</span> <span class="n">sstatuss</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">scomments</span>      <span class="o">=</span> <span class="n">scomments</span>
+    <span class="k">return</span> <span class="n">block</span></div>
+
+<span class="c1">### CRYSIN ###</span>
+
+<div class="viewcode-block" id="MOL2_setup_CRYSIN"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.MOL2_setup_CRYSIN">[docs]</a><span class="k">def</span> <span class="nf">MOL2_setup_CRYSIN</span><span class="p">(</span><span class="n">block_crysin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Setup MOL2 CRYSIN block as mol attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="c1">### get ###</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_crysin</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max lenght is 1 for block crysin&quot;</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">spgn</span><span class="p">,</span> <span class="n">spgx</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_crysin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">block_crysin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">spgn</span><span class="p">,</span> <span class="n">spgx</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">spgn</span><span class="p">,</span> <span class="n">spgx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">beta</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">gamma</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">spgn</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">spgx</span><span class="p">)</span>
+
+    <span class="c1">### return ###</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">a</span>     <span class="o">=</span> <span class="n">a</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">b</span>     <span class="o">=</span> <span class="n">b</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">c</span>     <span class="o">=</span> <span class="n">c</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">beta</span>  <span class="o">=</span> <span class="n">beta</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">spgn</span>  <span class="o">=</span> <span class="n">spgn</span>
+    <span class="n">block</span><span class="o">.</span><span class="n">spgx</span>  <span class="o">=</span> <span class="n">spgx</span>
+    <span class="k">return</span> <span class="n">block</span></div>
+
+<div class="viewcode-block" id="make_elems"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.make_elems">[docs]</a><span class="k">def</span> <span class="nf">make_elems</span><span class="p">(</span><span class="n">anames</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39; &#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">digits</span> <span class="k">else</span> <span class="n">i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">aname</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="n">anames</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="make_ctab"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.make_ctab">[docs]</a><span class="k">def</span> <span class="nf">make_ctab</span><span class="p">(</span><span class="n">itab</span><span class="p">,</span> <span class="n">jtab</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">itab</span><span class="p">,</span> <span class="n">jtab</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="make_cellparams"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.make_cellparams">[docs]</a><span class="k">def</span> <span class="nf">make_cellparams</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">al</span><span class="p">,</span> <span class="n">be</span><span class="p">,</span> <span class="n">ga</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">al</span><span class="p">,</span> <span class="n">be</span><span class="p">,</span> <span class="n">ga</span><span class="p">]</span></div>
+
+<span class="c1">### SETUP ###</span>
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Routine, which reads a mol2 formatted file</span>
+<span class="sd">    :Parameters:</span>
+<span class="sd">        -f   (obj): mol2 file object</span>
+<span class="sd">        -mol (obj): instance of a molclass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">### read check ###</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">readline</span> <span class="c1">### do nothing</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not readable&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+    <span class="c1">### read func ###</span>
+    <span class="c1">### blocks reading ###</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">MOL2_read_blocks</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">_molecule</span>     <span class="o">=</span> <span class="n">MOL2_setup_MOLECULE</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;molecule&quot;</span><span class="p">])</span>
+    <span class="n">_atom</span>         <span class="o">=</span> <span class="n">MOL2_setup_ATOM</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;atom&quot;</span><span class="p">])</span>
+    <span class="n">_bond</span>         <span class="o">=</span> <span class="n">MOL2_setup_BOND</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;bond&quot;</span><span class="p">])</span>
+    <span class="n">_substructure</span> <span class="o">=</span> <span class="n">MOL2_setup_SUBSTRUCTURE</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;substructure&quot;</span><span class="p">])</span>
+    <span class="n">_crysin</span>       <span class="o">=</span> <span class="n">MOL2_setup_CRYSIN</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;crysin&quot;</span><span class="p">])</span>
+    <span class="c1">### assertions ###</span>
+    <span class="k">assert</span> <span class="n">_molecule</span><span class="o">.</span><span class="n">num_atoms</span> <span class="o">==</span> <span class="n">_atom</span><span class="o">.</span><span class="n">natoms</span>
+    <span class="k">assert</span> <span class="n">_molecule</span><span class="o">.</span><span class="n">num_bonds</span> <span class="o">==</span> <span class="n">_bond</span><span class="o">.</span><span class="n">nbonds</span>
+    <span class="k">assert</span> <span class="n">_molecule</span><span class="o">.</span><span class="n">num_subst</span> <span class="o">==</span> <span class="n">_substructure</span><span class="o">.</span><span class="n">nsubst</span>
+    <span class="c1">### making ###</span>
+    <span class="n">cellparams</span> <span class="o">=</span> <span class="n">make_cellparams</span><span class="p">(</span><span class="n">_crysin</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">make_elems</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">anames</span><span class="p">)</span>
+    <span class="n">ctab</span> <span class="o">=</span> <span class="n">make_ctab</span><span class="p">(</span><span class="n">_bond</span><span class="o">.</span><span class="n">asrcs</span><span class="p">,</span> <span class="n">_bond</span><span class="o">.</span><span class="n">atgts</span><span class="p">)</span>
+    <span class="c1">### setting ###</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_natoms</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_xyz</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_elems</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_atypes</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">atypes</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_fragtypes</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">resnames</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_fragnumbers</span><span class="p">(</span><span class="n">_atom</span><span class="o">.</span><span class="n">resids</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_ctab</span><span class="p">(</span><span class="n">ctab</span><span class="p">,</span> <span class="n">conn_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">cellparams</span><span class="p">):</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">set_cellparams</span><span class="p">(</span><span class="n">cellparams</span><span class="p">)</span>
+        <span class="c1">### TODO: investigate spgn &gt; 231</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">_crysin</span><span class="o">.</span><span class="n">spgn</span> <span class="o">&lt;</span> <span class="mi">231</span><span class="p">:</span> <span class="c1"># not P1 -&gt; apply spg operators</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;spg&quot;</span><span class="p">)</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">spg</span><span class="o">.</span><span class="n">make_P1</span><span class="p">(</span><span class="n">spgnum</span><span class="o">=</span><span class="n">_crysin</span><span class="o">.</span><span class="n">spgn</span><span class="p">,</span> <span class="n">sg_setting</span><span class="o">=</span><span class="n">_crysin</span><span class="o">.</span><span class="n">spgx</span><span class="p">)</span>
+    <span class="c1">### keeping ###</span>
+    <span class="n">MOL2_blocks</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+    <span class="n">MOL2_blocks</span><span class="o">.</span><span class="n">molecule</span>     <span class="o">=</span> <span class="n">_molecule</span>
+    <span class="n">MOL2_blocks</span><span class="o">.</span><span class="n">atom</span>         <span class="o">=</span> <span class="n">_atom</span>
+    <span class="n">MOL2_blocks</span><span class="o">.</span><span class="n">bond</span>         <span class="o">=</span> <span class="n">_bond</span>
+    <span class="n">MOL2_blocks</span><span class="o">.</span><span class="n">substructure</span> <span class="o">=</span> <span class="n">_substructure</span>
+    <span class="n">MOL2_blocks</span><span class="o">.</span><span class="n">crysin</span>       <span class="o">=</span> <span class="n">_crysin</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">MOL2_blocks</span> <span class="o">=</span> <span class="n">MOL2_blocks</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="write"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.mol2.write">[docs]</a><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write mol sytem in mol2 format</span>
+<span class="sd">    ### NOT YET IMPLEMENTED</span>
+<span class="sd">    :Parameters:</span>
+<span class="sd">        -mol    (obj): instance of a molclass</span>
+<span class="sd">        -f (obj) : file object or writable object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">### write check ###</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span> <span class="c1">### do nothing</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not writable&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+    <span class="c1">### write func ###</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;NOT YET IMPLEMENTED!&#39;</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

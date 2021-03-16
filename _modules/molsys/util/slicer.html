@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.slicer &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.slicer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.slicer</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Wed Nov  8 17:09:25 2017</span>
+
+<span class="sd">        slicer</span>
+<span class="sd">        </span>
+<span class="sd">        class to take a mol object and truncate it by a number predefined slicing planes</span>
+<span class="sd">        - can be used to make slabs </span>
+<span class="sd">        - or nano-particles of arbitrary shape</span>
+
+<span class="sd">        planes are defined by a vector (to which these planes are orthogonal) and a distance from the origin </span>
+<span class="sd">        the vector is given in hkl indices and a relative distance.</span>
+<span class="sd">         example: [1,0,0] is the 100 plane .. [2,0,0] the 200 plane</span>
+<span class="sd">         but with [1,0,0] and a distance of 2 also the 200 plane can be defined</span>
+
+<span class="sd">@author: rochus</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">molsys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="slicer"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.slicer.slicer">[docs]</a><span class="k">class</span> <span class="nc">slicer</span><span class="p">:</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">orig_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_factor</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plane_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stubs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># calibrate what is the origin of the initial system</span>
+        <span class="k">if</span> <span class="n">orig_atoms</span><span class="p">:</span>
+            <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">orig_atoms</span><span class="p">:</span>
+                <span class="n">shift</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">shift</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_atoms</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="n">shift</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">wrap_in_box</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_factor</span> <span class="o">=</span> <span class="n">cell_factor</span>
+        <span class="k">return</span>
+    
+<div class="viewcode-block" id="slicer.set_stub"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.slicer.slicer.set_stub">[docs]</a>    <span class="k">def</span> <span class="nf">set_stub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="n">new_elem</span><span class="p">,</span> <span class="n">new_atype</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">plane_name</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stubs</span><span class="p">[</span><span class="n">atype</span><span class="o">+</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">plane_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_elem</span><span class="p">,</span> <span class="n">new_atype</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+        <span class="k">return</span></div>
+    
+<div class="viewcode-block" id="slicer.set_plane"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.slicer.slicer.set_plane">[docs]</a>    <span class="k">def</span> <span class="nf">set_plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hkl</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;plane&quot;</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set a plane by hkl and dist, if symm is true a second plane with dist = -dist is added</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            hkl (list): hkl indices as a list</span>
+<span class="sd">            name (string, optional): Defaults to &quot;plane&quot;. name of the plane</span>
+<span class="sd">            dist (float, optional): Defaults to None. distance from origin</span>
+<span class="sd">            symm (bool, optional): Defaults to False. add another plane at -dist if True</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">hkl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hkl</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">hkl</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dist</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="n">vect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">hkl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vect</span><span class="o">*</span><span class="n">dist</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plane_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">symm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vect</span><span class="o">*-</span><span class="n">dist</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plane_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span></div>
+    
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">supercell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">orig</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_dist</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">orig</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">supercell</span><span class="p">:</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">supercell</span><span class="p">)</span>
+        <span class="n">delete</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">stubs</span>  <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span> <span class="o">-</span> <span class="n">shift</span>
+        <span class="n">periodic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">ip</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">planes</span><span class="p">):</span>
+            <span class="n">pname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plane_names</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+            <span class="c1"># run over all planes and find those atoms to be sliced </span>
+            <span class="c1"># at the same time detect those to be fixed with a stub</span>
+            <span class="n">distp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">p</span><span class="o">*</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+            <span class="n">normp</span> <span class="o">=</span> <span class="n">p</span><span class="o">/</span><span class="n">distp</span>
+            <span class="n">proj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">normp</span><span class="p">)</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">(</span><span class="n">proj</span><span class="p">,</span> <span class="n">distp</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">flags</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="c1"># atom i is outside the slicing panes and needs to be removed (if it is not alread to be deleted)</span>
+                    <span class="k">if</span> <span class="n">delete</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="c1"># now test all atoms bonded to i if they are to be deleted as well</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                                <span class="c1"># compute normal vector from j to i </span>
+                                <span class="n">vect</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">xyz</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                <span class="n">dvect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">vect</span><span class="o">*</span><span class="n">vect</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+                                <span class="n">vect</span> <span class="o">=</span> <span class="n">vect</span><span class="o">/</span><span class="n">dvect</span>
+                                <span class="k">if</span> <span class="n">dvect</span> <span class="o">&lt;</span> <span class="n">max_dist</span><span class="p">:</span>
+                                    <span class="n">stubs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="p">,</span> <span class="n">vect</span><span class="p">,</span> <span class="n">pname</span><span class="p">))</span>
+            <span class="c1"># no test which dimension this plane cuts</span>
+            <span class="n">periodic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span><span class="n">periodic</span><span class="p">)</span>
+        <span class="c1"># now add stubs (only those registered)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stubs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stubs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">delete</span><span class="p">:</span>
+                <span class="n">at</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_atypes</span><span class="p">()[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">stub_name</span> <span class="o">=</span> <span class="n">at</span><span class="o">+</span><span class="s2">&quot;_&quot;</span><span class="o">+</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">stub_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">stub_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stubs</span><span class="p">:</span>
+                    <span class="n">sel</span><span class="p">,</span> <span class="n">sat</span><span class="p">,</span> <span class="n">sdist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stubs</span><span class="p">[</span><span class="n">stub_name</span><span class="p">]</span>
+                    <span class="c1"># to compute the new position we need sdist times the unit vect plus the overall shift</span>
+                    <span class="n">spos</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">+</span><span class="n">sdist</span><span class="o">*</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">shift</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">sat</span><span class="p">,</span> <span class="n">spos</span><span class="p">)</span>
+                    <span class="c1"># print(&quot;adding bond between %d %s and %d %s&quot; % (s[0], self.mol.elems[s[0]], k, self.mol.elems[k]))</span>
+                    <span class="n">mol</span><span class="o">.</span><span class="n">add_bonds</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+        <span class="c1"># now all is parsed and we can remove the corresponding atoms</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">delete_atoms</span><span class="p">(</span><span class="n">delete</span><span class="p">)</span> 
+        <span class="c1"># now add an offset to the cell for all nonperiodic dims</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">periodic</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">:</span>
+                <span class="n">cell</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="c1"># now regenerate the pconn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">add_pconn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">mol</span></div>
+    
+    
+        
+        
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

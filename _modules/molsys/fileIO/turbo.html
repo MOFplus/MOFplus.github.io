@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.fileIO.turbo &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.fileIO.turbo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.fileIO.turbo</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python2</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Fri Jun  9 18:17:13 2017</span>
+
+<span class="sd">@author: johannes</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">molsys.util.units</span> <span class="k">import</span> <span class="n">angstrom</span><span class="p">,</span> <span class="n">kcalmol</span>
+
+<div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">trajectory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cycle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1">### read check ###</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">readline</span> <span class="c1">### do nothing</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not readable&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+    <span class="c1">### read func ###</span>
+    <span class="k">if</span> <span class="n">gradient</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">read_gradfile</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">cycle</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">trajectory</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">read_trajfile</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">sline</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sline</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;$coord&quot;</span><span class="p">:</span> 
+                <span class="n">coord</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coord</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">coord</span><span class="p">:</span>
+            <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sline</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
+            <span class="n">elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sline</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span><span class="o">/</span><span class="n">angstrom</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">atypes</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_empty_conn</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="read_trajfile_v"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.read_trajfile_v">[docs]</a><span class="k">def</span> <span class="nf">read_trajfile_v</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a turbomole MD log and get a mol instance including the trajectory</span>
+<span class="sd">    </span>
+<span class="sd">    (JK)</span>
+<span class="sd">    The MD log file has to be generated via &#39;log2egy -g &gt; foo.bar&#39;, which is a plain xyz file including the gradients as column 4-7</span>
+<span class="sd">    IMPORTANT NOTE: Beware, development here has stopped due to the &#39;gradient&#39; as they claim, actually is the velocity.</span>
+<span class="sd">                    We need to grasp the gradient from the raw mdlog files!</span>
+<span class="sd">    Args:</span>
+<span class="sd">        mol ([molsys.mol]): [mol instance to write the data to]</span>
+<span class="sd">        f ([type]): [file handle]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">timestep</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elems</span>    <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">energy</span>   <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xyz</span>      <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">grad</span>     <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">counter</span>  <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">found</span>    <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">### get how many cylces are in the file</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">xreadlines</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span><span class="n">natoms</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">);</span> <span class="k">continue</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">ls</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;PE&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">energy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">timestep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span><span class="o">/</span><span class="n">femtosecond</span><span class="p">)</span>
+            <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="n">grad</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xyz</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]])</span>
+            <span class="n">grad</span><span class="p">[</span><span class="n">counter</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">[</span><span class="mi">5</span><span class="p">:]])</span>
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">lems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="n">natoms</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">angstrom</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">atypes</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_empty_conn</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">angstrom</span><span class="o">/</span><span class="n">kcalmol</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">/</span><span class="n">kcalmol</span></div>
+
+<div class="viewcode-block" id="read_trajfile"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.read_trajfile">[docs]</a><span class="k">def</span> <span class="nf">read_trajfile</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a raw turbomole MD log and get a mol instance including the trajectory</span>
+<span class="sd">    </span>
+<span class="sd">    (JK)</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        mol ([molsys.mol]): [mol instance to write the data to]</span>
+<span class="sd">        f ([string]): [basename of the trajectory file]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="n">trajfiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;py&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
+    <span class="n">timestep</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elems</span>    <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">energy</span>   <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xyz</span>      <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">vel</span>      <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">grad</span>     <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">counter</span>  <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">found</span>    <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">### get how many cylces are in the file</span>
+    <span class="k">for</span> <span class="n">i_t</span><span class="p">,</span> <span class="n">traj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">trajfiles</span><span class="p">):</span>
+        <span class="c1">#print &#39;reading %s (%d/%d)&#39; % (traj,i_t+1,len(trajfiles))</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f_text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">$end&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;$current&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">f_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;t=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">$end&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i_f</span><span class="p">,</span><span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frames</span><span class="p">):</span>
+            <span class="n">natoms</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">_xyz</span><span class="p">,</span> <span class="n">_vel</span><span class="p">,</span> <span class="n">_grad</span><span class="p">,</span><span class="n">_E</span> <span class="o">=</span> <span class="n">_read_single_traj_entry</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="n">grad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_grad</span><span class="p">)</span>
+            <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_xyz</span><span class="p">)</span>
+            <span class="n">vel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_vel</span><span class="p">)</span>
+            <span class="n">energy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_E</span><span class="p">)</span>
+    <span class="n">xyz</span><span class="p">,</span><span class="n">vel</span><span class="p">,</span><span class="n">grad</span><span class="p">,</span><span class="n">energy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vel</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grad</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="n">natoms</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">trajectory</span>  <span class="o">=</span> <span class="n">xyz</span> <span class="o">/</span> <span class="n">angstrom</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">gradients</span>  <span class="o">=</span> <span class="n">grad</span> <span class="o">/</span> <span class="p">(</span><span class="n">kcalmol</span> <span class="o">/</span> <span class="n">angstrom</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">velocities</span> <span class="o">=</span> <span class="n">vel</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">2187.69</span><span class="p">)</span>  <span class="c1">## v_au to angstrom/fs</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">energy</span><span class="o">/</span><span class="n">kcalmol</span>
+    <span class="c1">#print &#39;gradients  :    mol.gradients&#39;</span>
+    <span class="c1">#print &#39;trajectory :    mol.trajectory&#39;</span>
+    <span class="c1">#print &#39;velocities :    mol.velocities&#39;</span>
+    <span class="c1">#print &#39;energies   :    mol.energies&#39;</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">atypes</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_empty_conn</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">angstrom</span><span class="o">/</span><span class="n">kcalmol</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<span class="k">def</span> <span class="nf">_read_single_traj_entry</span><span class="p">(</span><span class="n">trajtext</span><span class="p">):</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">trajtext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">## chop off last element ( == &#39;&#39;)</span>
+    <span class="n">natoms</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">ts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">natoms</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">XYZ</span><span class="p">])</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">XYZ</span><span class="p">]</span>
+    <span class="n">VEL</span> <span class="o">=</span> <span class="n">ts</span><span class="p">[</span><span class="n">natoms</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">natoms</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">vel</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">VEL</span><span class="p">])</span>
+    <span class="n">E</span><span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">natoms</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">GRAD</span><span class="o">=</span> <span class="n">ts</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">natoms</span><span class="o">+</span><span class="mi">3</span><span class="p">:]</span>
+    <span class="n">grad</span><span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">GRAD</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">natoms</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">xyz</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span><span class="n">E</span>
+
+
+<div class="viewcode-block" id="read_gradfile"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.read_gradfile">[docs]</a><span class="k">def</span> <span class="nf">read_gradfile</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+    <span class="n">elems</span>    <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xyz</span>      <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">grad</span>     <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ncycle</span>   <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">found</span>    <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">### get how many cylces are in the file</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">sline</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span><span class="p">:</span> <span class="n">ncycle</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">scycle</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncycle</span><span class="p">)[</span><span class="n">cycle</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">sline</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">sline</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">scycle</span><span class="p">:</span>
+            <span class="c1">### found read in </span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sline</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+            <span class="n">found</span>  <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">sline</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">sline</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">-</span><span class="mi">1</span> <span class="o">!=</span> <span class="n">scycle</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1">### coord info</span>
+                <span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sline</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
+                <span class="n">elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sline</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sline</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1">### grad info</span>
+                <span class="c1">#grad.append([lambda a: float(a.replace(&quot;D&quot;,&quot;E&quot;))(i) for i in sline[:3]])</span>
+                <span class="n">grad</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;E&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sline</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span><span class="o">/</span><span class="n">angstrom</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">atypes</span> <span class="o">=</span> <span class="n">elems</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_empty_conn</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">gradient</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">angstrom</span><span class="o">/</span><span class="n">kcalmol</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="o">/</span><span class="n">kcalmol</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="write"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.write">[docs]</a><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">energy</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">cycle</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="c1">### write check ###</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span> <span class="c1">### do nothing</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not writable&quot;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gradient</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">write_gradient</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gradient</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="c1">### write func ###</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$coord</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span><span class="o">*</span><span class="n">angstrom</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%19.14f</span><span class="s2"> </span><span class="si">%19.14f</span><span class="s2"> </span><span class="si">%19.14f</span><span class="s2">   </span><span class="si">%-2s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> 
+                <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$end</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="write_gradient"><a class="viewcode-back" href="../../../_api/molsys.fileIO.html#molsys.fileIO.turbo.write_gradient">[docs]</a><span class="k">def</span> <span class="nf">write_gradient</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">gradient</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+    <span class="c1">## TBI: make append mode (no cycle needed) : read until $end .. overwrite and add $end and circle +=1</span>
+    <span class="n">gradient</span> <span class="o">*=</span> <span class="p">(</span><span class="n">kcalmol</span><span class="o">/</span><span class="n">angstrom</span><span class="p">)</span>
+    <span class="n">energy</span>   <span class="o">*=</span> <span class="n">kcalmol</span>
+    <span class="n">gradnorm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  cycle = </span><span class="si">%3d</span><span class="s2">   SCF energy = </span><span class="si">%12.6f</span><span class="s2">   |dE/dxyz| = </span><span class="si">%12.6f</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cycle</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">gradnorm</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">xyz</span><span class="o">*</span><span class="n">angstrom</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  </span><span class="si">%19.14f</span><span class="s2"> </span><span class="si">%19.14f</span><span class="s2"> </span><span class="si">%19.14f</span><span class="s2">   </span><span class="si">%-2s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> 
+                <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="s2">&quot;  </span><span class="si">%25.15G</span><span class="s2"> </span><span class="si">%25.15G</span><span class="s2"> </span><span class="si">%25.15G</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">gradient</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">))</span>
+    <span class="k">return</span>    </div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

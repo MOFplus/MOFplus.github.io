@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.misc &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.misc</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.misc</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">linear_sum_assignment</span> <span class="k">as</span> <span class="n">hungarian</span> <span class="c1"># for comparison</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">cmp_to_key</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="n">digs</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="c1"># max base == 26</span>
+
+<span class="c1">### SORTING ####################################################################</span>
+
+<div class="viewcode-block" id="sort_by_columns"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.sort_by_columns">[docs]</a><span class="k">def</span> <span class="nf">sort_by_columns</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">vf</span><span class="o">=</span><span class="s1">&#39;&lt;f8&#39;</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">argsort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;sorts by columns in ascending order (the 1st, the 2nd, the 3rd...)</span>
+<span class="sd">    keeping rows. No straightforward way to do that in simple numpy.</span>
+<span class="sd">    Arbitrary number of columns. It works with float by default.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">vfmt</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">vf</span><span class="p">]</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">ofmt</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">of</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">newarr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sortd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">newarr</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">vfmt</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">ofmt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">argsort</span><span class="p">:</span>
+        <span class="n">argsortd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">newarr</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">vfmt</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">ofmt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">sortd</span> <span class="o">==</span> <span class="n">newarr</span><span class="p">[</span><span class="n">argsortd</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sortd</span><span class="p">,</span> <span class="n">argsortd</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sortd</span></div>
+
+<div class="viewcode-block" id="argsort_by_columns"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.argsort_by_columns">[docs]</a><span class="k">def</span> <span class="nf">argsort_by_columns</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">vf</span><span class="o">=</span><span class="s1">&#39;&lt;f8&#39;</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;sorts by columns in ascending order (the 1st, the 2nd, the 3rd...)</span>
+<span class="sd">    keeping rows. No straightforward way to do that in simple numpy.</span>
+<span class="sd">    Arbitrary number of columns. It works with float by default.&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">vfmt</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">vf</span><span class="p">]</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">ofmt</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">of</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">newarr</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">argsortd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">newarr</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">vfmt</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">ofmt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+        <span class="n">sortd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">newarr</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">vfmt</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="n">ofmt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">sortd</span> <span class="o">==</span> <span class="n">newarr</span><span class="p">[</span><span class="n">argsortd</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">sortd</span><span class="p">,</span> <span class="n">argsortd</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">argsortd</span></div>
+
+<div class="viewcode-block" id="sort_by_columns_in_place"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.sort_by_columns_in_place">[docs]</a><span class="k">def</span> <span class="nf">sort_by_columns_in_place</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">vf</span><span class="o">=</span><span class="s1">&#39;&lt;f8&#39;</span><span class="p">,</span> <span class="n">of</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;sorts by columns in ascending order (the 1st, the 2nd, the 3rd...)</span>
+<span class="sd">    keeping rows. No straightforward way to do that in simple numpy.</span>
+<span class="sd">    Arbitrary number of columns. It works with float by default.</span>
+<span class="sd">    In place! Faster! Returns None!&quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">vfmt</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">vf</span><span class="p">]</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">ofmt</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">of</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">vfmt</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="n">ofmt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="argsorted"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.argsorted">[docs]</a><span class="k">def</span> <span class="nf">argsorted</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="nb">cmp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the index that would sort a sequence. (python2.7 fashion)</span>
+
+<span class="sd">    Instead of numpy.argsort, it allows to define optional arguments of sorted</span>
+<span class="sd">    seq: the sequence to be argsorted</span>
+<span class="sd">    cmp (function): custom comparison of two arguments of the sequence which should</span>
+<span class="sd">        return negative/zero/positive number whether the first argument is</span>
+<span class="sd">        considered lower/equal to/greater than the second</span>
+<span class="sd">    key (function): function used to extract a comparison key from each list element</span>
+<span class="sd">    reverse (bool): as if sorting had reverse comparison</span>
+<span class="sd">    sort_flag (bool): if True: sort sequence in place as the standard `sort` method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">argsorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)),</span> <span class="nb">cmp</span><span class="o">=</span><span class="nb">cmp</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">seq</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="c1">### python3</span>
+            <span class="k">if</span> <span class="nb">cmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">argsorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)),</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">seq</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">argsorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)),</span> <span class="nb">cmp</span><span class="o">=</span><span class="nb">cmp</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">key</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="c1">### python3</span>
+            <span class="k">if</span> <span class="nb">cmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">argsorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">)),</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">key</span><span class="p">(</span><span class="n">seq</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="p">)</span>
+    <span class="k">if</span> <span class="n">sort_flag</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">seq</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="nb">cmp</span><span class="o">=</span><span class="nb">cmp</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> <span class="c1">### python3</span>
+            <span class="k">if</span> <span class="nb">cmp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">seq</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">argsorted</span></div>
+
+<span class="c1">### COMPARE COORDINATES ########################################################</span>
+
+<div class="viewcode-block" id="compare_coords"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.compare_coords">[docs]</a><span class="k">def</span> <span class="nf">compare_coords</span><span class="p">(</span><span class="n">xyzi</span><span class="p">,</span> <span class="n">xyzj</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-03</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-03</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare same-shape arrays to get</span>
+<span class="sd">    This algorithm is more robust than previous comparison implementations</span>
+<span class="sd">    like lexical sort or numpy viewing. It may not be robust for overlapping atoms</span>
+
+<span class="sd">    :Parameters:</span>
+<span class="sd">    - xyzi (numpy array): coordinates of the first species</span>
+<span class="sd">    - xyzj (numpy array): coordinates of the second species</span>
+<span class="sd">    - rtol=.001 (float) relative tolerance for comparison</span>
+<span class="sd">    - atol=.001 (float) absolute tolerance for comparison</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ish</span> <span class="o">=</span> <span class="n">xyzi</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">jsh</span> <span class="o">=</span> <span class="n">xyzj</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">assert</span> <span class="n">ish</span> <span class="o">==</span> <span class="n">jsh</span><span class="p">,</span> <span class="s2">&quot;Shape mismatch not supported: </span><span class="si">%s</span><span class="s2"> != </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ish</span><span class="p">,</span> <span class="n">jsh</span><span class="p">)</span>
+    <span class="n">dist_xyz</span> <span class="o">=</span> <span class="n">xyzi</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">-</span><span class="n">xyzj</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+    <span class="n">dist_xyz</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">dist_xyz</span><span class="p">)</span> <span class="c1">### pbc</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dist_xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">idxi</span><span class="p">,</span> <span class="n">idxj</span> <span class="o">=</span> <span class="n">hungarian</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">idxi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">idxi</span><span class="o">.</span><span class="n">size</span><span class="p">)),</span> <span class="s2">&quot;Unexpected hungarian return&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">dist</span><span class="p">[</span><span class="n">idxi</span><span class="p">,</span><span class="n">idxj</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ish</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">idxj</span><span class="p">)</span> <span class="c1"># so truth value is unambigous</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<span class="c1">### RATIO NORMALIZATION ########################################################</span>
+
+<div class="viewcode-block" id="normalize_ratio"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.normalize_ratio">[docs]</a><span class="k">def</span> <span class="nf">normalize_ratio</span><span class="p">(</span><span class="n">cratio</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; TBI: update documentation! this is not only for colors! [RA]</span>
+<span class="sd">    return normalized color ratio so that:</span>
+<span class="sd">        the total number of elements (edges or vertices) is colored and</span>
+<span class="sd">        the actual (float) ratio among colors is close to the given (int) ratio.</span>
+<span class="sd">    It implements D&#39;Hondt&#39;s quotients internally. Credits: https://github.com/rg3</span>
+<span class="sd">    N.B.: in case of &quot;ties&quot;, the latter color gets the higher ratio of</span>
+<span class="sd">    elements. (this is consistent AND reproducible!)</span>
+<span class="sd">    </span>
+<span class="sd">    :Parameters:</span>
+<span class="sd">     - cratio (list of ints): color ratio</span>
+<span class="sd">     - total (int): total number of elements to color with given ratio</span>
+<span class="sd">    :Returns:</span>
+<span class="sd">     - norm_cratio (list of ints): color ratio normalized wrt. elements</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">dhondt_quotient</span><span class="p">(</span><span class="n">cratio</span><span class="p">,</span> <span class="n">subtotal</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">cratio</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">subtotal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># calculate the quotients matrix (list in this case)</span>
+    <span class="n">dict_cratio</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">cratio</span><span class="p">))</span>
+    <span class="n">quot</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ret</span> <span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dict_cratio</span><span class="p">:</span>
+        <span class="n">ret</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">dhondt_quotient</span><span class="p">(</span><span class="n">dict_cratio</span><span class="p">[</span><span class="n">p</span><span class="p">],</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">quot</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+    <span class="c1"># sort the quotients by value</span>
+    <span class="n">quot</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># take the highest quotients with the assigned parties</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+        <span class="n">ret</span><span class="p">[</span><span class="n">quot</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">norm_cratio</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">norm_cratio</span> <span class="c1"># already ordered</span></div>
+
+<span class="c1">### NATURAL NUMBERS ON A SPHERE ################################################</span>
+
+<div class="viewcode-block" id="triplenats_on_sphere"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.triplenats_on_sphere">[docs]</a><span class="k">def</span> <span class="nf">triplenats_on_sphere</span><span class="p">(</span><span class="n">trisum</span><span class="p">,</span> <span class="n">trimin</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;returns triplets of natural numbers on a sphere</span>
+<span class="sd">    trisum(int):the summation of the triples must be equal to trisum</span>
+<span class="sd">    trimin(int):minimum allowed natural per triplet element (default: 1)&quot;&quot;&quot;</span>
+    <span class="n">trinat</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">itri</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">trimin</span><span class="p">,</span> <span class="n">trisum</span><span class="p">),</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">itri</span><span class="p">)</span> <span class="o">==</span> <span class="n">trisum</span><span class="p">:</span>
+            <span class="n">trinat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">itri</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">trinat</span></div>
+
+<span class="c1">### ARBITRARY NUMBER BASE CONVERTION ###########################################</span>
+
+<div class="viewcode-block" id="int2base"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.int2base">[docs]</a><span class="k">def</span> <span class="nf">int2base</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;credits: A. Martelli&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maximum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">int2base_spaced</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">maximum</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">base</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digs</span><span class="p">),</span> <span class="s2">&quot;Not enough digits&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">digs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">value</span> <span class="o">*=</span> <span class="n">sign</span>
+    <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">while</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">digs</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span> <span class="o">%</span> <span class="n">base</span><span class="p">)])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span> <span class="o">/</span> <span class="n">base</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sign</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+    <span class="n">digits</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="int2base_spaced"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.misc.int2base_spaced">[docs]</a><span class="k">def</span> <span class="nf">int2base_spaced</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maximum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">int2base</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">base</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">digs</span><span class="p">),</span> <span class="s2">&quot;Not enough digits&quot;</span>
+
+    <span class="n">vb</span> <span class="o">=</span> <span class="n">int2base</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+    <span class="n">mb</span> <span class="o">=</span> <span class="n">int2base</span><span class="p">(</span><span class="n">maximum</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+
+    <span class="n">addl</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">mb</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">vb</span><span class="p">),</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">add</span> <span class="o">=</span> <span class="n">digs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">addl</span>
+
+    <span class="k">return</span> <span class="n">add</span><span class="o">+</span><span class="n">vb</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

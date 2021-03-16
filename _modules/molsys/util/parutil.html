@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.parutil &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.parutil</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.parutil</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">mpi4py</span> <span class="k">import</span> <span class="n">MPI</span>
+<span class="n">comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+<span class="n">size</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1">###</span>
+<span class="c1">### USAGE</span>
+<span class="c1">###     list_of_objects = parutil.init(list_of_object)</span>
+<span class="c1">###     ### DO WHAT YOU WANT</span>
+<span class="c1">###     list_of object = parutil.finish(list_of_objects)</span>
+<span class="c1">###</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="n">scatter</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iterable</span></div>
+
+<div class="viewcode-block" id="finish"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.finish">[docs]</a><span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">barrier</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="n">bcast</span><span class="p">(</span><span class="n">gather</span><span class="p">(</span><span class="n">iterable</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">barrier</span><span class="p">:</span> <span class="n">comm</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">iterable</span></div>
+
+<div class="viewcode-block" id="scatter"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.scatter">[docs]</a><span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scatter iterable as chunks to the cores.</span>
+<span class="sd">    N.B.: len(iterable) == size after scattering!&quot;&quot;&quot;</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">chop</span><span class="p">(</span><span class="n">iterable</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">iterable</span></div>
+
+<div class="viewcode-block" id="gather"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.gather">[docs]</a><span class="k">def</span> <span class="nf">gather</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">keep_order</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keep_type</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">itertype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">iterable</span><span class="p">,[])</span>
+        <span class="k">if</span> <span class="n">keep_order</span><span class="p">:</span>
+            <span class="n">natural</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">))</span>
+            <span class="n">mixed</span> <span class="o">=</span> <span class="n">chop</span><span class="p">(</span><span class="n">natural</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">mixed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mixed</span><span class="p">,[])</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="c1">### list elements are generators!</span>
+                <span class="n">mixed</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mixed</span><span class="p">]</span>
+                <span class="n">mixed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">mixed</span><span class="p">,[])</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">mixed</span><span class="p">)</span>
+            <span class="n">iterable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iterable</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">keep_type</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">itertype</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">]:</span>
+                    <span class="n">iterable</span> <span class="o">=</span> <span class="n">itertype</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">itertype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;NOT TESTED&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iterable</span></div>
+
+<div class="viewcode-block" id="bcast"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.bcast">[docs]</a><span class="k">def</span> <span class="nf">bcast</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="n">iterable</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iterable</span></div>
+
+<div class="viewcode-block" id="chop"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.parutil.chop">[docs]</a><span class="k">def</span> <span class="nf">chop</span><span class="p">(</span><span class="n">iterable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Chop an iterable into (quasi)-equally long chunks.</span>
+<span class="sd">    Automatically handle non-multiplier! ( len(iterable)%size != 0 )</span>
+<span class="sd">    Core function for parallelization&quot;&quot;&quot;</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">iterable</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="n">size</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">chunks</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

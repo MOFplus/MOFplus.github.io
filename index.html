@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>MOLSYS &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1. Quickstart" href="user_quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_addon.html">2. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>MOLSYS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="molsys">
+<h1>MOLSYS<a class="headerlink" href="#molsys" title="Permalink to this headline">¶</a></h1>
+<p><em>molsys</em> is a Python library (and a bunch of scripts and other useful stuff) to store, manipulate and analyze molecular systems.
+It is developed in the <a class="reference external" href="http://www.rochusschmid.de">CMC group</a> at the <a class="reference external" href="http://www.rub.de">RUB</a> and serves as a foundation of a number
+of ongoing projects like the Python wrapped force field engines <a class="reference external" href="https://github.com/MOFplus/pydlpoly">pydlpoly</a> and
+<a class="reference external" href="https://github.com/MOFplus/pylmps">pylmps</a> or <a class="reference external" href="https://github.com/MOFplus/weaver">weaver</a> and <a class="reference external" href="https://github.com/MOFplus/ff_gen">ff_gen</a>.</p>
+<div class="section" id="why-molsys">
+<h2>Why MOLSYS?<a class="headerlink" href="#why-molsys" title="Permalink to this headline">¶</a></h2>
+<p>The best way to explain what <em>molsys</em> is, and what it is not, is to explain why it was made … or better started, since it is still under development and
+constantly evolving. “Why <em>molsys</em>?” is also a good question, becasue there are already quite a number of <em>molsys</em>’ish libraries and codes out there and
+it is really the question whether one needs another one. However, historically we did not really think about this at all. It started with a script. When
+we developed <em>pydlpoly</em> we needed a class to store the molecule with its atomtypes, connectivity information and so on. Later we wrote the first version of <em>weaver</em>
+to implement the reversed topological approach to generate MOF and other network structures. In the end there was another <em>mol</em> class in <em>weaver</em>, very similar to
+the one in <em>pydlpoly</em> and it was clear that we needed a common <em>mol</em> object system.</p>
+<p>The first attempt was to start with the molecule or <em>atoms</em> class from <em>ASE</em> (<a class="reference external" href="https://wiki.fysik.dtu.dk/ase/">atomic simulation environemnt</a>). <em>ASE</em> is really built
+for QM computations and lacks the atom type and connectivty information part, which is necessary for force field calculations (but also for representing e.g. embeddings of
+network topologies). So we decided to go and extend <em>ASE</em> by these features. However, since <em>ASE</em> is a mighty big and powerful library, this turned out to be a tedious operation
+if we would not restrict to a superficial on-top implementation. Thus, we ambandoned this plan and decided to extend what we already had in <em>pydlpoly</em> and <em>weaver</em>. Technically,
+the heart if <em>molsys</em> is the <em>mol</em> class defined in <em>mol.py</em>. A further aspect is that <em>ASE</em> intentionally stays away from dependincies and compiled code. However, we wanted
+to build on other libraries (e.g. <em>openbabel</em>, <em>graphtool</em>), which are sometimes not straight forward to install. To this end we developed a system called “addon”s, which is
+inspired by the component system of game engines like <a class="reference external" href="https://unity.com/">unity</a>: addons are attached to a <em>mol</em> object (if the underlying libraries are available and installed)
+to extend te capabilities of the <em>mol</em> object. This means that the core features of <em>molsys</em> can still be used if these extra libs are not installed. In the end we can now
+generate a <em>molsys</em> <em>mol</em> object from a <em>pymatgen</em> object or export to an <em>ASE</em> <em>atoms</em> object.</p>
+<p>Meanwhile, <em>molsys</em> is the basis for all projects dealing with force field type calculations. Over time, with the <a class="reference external" href="https://www.mofplus.org">MOF+ web platform</a>, also our own
+specific file formats emerged, which are currently only readable by <em>molsys</em>. Thus, <em>molsys</em> is needed and no other could replace it (at least we do not know about it). With the addon
+mechanism we are able to “borrow” from other systems (the cif-reader from <em>pymatgen</em> is so much better than our clumsy code) but of course it also has its limitations.
+This is why we still work on it and the code is always ahead of the documentation. Therefore, you should also read the next section.</p>
+</div>
+<div class="section" id="how-to-use-this-document">
+<h2>How to use this document<a class="headerlink" href="#how-to-use-this-document" title="Permalink to this headline">¶</a></h2>
+<p>The problem with code development (especially in an academic environment) is that time and resources for testing and documentation is alwways barely existing. In other words:
+our docu s….! Sorry for that. This means: this document is all we have for the moment and we try to extend it but the code will always be ahead. It might even be, that
+the docu here is wrong and the way to use the code has changed. So please beware and always have a look at the sources, Luke! This is also the reason that for a long time <em>molsys</em>
+and friends was only available for collborators and in a private repository. By reaching a critical size with this document we will make <em>molsys</em> available.</p>
+<p>The API documentation from the docstrings should, however, be up to date if you have rebuild the docs.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_quickstart.html">1. Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_quickstart.html#basics">1.1. Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_quickstart.html#periodic-systems">1.2. Periodic Systems</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_addon.html">2. Addons</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html">2.1. The FF addon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html">2.2. The ACAB addon</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_util_wrapper.html">3.1. MM Program Interfaces</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_fileIO/wtp.html">1.1. <cite>wtp</cite>: Web Toper file</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user_quickstart.html" class="btn btn-neutral float-right" title="1. Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,507 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.addon.bb &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.addon.bb</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.addon.bb</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">molsys.util.elems</span> <span class="k">as</span> <span class="nn">elements</span>
+<span class="kn">import</span> <span class="nn">molsys.util.rotations</span> <span class="k">as</span> <span class="nn">rotations</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">molsys.util.elems</span> <span class="k">import</span> <span class="n">vdw_radii</span> <span class="k">as</span> <span class="n">vdw</span>
+
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.bb&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="bb"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb">[docs]</a><span class="k">class</span> <span class="nc">bb</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;        &#39;&#39;&#39;</span>
+<span class="sd">        initialize data structure for mol object so it can handle building block files</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol (molsys.mol): mol instance where this addon is added to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="c1">#assert self.mol.bcond == 0, &quot;BBs must be non-periodic. mol object has bcond=%d&quot; % self.mol.bcond ### [RA] what about rods?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="o">=</span> <span class="p">[]</span>            <span class="c1"># list of connector atoms (can be dummies) used for orientation (TBI: COM of multiple atoms)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># list of lists: atoms that actually bond to the other BB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># list of integers: type of a connector (TBI: connectors_atype should contain the atype of the OTHER atom bonded to .. same layout as connector_atoms)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_dummies</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># list of integers: index of connectors that are dummies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">is_bb</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__mildcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;self.mol instance is kept the same, the rest is deepcopied</span>
+<span class="sd">        __mildcopy__ is meant as an auxiliary method of mol.__deepcopy__</span>
+<span class="sd">        to prevent recursion error. Deepcopying a bb instance works</span>
+<span class="sd">        as usual because the bb.mol.__deepcopy__ stops the recursion</span>
+<span class="sd">        with bb.mol.bb.__mildcopy__&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span> <span class="c1">#python3</span>
+            <span class="n">newone</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="vm">__class__</span><span class="p">())</span>
+        <span class="k">except</span><span class="p">:</span> <span class="c1">#python2</span>
+            <span class="n">newone</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">bb</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">newdict</span> <span class="o">=</span> <span class="n">newone</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="n">newdict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">newdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;mol&quot;</span><span class="p">:</span>
+                <span class="n">newdict</span><span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">memo</span><span class="p">)]</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">memo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">newone</span>
+
+<div class="viewcode-block" id="bb.setup"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connector</span><span class="p">,</span>
+                    <span class="n">connector_atoms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">connector_types</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">connector_atypes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">center_type</span><span class="o">=</span><span class="s2">&quot;coc&quot;</span><span class="p">,</span>
+                    <span class="n">center_xyz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">rotate_on_z</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">align_to_pax</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">pax_use_connonly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;setup the BB data (only use this method to setup BBs!)</span>
+
+<span class="sd">        TBI: possibility to have a sequence of indices for a connector -&gt; set a flag</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            connector (list of ints): list of connector atoms</span>
+<span class="sd">            connector_atoms (list of lists of ints, optional): actual atoms bonding. Defaults to None.</span>
+<span class="sd">            connector_types (list of ints, optional): if present then special connectors exist. Defaults to None.</span>
+<span class="sd">            connector_atypes (list of lists of strings, optional): atomtype of the atom to which the connector is bonded to</span>
+<span class="sd">                                                 same layout as connector_atoms, if present then _types are generted. Defaults to None.</span>
+<span class="sd">            center_type (string, optional): either &quot;com&quot; or &quot;coc&quot; or &quot;special&quot;. if &quot;special&quot; center_xyz must be given. Defaults to &quot;coc&quot;.</span>
+<span class="sd">            center_xyz (numpy array, optional): coordinates of the center. Defaults to None.</span>
+<span class="sd">            name (string, optional) : The name of the BB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">rotate_on_z</span> <span class="ow">and</span> <span class="n">align_to_pax</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="o">=</span> <span class="n">connector</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">connector</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">connector_atoms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">connector_atoms</span><span class="p">)</span><span class="o">==</span><span class="n">nc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span> <span class="o">=</span> <span class="n">connector_atoms</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">connector_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">connector_types</span><span class="p">)</span><span class="o">==</span><span class="n">nc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span> <span class="o">=</span> <span class="n">connector_types</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">connector_atypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># if atypes are given then no types should be given .. this is determined</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">connector_atypes</span><span class="p">)</span><span class="o">==</span><span class="n">nc</span>
+                <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">at</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span><span class="p">,</span><span class="n">connector_atypes</span><span class="p">):</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">at</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span> <span class="o">=</span> <span class="n">connector_atypes</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">known_atypes</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">at</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_atypes</span><span class="p">:</span>
+                        <span class="n">known_atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">at</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">known_atypes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">at</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nc</span><span class="p">)]</span>
+        <span class="c1"># detect connector dummies by element &#39;x&#39;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">cats</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">cat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cats</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">cat</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connector_dummies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cat</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">center_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;com&quot;</span><span class="p">,</span> <span class="s2">&quot;coc&quot;</span><span class="p">,</span> <span class="s2">&quot;special&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_type</span> <span class="o">=</span> <span class="n">center_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_type</span> <span class="o">==</span> <span class="s2">&quot;special&quot;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">center_xyz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">assert</span> <span class="n">center_xyz</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_type</span> <span class="o">==</span> <span class="s2">&quot;com&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_real_mass</span><span class="p">()</span>
+            <span class="n">center_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_com</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># the coc case          </span>
+            <span class="n">center_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_coc</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="n">center_xyz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">rotate_on_z</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotate_on_z</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">align_to_pax</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">align_pax_to_xyz</span><span class="p">(</span><span class="n">use_connxyz</span><span class="o">=</span><span class="n">pax_use_connonly</span><span class="p">)</span>
+        <span class="c1"># finally sort for rising type in order to allow proper wrting to mfpx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_connector_type</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="bb.setup_with_bb_info"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.setup_with_bb_info">[docs]</a>    <span class="k">def</span> <span class="nf">setup_with_bb_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">conn_identifier</span> <span class="o">=</span> <span class="s1">&#39;He&#39;</span><span class="p">,</span><span class="n">center_point</span><span class="o">=</span><span class="s1">&#39;coc&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Converts a mol object with a given atom as conn_identifier label to a BB.</span>
+<span class="sd">        It can currently only work with a single conn_identifier, which means, that no special_connectors can be defined in this way.        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            conn_identifier (str, optional): Atom type of the Atom used as connector label The connected atoms of the conn_identified atom will become the new connectors. Defaults to &#39;He&#39;.</span>
+<span class="sd">            center_point (str, optional): Definition of which center to use in the BB. Defaults to &#39;coc&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get indices of atoms conencted to conn_identifier</span>
+        <span class="n">cident_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">conn_identifier</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cident_idx</span><span class="p">)</span>
+        <span class="n">connector</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">conn</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">ci</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">cident_idx</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">ci</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># atom i is connected to to an identifier_atom</span>
+                    <span class="n">connector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;connectors&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">connectors</span><span class="p">)</span>
+        <span class="c1"># remove identifier atoms</span>
+        <span class="k">for</span> <span class="n">ci</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">connector</span><span class="p">):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">cidx</span> <span class="ow">in</span> <span class="n">cident_idx</span> <span class="k">if</span> <span class="n">cidx</span> <span class="o">&lt;</span> <span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">connector</span><span class="p">[</span><span class="n">ci</span><span class="p">]</span> <span class="o">-=</span> <span class="n">offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">delete_atoms</span><span class="p">(</span><span class="n">cident_idx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">connector</span><span class="p">)</span>
+        <span class="k">return</span></div>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">connector_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get the xyz coords of the connector atoms</span>
+<span class="sd">        TBI: if a connector is two atoms compute the center of mass &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">connector_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; get the distance from the center (origin 0,0,0) to the connector positions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_xyz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="bb.rotate_on_z"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.rotate_on_z">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_on_z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; especially if this is a linker (2 connectors) we want it to lie on the z-axis</span>
+<span class="sd">        we always use the first connector (could also be a regular SBU!) to be on the z-axis &quot;&quot;&quot;</span>
+        <span class="n">c1_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">z_axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">],</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">angle</span><span class="p">(</span><span class="n">z_axis</span><span class="p">,</span><span class="n">c1_xyz</span><span class="p">)</span> <span class="c1"># angle to rotate</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">theta</span> <span class="o">&gt;</span> <span class="mf">1.0e-10</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">theta</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">-</span><span class="mf">1.0e-10</span><span class="p">)):</span>
+            <span class="n">axis</span>  <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">rotations</span><span class="o">.</span><span class="n">cross_prod</span><span class="p">(</span><span class="n">z_axis</span><span class="p">,</span><span class="n">c1_xyz</span><span class="p">))</span> <span class="c1"># axis around which we rotate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="n">theta</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="bb.align_pax_to_xyz"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.align_pax_to_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">align_pax_to_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">use_connxyz</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Aligns the coordinates to match the three principal axes of the intertial tensor to the cartesian coordinate system.</span>
+<span class="sd">        Does not yet use weights</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            use_connxyz (bool, optional): If True, use only the coordinates of the connectors. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">### TODO has been tested for m-bdc and some others to work, test for others aswell! </span>
+        <span class="k">if</span> <span class="n">use_connxyz</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_xyz</span><span class="p">(</span><span class="n">rotations</span><span class="o">.</span><span class="n">align_pax</span><span class="p">(</span><span class="n">xyz</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector_xyz</span>
+        <span class="n">eigval</span><span class="p">,</span><span class="n">eigvec</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">pax</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="n">eigorder</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">eigval</span><span class="p">)</span>
+        <span class="n">rotmat</span> <span class="o">=</span> <span class="n">eigvec</span><span class="p">[:,</span><span class="n">eigorder</span><span class="p">]</span> <span class="c1">#  sort the column vectors in the order of the eigenvalues to have largest on x, second largest on y, ... </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_xyz</span><span class="p">(</span><span class="n">rotations</span><span class="o">.</span><span class="n">apply_mat</span><span class="p">(</span><span class="n">rotmat</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()))</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="bb.sort_connector_type"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.sort_connector_type">[docs]</a>    <span class="k">def</span> <span class="nf">sort_connector_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This internal method sorts the connectors according to a rsing type</span>
+
+<span class="sd">        this is necessary for writing mfpx files, where the different types are seperated by a slash</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector</span>      <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">connector_atypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="bb.remove_carboxylates"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.remove_carboxylates">[docs]</a>    <span class="k">def</span> <span class="nf">remove_carboxylates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">co2mol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">remove_carboxy_H</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;this function is meant to be used to convert a molecule</span>
+<span class="sd">            which is not yet a bb type to a bb type by removing </span>
+<span class="sd">            carboxylates and carboxylic acid groups and adding </span>
+<span class="sd">            connectors where the carboxylates were </span>
+<span class="sd">        </span>
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            co2mol {molsys.mol} -- co2 mol object (default: {None})</span>
+<span class="sd">            remove_carboxy_H {bool} -- if true, carboxylic hydrogen atoms are removed (default: {True})</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            molsys.mol -- the mol object with removed carboxylates</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="kn">from</span> <span class="nn">molsys.util.atomtyper</span> <span class="k">import</span> <span class="n">atomtyper</span> 
+        <span class="kn">import</span> <span class="nn">molsys</span>
+        <span class="c1"># find carboxylates</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">remove_carboxy_H</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">Hidxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">atypes</span><span class="p">)</span> <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;h1_o1&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;c3&#39;</span><span class="p">))]</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">delete_atoms</span><span class="p">(</span><span class="n">Hidxs</span><span class="p">)</span>
+            <span class="n">at</span> <span class="o">=</span> <span class="n">atomtyper</span><span class="p">(</span><span class="n">m</span><span class="p">);</span> <span class="n">at</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">at</span> <span class="o">=</span> <span class="n">atomtyper</span><span class="p">(</span><span class="n">m</span><span class="p">);</span> <span class="n">at</span><span class="p">()</span>        
+        <span class="k">if</span> <span class="n">co2mol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">co2mfpxtxt</span> <span class="o">=</span> <span class="s1">&#39;# type xyz</span><span class="se">\n</span><span class="s1">3</span><span class="se">\n</span><span class="s1">  1 c      0.000000    0.000000    0.000000   c3_*1o2                 -1                  -1       2       3  </span><span class="se">\n</span><span class="s1">  2 o      1.500000    0.000000    0.000000   o1_c1                   -1                  -1       1  </span><span class="se">\n</span><span class="s1">  3 o     -1.500000    0.000000    0.000000   o1_c1                   -1                  -1       1  </span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="n">co2mol</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">co2mfpxtxt</span><span class="p">)</span>
+            <span class="n">co2mol</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s1">&#39;graph&#39;</span><span class="p">)</span>
+            <span class="n">co2mol</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">hashes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s1">&#39;graph&#39;</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">hashes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">find_sub</span><span class="p">(</span><span class="n">co2mol</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="n">carboxy_atoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">idxs</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])</span>
+        <span class="n">other_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">carboxy_atoms</span><span class="p">]</span>
+        <span class="n">other_conn</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">carboxy_atoms</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">other_atoms</span><span class="p">]</span> <span class="c1"># get atom indices connected to the carboxylates</span>
+        <span class="n">other_conn</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">other_conn</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])</span> <span class="c1"># flatten list</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">carboxy_atoms</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">other_atoms</span><span class="p">]</span>
+        <span class="n">newmol</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">new_mol_by_index</span><span class="p">(</span><span class="n">other_atoms</span><span class="p">)</span>
+        <span class="n">newmol</span><span class="o">.</span><span class="n">set_real_mass</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">newmol</span><span class="p">,</span><span class="s1">&#39;bb&#39;</span><span class="p">):</span> <span class="n">newmol</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s1">&#39;bb&#39;</span><span class="p">)</span>
+        <span class="n">connector</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="n">offset</span><span class="p">[</span><span class="n">other_atoms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">other_conn</span><span class="p">]</span>
+        <span class="n">newmol</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">connector</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">newmol</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">mol</span>
+        <span class="n">newmol</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="n">newmol</span>
+        <span class="k">return</span> <span class="n">newmol</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_organic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">organic_elements</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="s2">&quot;si&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;cl&quot;</span><span class="p">,</span> <span class="s2">&quot;as&quot;</span><span class="p">,</span> <span class="s2">&quot;se&quot;</span><span class="p">,</span> <span class="s2">&quot;br&quot;</span><span class="p">,</span> <span class="s2">&quot;i&quot;</span><span class="p">]</span>
+<span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the bb contains only organic elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span>
+        <span class="n">num_organic_elements</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">elems</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">organic_element</span><span class="p">)</span> <span class="k">for</span> <span class="n">organic_element</span> <span class="ow">in</span> <span class="n">organic_elements</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">num_organic_elements</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="bb.contains_disorder"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.bb.bb.contains_disorder">[docs]</a>    <span class="k">def</span> <span class="nf">contains_disorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">reject_covrad_fact</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;        try to detect disordered parts of the structure based on heuristics:</span>
+<span class="sd">            - unusual bond lengths</span>
+<span class="sd">            - unusual coordination numbers</span>
+<span class="sd">        </span>
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            reject_covrad_fact {float} -- consider bonds smaller than sum of vdw * fact as disordered (default: {0.5})</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool -- the answer to the question of the bb contains disorder</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="kn">from</span> <span class="nn">molsys.util.elems</span> <span class="k">import</span> <span class="n">cov_radii</span> <span class="k">as</span> <span class="n">cov</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="c1"># carbon atoms should have &lt;=4 bonds</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;c conn&#39;</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;h conn&#39;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">natoms</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">imgi</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_distvec</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">tgt_cov</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">cov</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">tgt_cov</span> <span class="o">*</span> <span class="n">reject_covrad_fact</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;cov fact&#39;</span>
+        <span class="k">return</span> <span class="kc">False</span>        </div></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.addon.zmat &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="molsys 1.0.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">molsys</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>molsys.addon.zmat</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.addon.zmat</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">       module to implement an addon feature: chemcoord zmatrix manipulation </span>
+
+<span class="sd">       NOTE: this is only imported by __init__.py if chemcoords is present</span>
+
+<span class="sd">       based on Marco Dygas routines in the old IOmod</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">chemcoord</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">molsys.util.rotations</span> <span class="k">as</span> <span class="nn">rotations</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="k">as</span> <span class="nn">opt</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.zmat&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="zmat"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat">[docs]</a><span class="k">class</span> <span class="nc">zmat</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        instantiate a graph object which will be attached to the parent mol</span>
+
+<span class="sd">        :Parameter:</span>
+
+<span class="sd">             - mol : a mol type object (can be a derived type like bb or topo as well)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;generated the zmat object&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="zmat.to_Cartesian"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat.to_Cartesian">[docs]</a>    <span class="k">def</span> <span class="nf">to_Cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        transforms the mol object into a chemcoord.Cartesian object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elems</span><span class="p">):</span> 
+            <span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="s2">&quot;y&quot;</span><span class="p">,</span><span class="s2">&quot;z&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;atom&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">chemcoord</span><span class="o">.</span><span class="n">Cartesian</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">elems</span><span class="p">,</span> <span class="n">xyz</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">natoms</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span></div>
+        
+<div class="viewcode-block" id="zmat.from_Cartesian"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat.from_Cartesian">[docs]</a>    <span class="k">def</span> <span class="nf">from_Cartesian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cartesian</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        loads mol xyz data from a chemcoord.Cartesian object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">cartesian</span><span class="p">[:,</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cartesian</span><span class="o">.</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ordered_xyz</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="n">ordered_xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="n">idx</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">),:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ordered_xyz</span><span class="p">)</span>
+        <span class="k">return</span></div>
+    
+<div class="viewcode-block" id="zmat.rotate_dihedral"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat.rotate_dihedral">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_dihedral</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Rotates a dihedral angle</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">          - idx : List of atom indices of the atoms spanning the dihedral</span>
+<span class="sd">          - deg : target angle in degrees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The amount of atoms in the molecule is smaller than 4!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The amount of indices is not 4!&#39;</span><span class="p">)</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_Cartesian</span><span class="p">()</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">idx_array</span> <span class="o">=</span> <span class="p">[[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">],</span> \
+                     <span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">],</span> \
+                     <span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">],</span> \
+                     <span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+        <span class="n">idx_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx_array</span><span class="p">)</span>
+        <span class="n">buildlist</span> <span class="o">=</span> <span class="n">xyz</span><span class="o">.</span><span class="n">_get_buildlist</span><span class="p">(</span><span class="n">fixed_buildlist</span> <span class="o">=</span> <span class="n">idx_array</span><span class="p">)</span>
+        <span class="n">zmat</span> <span class="o">=</span> <span class="n">xyz</span><span class="o">.</span><span class="n">to_zmat</span><span class="p">(</span><span class="n">buildlist</span><span class="p">)</span>
+        <span class="n">zmat</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;dihedral&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deg</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">zmat</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_Cartesian</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="zmat.change_angle"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat.change_angle">[docs]</a>    <span class="k">def</span> <span class="nf">change_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Changes the value of an angle</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">          - idx : List of atom indices of the atoms spanning the angle</span>
+<span class="sd">          - deg : target angle in degrees</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The amount of atoms in the molecule is smaller than 3!&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The amount of indices is not 3!&#39;</span><span class="p">)</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_Cartesian</span><span class="p">()</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">idx_array</span> <span class="o">=</span> <span class="p">[[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">],</span> \
+                     <span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">],</span> \
+                     <span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>      <span class="mi">0</span><span class="p">]]</span>
+        <span class="n">idx_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">idx_array</span><span class="p">)</span>
+        <span class="n">buildlist</span> <span class="o">=</span> <span class="n">xyz</span><span class="o">.</span><span class="n">_get_buildlist</span><span class="p">(</span><span class="n">fixed_buildlist</span> <span class="o">=</span> <span class="n">idx_array</span><span class="p">)</span>
+        <span class="n">zmat</span> <span class="o">=</span> <span class="n">xyz</span><span class="o">.</span><span class="n">to_zmat</span><span class="p">(</span><span class="n">buildlist</span><span class="p">)</span>
+        <span class="n">zmat</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;angle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deg</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">zmat</span><span class="o">.</span><span class="n">to_xyz</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_Cartesian</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="zmat.add_fragment"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.zmat.zmat.add_fragment">[docs]</a>    <span class="k">def</span> <span class="nf">add_fragment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amol</span><span class="p">,</span> <span class="n">pc</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">bound</span><span class="p">(</span><span class="n">triple</span><span class="p">):</span>
+            <span class="n">triple</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">triple</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+            <span class="n">floor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">triple</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">%</span> <span class="mf">2.0</span>
+            <span class="n">triple</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">%=</span> <span class="mf">1.0</span>
+            <span class="k">if</span> <span class="n">floor</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">:</span> <span class="n">triple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">triple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">triple</span>
+        <span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">bound</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">n1</span><span class="p">,</span><span class="n">n2</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">c2n</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">rotate_by_triple</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">n2n</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">rotate_by_triple</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="o">-</span><span class="nb">abs</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span><span class="n">n2n</span><span class="p">))</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="n">c2n</span><span class="p">))</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span>
+        <span class="c1">### mol vecs</span>
+        <span class="n">a1vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">1</span><span class="p">],:]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">b1vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">2</span><span class="p">],:]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">a1vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a1vec</span><span class="p">)</span>
+        <span class="n">b1vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b1vec</span><span class="p">)</span>
+        <span class="n">n1vec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a1vec</span><span class="p">,</span><span class="n">b1vec</span><span class="p">)</span>
+        <span class="n">n1vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n1vec</span><span class="p">)</span>
+        <span class="n">c1vec</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">a1vec</span><span class="o">+</span><span class="n">b1vec</span><span class="p">)</span>
+        <span class="n">c1vec</span> <span class="o">=</span> <span class="n">c1vec</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c1vec</span><span class="p">)</span>
+        <span class="c1">### amol vecs</span>
+        <span class="n">a2vec</span> <span class="o">=</span> <span class="n">amol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">amol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">-</span> <span class="n">amol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b2vec</span> <span class="o">=</span> <span class="n">amol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">amol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">amol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">a2vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a2vec</span><span class="p">)</span>
+        <span class="n">b2vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b2vec</span><span class="p">)</span>
+        <span class="n">c2vec</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">a2vec</span><span class="o">+</span><span class="n">b2vec</span><span class="p">)</span>
+        <span class="n">c2vec</span> <span class="o">=</span> <span class="n">c2vec</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c2vec</span><span class="p">)</span>
+        <span class="n">n2vec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a2vec</span><span class="p">,</span><span class="n">b2vec</span><span class="p">)</span>
+        <span class="n">n2vec</span> <span class="o">/=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n2vec</span><span class="p">)</span>
+        <span class="c1">### rots</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">penalty</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,(</span><span class="mi">3</span><span class="p">,)),</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">n1vec</span><span class="p">,</span> <span class="n">n2vec</span><span class="p">,</span> <span class="n">c1vec</span><span class="p">,</span> <span class="n">c2vec</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;SLSQP&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">fun</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">100000000000</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="c1">### trans</span>
+        <span class="n">c1vec</span> <span class="o">=</span> <span class="n">c1vec</span><span class="o">*</span><span class="n">dist</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">],:]</span><span class="o">+</span><span class="n">c1vec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">add_mol</span><span class="p">(</span><span class="n">amol</span><span class="p">,</span><span class="n">translate</span><span class="o">=</span><span class="n">trans</span><span class="p">,</span> <span class="n">rotate</span> <span class="o">=</span> <span class="n">bound</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">natoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">natoms</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span></div></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

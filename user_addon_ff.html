@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>2.1. The FF addon &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2.2. The ACAB addon" href="user_addon_acab.html" />
+    <link rel="prev" title="2. Addons" href="user_addon.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_addon.html">2. Addons</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.1. The FF addon</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">2.1.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#assignment-scheme">2.1.2. Assignment Scheme</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#general-idea">2.1.2.1. General Idea</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#further-feautures">2.1.2.2. Further Feautures</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#technical-details">2.1.3. Technical Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#file-io">2.1.3.1. File IO</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">2.1.4. Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#assignment">2.1.4.1. Assignment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preparation-of-a-parameterization-run">2.1.4.2. Preparation of a parameterization run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html">2.2. The ACAB addon</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="user_addon.html"><span class="section-number">2. </span>Addons</a> &raquo;</li>
+        
+      <li><span class="section-number">2.1. </span>The FF addon</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_addon_ff.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-ff-addon">
+<h1><span class="section-number">2.1. </span>The FF addon<a class="headerlink" href="#the-ff-addon" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2><span class="section-number">2.1.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The FF addon of molsys makes it easy to assign force field (FF) parameters to a molecular system of interest.
+For this purpose the FF addon is closely interlocked to the <a class="reference external" href="https://www.mofplus.org">MOFplus webpage</a> and its
+internal FF parameter database. The FF addon communicates with the MOFplus server via the MOFplus API
+<code class="xref py py-class docutils literal notranslate"><span class="pre">mofplus.ff.FF_api</span></code></p>
+<p>The FF addon features a novel FF parameter assignment procedure which has been developed especially for the use of <em>ab initio</em>
+parameterized FFs.</p>
+</div>
+<div class="section" id="assignment-scheme">
+<h2><span class="section-number">2.1.2. </span>Assignment Scheme<a class="headerlink" href="#assignment-scheme" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="general-idea">
+<h3><span class="section-number">2.1.2.1. </span>General Idea<a class="headerlink" href="#general-idea" title="Permalink to this headline">¶</a></h3>
+<p>In building block based <em>ab initio</em> parameterized FFs, specific paramters for individual systems are generated in a
+systematic manner with controlled accuracy, using reference data computed of first principles level of theory
+for non-periodic model systems. For the description of periodic structures the building block specific parameters have
+to be combined in the correct manner. This so called assignment problem discourages non-expert users from using more
+accurate first principles parameterized FFs. The FF addon implements an algortithm which solves the assignment
+problem without any user input. For this purpose graph-theory is employed to analyze the molecular system of interest and
+to find the best matching parameters. The search for the best matching parameters is based on the idea that the quality
+of a parameter set depends on the size of the underlying model system. This ensure that always the most accurate
+parameters are assigned.</p>
+<p>Requirement for the assignment procedure is a valid connectivity of the molecular system of interest. On the basis of the
+connectivity the internal coordinates (bonds, angles, dihedrals, out-of-planes) are detected. Target of the assignment
+process is, that for every ic found a parameter set consisting of a potential type and the corresponding parameters is
+assigned.</p>
+<p>During the assignment process the molecular system of interest is analyzed by three different specifiers, based on the
+connectivity of the system. The first one is the atomtype, it describes the local bonding situation of an
+atom and consists of three different informations. The first one is the element of the atom, the second one is the
+coordination number and the third one are the elements of thee connected atoms. For example the sp2 Carbon atom in
+benzene gets the type c3_c2h1 and the Hydrogen atom gets h1_c1.</p>
+<p>The second one is the so called fragmenttype. In comparison to the atomtype the fragmenttype specifier allows a
+coarser view on the structure. Fragment types are assigned on the basis of a predefined fragment catalogue which is
+constantly extended. In addition to the corresponding fragmenttype specifier, every atom gets a thrid specifier, specifying
+the index of the corresponding fragment in the molecular structure of interest. In a biphenyl molecule all atoms would
+get as fragmenttype “ph” (“ph for phenyl) but their fragmentnumbers would differ, atoms belonging to the first phenyl would
+get the 1 and atoms belonging to the second one would get the two. By the help of the fragment information it is possible
+to setup a fragment connectivity.</p>
+<p>In the next step the molelcular structure of interest is analyzed in repect to the available reference systems for a
+given forcefield. It is not required that an atom belongs only to one reference system, it can belong to several ones.
+For the found reference systems the avaialable parameter set are downloaded directly from the MOFplus server. These are then
+assigned to the molecular system of interest following the general assumtion that the quality of a parameter set increases
+with the site of the underlying reference system. For this purpose it is looped over the found reference systems, starting
+in decreasing order. The size of a reference system is defined by the number fragments it consists of. In an inner loop
+it is iterated over all ics of the system of interest. If the ic defining atoms belong to the current reference system a lookup
+for the a parameter set of the ic in the current reference system is performed. If a parameter set is found it will be assigned
+to the ic. At the end of this procedure a parameter set has hopefully been assigned to every ic, else the requested FF is
+not valid for the molecular system of interest.</p>
+<p>This procedure is illustrated at the example of biphenyl.
+In principle two different parameterization strategies for this molecule are possible. The first one is the classical building
+block approach, there the parameters for biphenyl are obtained in a two step procedure. First a FF for benzene is parameterized
+and afterwards the missing parameters for Biphenyl are received. Consequently parametersets belonging to two reference systems
+are needed. The second parameterization strategy would be the brute-force alternative. All parameters are directly obtained in
+respect to the biphenyl reference system. Both parameterization stragegies have their qualification, the first one features a
+higher transferability whereas a more accurate description of biphenyl is expected from the second ansatz.</p>
+<p>The implemented assignment procedure can handle both situations. It would detect both reference systems in our molecular system
+of interest (biphenyl). The assignment loop starts from the larger refererence system i.e. Biphenyl and distributes its parameters.
+If the parameterization is done in the brute-force way, the parameters distributed form the biphenyl reference system
+will already be sufficient. If the parameterization is done following the building block appproach the parameters from the biphenyl
+reference system will not be sufficient, consequently the missing parameters will come from the Benzene reference system.
+In this way always in a dynamic fashion always the most accurate parameters are assigned.</p>
+</div>
+<div class="section" id="further-feautures">
+<h3><span class="section-number">2.1.2.2. </span>Further Feautures<a class="headerlink" href="#further-feautures" title="Permalink to this headline">¶</a></h3>
+<p>In order to be able to use the oberall power of the algorithm it is necessary to understand the following more detailed
+concepts.</p>
+<p>For some reference systems so called active zones (<strong>azone</strong>) are defined. An <strong>azone</strong> comprises those atoms of a reference
+systems which belongs to at least one ic which has been parameterized on the basis of this reference system. Parameters on the basis
+of this reference system are then only distributed to those ics which incule at least one atom of the <strong>azone</strong> of the
+reference system. This mechanism is required in order to prevent an erroneousy parameter distribution. (beispiel fehlt noch)</p>
+<p>A trick implemented in order to make the algorithm more flexible is to make use of so called equivalences (<strong>equivs</strong>).
+This feature is again illustrated employing Biphenyl as example system. As already mentioned all parameters are stored in respect
+to atom and fragmentype of the in the ic ivolved atoms. In Biphenyl the Carbons forming the phenyl-phenyl bond have the atomtype
+c3_c3. Since this atomtype is not present in the Benzene reference system all parameters for ics including atomtype c3_c3 has
+to be obtained from the biphenyl reference system. In order to increase the transferability of the parameters it is possible to define
+connectivity dependent atomtype equivalences, which are always applied after the assignment loop has distributed all parameters from the
+current reference system. So it could be defined that all <a class="reference external" href="mailto:c3_c3&#37;&#52;&#48;ph">c3_c3<span>&#64;</span>ph</a> atom in the bond <a class="reference external" href="mailto:c3_c3&#37;&#52;&#48;ph">c3_c3<span>&#64;</span>ph</a>:<a class="reference external" href="mailto:c3_c3&#37;&#52;&#48;ph">c3_c3<span>&#64;</span>ph</a> are altered to the atomtype
+<a class="reference external" href="mailto:c3_c2h1&#37;&#52;&#48;ph&#46;This">c3_c2h1<span>&#64;</span>ph<span>&#46;</span>This</a> could of course also be performed on the basis of any other ic. As consequence more parameters from the
+Benzene referece system could be applied.</p>
+<p>A further valuable possibility is making use of the <strong>atfix</strong> feature …</p>
+<p>By the help of the <strong>upgrade</strong> feature reference systems can be upgraded in order to increase their transferability …</p>
+</div>
+</div>
+<div class="section" id="technical-details">
+<h2><span class="section-number">2.1.3. </span>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<p>Lorem ipsum</p>
+<div class="section" id="file-io">
+<h3><span class="section-number">2.1.3.1. </span>File IO<a class="headerlink" href="#file-io" title="Permalink to this headline">¶</a></h3>
+<p>The assigned FF can also be written to harddisk by the help of two different filetypes, which should be explained in the section. For this
+purpose we take in the first place Benzene as example. The first file type is the so called ric file. It defines all ic of the system and links
+them to the corresponding parameter sets. A ric file has 6 sections:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><strong>bnd</strong>: In this section all bonds of the system are defined by two atom indices per bond.</p></li>
+<li><p><strong>ang</strong>: In this section all angles of the system are defined by three atom indices per angle.</p></li>
+<li><p><strong>dih</strong>: In this section all dihedrals of the system are defined by four atom indices per dihedral.</p></li>
+<li><p><strong>oop</strong>: In this section all out-of plane bendings of the system are defined by four atom indices per oop.</p></li>
+<li><p><strong>cha</strong>: In tis section all charges of the system are defined by one atom index per charge.</p></li>
+<li><p><strong>vdw</strong>: In this section all vdW ics of the system are defined by one atom index per vdW.</p></li>
+</ol>
+</div></blockquote>
+<p>A typical section is composed as follows. The first line comprises of the section’s name and the number of
+corresponding ics. For the <strong>bnd</strong> section of benzene this looks as follows:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>bnd 12
+</pre></div>
+</div>
+<p>Then as many lines as ics has to follow. The first number in each line is an index running from 1 to the number
+of specified ics. The next number is a pointer to a potential defined in the par file, and the last numbers define the
+ic. The whole <strong>bnd</strong> blocks for benzene looks as follows. The highlited line defines a bond between the atoms 1 and 2,
+and assigns the potential with index 1 to it.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>bnd 12
+<span class="hll">1 1 1 2 
+</span>2 1 1 6 
+3 2 1 12 
+4 1 2 3 
+5 2 2 7 
+6 1 3 4 
+7 2 3 8 
+8 1 4 5 
+9 2 4 9 
+10 1 5 6 
+11 2 5 10 
+</pre></div>
+</div>
+<p>The actual potentials are defined in the par file. The first line states always the name of the FF. In our example
+this is MOF-FF.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>FF MOF-FF
+</pre></div>
+</div>
+<p>This header line is followed by at least six sections:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><strong>bnd_type</strong>: In this section all stretch potentials are defined</p></li>
+<li><p><strong>ang_type</strong>: In this section all bending potentials are defined</p></li>
+<li><p><strong>dih_type</strong>: In this section all torsion potentials are defined</p></li>
+<li><p><strong>oop_type</strong>: In this section all out-of plane bending potentials are defined</p></li>
+<li><p><strong>cha_type</strong>: In tis section all Coulomb potentials are defined</p></li>
+<li><p><strong>vdw_type</strong>: In this section all vdW potentials are defined</p></li>
+</ol>
+</div></blockquote>
+<p>A typical section is composed as follows. The first line comprises of the sections’s name and the number
+of defined potentials. Then as many lines as defined potentials follow. In the benzene model only two diffrent
+stretch potentials are defined. In these lines the first number is the index of the potential, the second number in
+a line defining an ic in the ric file refers to this index. This index is followed by a string defining the type
+of the potential, and then the actual parameters come. At last a string comes which defines the name and the source
+of the parameter set.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>bnd_type 2
+<span class="hll">1                      mm3      7.08000000      1.39400000           # mm3-&gt;(c3_c2h1@ph,c3_c2h1@ph)|benzene
+</span>2                      mm3      5.43000000      1.09400000           # mm3-&gt;(c3_c2h1@ph,h1_c1@ph)|benzene
+</pre></div>
+</div>
+<p>If the par file should be used to set up a parameterization run with the FFgenerator code, the file containing the
+parameter sets is not longer called par file, instead it got the ending fpar. In order to mark a parameter as variable
+the corresponding floating point number is replaced by a string starting with <strong>$</strong>. In addition the initial value together
+with boundary information has to be specified. How this is done is illustrated on the example of biphenyl. An excerpt
+of its fpar file is shown.</p>
+<div class="highlight-txt notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span>FF MOF-FF
+
+bnd_type 4
+1                      mm3      6.82745519      1.39497966           # mm3-&gt;(c3_c2h1@ph,c3_c2h1@ph)|benzene
+2                      mm3           $b2_0           $b2_1           # mm3-&gt;(c3_c3@ph,c3_c3@ph)|ph-ph
+
+azone  1 12
+
+refsysname ph-ph
+
+variables 22
+     $b2_0      1.00000000      0.00000000      2.00000000   h   i
+     $b2_1      1.48570600      1.33713540      1.63427660   h   i
+</pre></div>
+</td></tr></table></div>
+<p>In line 5 two parameters of the bond potential with index 2 are marked as variable. These variables are then
+defined in the added <strong>variables</strong> section, starting at line 11. The <strong>variables</strong> keyword is followed by a number
+indicating the amount of variables which should be defined. In the following every line defines one variable.
+The string defines the name of the variable, and is followed by its initial value. Then the upper and lower
+bound are specified. The last two strings define the nature of the bounds, an <strong>h</strong> stands for a hard margin, which means
+that it is not allowed that the variable gets beyond this tressholt, an <strong>i</strong> indicates a weak margin.</p>
+<p>In addition two lines differing from the standard par file occur. Line 7 defines the active zone of the system,
+whereas line 9 specify the name of the new reference system. Both lines are required.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">2.1.4. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The files and scripts needed to exploit the following examples can be found in the examples subdirectory of your molsys
+distribution.</p>
+<div class="section" id="assignment">
+<h3><span class="section-number">2.1.4.1. </span>Assignment<a class="headerlink" href="#assignment" title="Permalink to this headline">¶</a></h3>
+<p>The first example shows how to use the assignment scheme to setup a FF for a molecular system. The MOF HKUST-1 is chosen
+as molecular system of interest. At first a mol object of HKUST-1 has to be generated together with an ff addon instance
+alongside.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">import</span> <span class="nn">molsys</span>
+<span class="o">&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;HKUST-1.mfpx&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;ff&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To assign the parameters for the desired FF (here MOF-FF), the following code has to be executed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">assign_params</span><span class="p">(</span><span class="s2">&quot;MOF-FF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If no AssignmentError is raised, the assignment process has been successful and the mol object can be used for simulations
+using LAMMPS or PYDLPOLY.</p>
+<p>In order to skip the assignment loop and to read the FF from a file use the following command. It is assumed that a file
+HKUST-1.par and HKUST-1.ric is available.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;HKUST-1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To write the FF to a file use the write procedure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;HKUST-1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This create the files HKUST-1.ric and HKUST-1.par.</p>
+</div>
+<div class="section" id="preparation-of-a-parameterization-run">
+<h3><span class="section-number">2.1.4.2. </span>Preparation of a parameterization run<a class="headerlink" href="#preparation-of-a-parameterization-run" title="Permalink to this headline">¶</a></h3>
+<p>As already mentioned, the FF addon can also used for the preparation of ric and fpar file for a parameterization run. The big
+advantage is, that the already existing parameters are automatically assigned. We will demonstrate this feature using Biphenyl as
+example. It should be parameterized in a building block fashion, on the basis of already obtained parameters for Benzene.</p>
+<p>At first again a mol object together with a ff addon instance has to be instanstiated.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">import</span> <span class="nn">molsys</span>
+<span class="o">&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;ph-ph.mfpx&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;ff&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In order to prepare a parameterization run one has to call the <code class="docutils literal notranslate"><span class="pre">assign_params</span></code> method in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">assign_params</span><span class="p">(</span><span class="s2">&quot;MOF-FF&quot;</span><span class="p">,</span> <span class="n">refsysname</span><span class="o">=</span><span class="s2">&quot;ph-ph&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The refsysname argument tells the method to do not raise an AssignmentError if not parameters for all ics could be found.
+Instead the internal data strucutures are prepared for an parameterization run.</p>
+<p>In addition one can also specify an <strong>azone</strong> which forces the algorithm to do not distribute parameters to an ic which has atoms
+included in the active zone. The azone is specified as followed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">assign_params</span><span class="p">(</span><span class="s2">&quot;MOF-FF&quot;</span><span class="p">,</span> <span class="n">refsysname</span><span class="o">=</span><span class="s2">&quot;ph-ph&quot;</span><span class="p">,</span> <span class="n">azone</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Note that here like in the whole molsys API the python numbering scheme starting at zero is employed. In addition it is possible to
+specify equivalences. For this purpose a dictionary of dictionary to be passed. The keys of the outer dictionary are the names
+of the reference systems for which the equivalence should be applied, in this case it is benzene, its value is again a dictionary
+in which the ic for which the equivalences should be applied are stated as keys. Argument is the inner dictionary in which the
+indices of the atoms which should be altered are stated as keys. Value is an aftype object into which the origianl aftype should be
+altered.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">from</span> <span class="nn">molsys.util.aftypes</span> <span class="kn">import</span> <span class="n">aftpye</span>
+<span class="o">&gt;&gt;</span> <span class="n">equivs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;benzene&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;dih&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span><span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c2h1&quot;</span><span class="p">,</span><span class="s2">&quot;ph&quot;</span><span class="p">),</span>
+    <span class="mi">11</span><span class="p">:</span><span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c2h1&quot;</span><span class="p">,</span><span class="s2">&quot;ph&quot;</span><span class="p">)},</span>
+    <span class="s2">&quot;oop&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span><span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c2h1&quot;</span><span class="p">,</span><span class="s2">&quot;ph&quot;</span><span class="p">),</span>
+    <span class="mi">11</span><span class="p">:</span><span class="n">aftype</span><span class="p">(</span><span class="s2">&quot;c3_c2h1&quot;</span><span class="p">,</span><span class="s2">&quot;ph&quot;</span><span class="p">),</span>
+    <span class="p">}}}</span>
+<span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">assign_params</span><span class="p">(</span><span class="s2">&quot;MOF-FF&quot;</span><span class="p">,</span> <span class="n">refsysname</span><span class="o">=</span><span class="s2">&quot;ph-ph&quot;</span><span class="p">,</span> <span class="n">azone</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>To write the gathered data to a file, again the write method is invoked</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ph-ph&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This creates the file ph-ph.fpar and ph-ph.ric. The read routine has to invoked with the fpar=True flag.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;ph-ph&quot;</span><span class="p">,</span> <span class="n">fpar</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user_addon_acab.html" class="btn btn-neutral float-right" title="2.2. The ACAB addon" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_addon.html" class="btn btn-neutral float-left" title="2. Addons" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

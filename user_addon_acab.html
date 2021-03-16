@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>2.2. The ACAB addon &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Utility Modules" href="user_util.html" />
+    <link rel="prev" title="2.1. The FF addon" href="user_addon_ff.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_addon.html">2. Addons</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html">2.1. The FF addon</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.2. The ACAB addon</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">2.2.1. Introduction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#disclaimer">2.2.1.1. Disclaimer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#motivation">2.2.2. Motivation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#isoreticular-isomerism">2.2.2.1. Isoreticular Isomerism</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#block-multiplicity">2.2.2.2. Block multiplicity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-colors">2.2.2.3. Why colors?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#overview">2.2.3. Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-reverse-topological-approach">2.2.3.1. <em>advanced</em> Reverse Topological Approach</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#workflow">2.2.3.2. Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#installation">2.2.4. Installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scip-and-pyscipopt">2.2.4.1. SCIP and PySCIPOpt</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">2.2.5. Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edge-colored-unit-cell-pcu">2.2.5.1. 2,1-edge colored unit cell <strong>pcu</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">2.2.5.2. 1,1-edge colored unit cell <strong>pcu</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edge-colored-supercell-pcu">2.2.5.3. 2,1-edge colored supercell <strong>pcu</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edge-colored-pcu-with-an-axial-constraint">2.2.5.4. 2,1-edge colored <strong>pcu</strong> with an “axial” constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edge-colored-apo-with-an-axial-constraint">2.2.5.5. 2,1-edge colored <strong>apo</strong> with an axial constraint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edge-colored-rtl-with-an-axial-constraint">2.2.5.6. 2,1-edge colored <strong>rtl</strong> with an axial constraint</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#algorithm">2.2.6. Algorithm</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#domain">2.2.6.1. Domain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#problem">2.2.6.2. Problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solver">2.2.6.3. Solver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solutions">2.2.6.4. Solutions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loop">2.2.6.5. Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id30">2.2.7. Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#feature-tests">2.2.7.1. Feature tests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#technical-details">2.2.8. Technical Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#file-i-o">2.2.8.1. File I/O</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#glossary-wip">2.2.9. Glossary (<em>WiP</em>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#improvements">2.2.10. Improvements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#new-tests">2.2.10.1. New Tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#new-examples">2.2.10.2. New Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clearer-documentation">2.2.10.3. Clearer Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#credits">2.2.11. Credits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#license">2.2.12. License</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">2.2.13. Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">2.2.14. References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="user_addon.html"><span class="section-number">2. </span>Addons</a> &raquo;</li>
+        
+      <li><span class="section-number">2.2. </span>The ACAB addon</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_addon_acab.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-acab-addon">
+<h1><span class="section-number">2.2. </span>The ACAB addon<a class="headerlink" href="#the-acab-addon" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/acab-flag.png"><img alt="acab logo flag" class="align-center" src="_images/acab-flag.png" style="width: 700.0px; height: 312.0px;" /></a>
+<div class="section" id="introduction">
+<h2><span class="section-number">2.2.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>ACAB</strong> [<em>All Colors Are Beautiful</em>] addon of <a class="reference internal" href="_api/molsys.html#molsys.mol.mol" title="molsys.mol.mol"><code class="xref py py-class docutils literal notranslate"><span class="pre">molsys.mol.mol</span></code></a> takes care of coloring crystal nets. The goal is to use colors to weave frameworks (MOFs, COFs, ZIFs, and the like), to suggest novel materials, and to support earlier syntheses.</p>
+<div class="section" id="disclaimer">
+<h3><span class="section-number">2.2.1.1. </span>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h3>
+<p>If your background is Maths, coloring nets may not be confused with <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_coloring">graph coloring</a>. Please consider colors just as <em>labels</em> in the sense of <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_labeling">graph labeling</a>. Our design choice to call general-case labels as colors instead of just labels is intended to help non-mathematicians to grab the concepts here exposed.</p>
+</div>
+</div>
+<div class="section" id="motivation">
+<h2><span class="section-number">2.2.2. </span>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="isoreticular-isomerism">
+<h3><span class="section-number">2.2.2.1. </span>Isoreticular Isomerism<a class="headerlink" href="#isoreticular-isomerism" title="Permalink to this headline">¶</a></h3>
+<p>To build a framework, its molecular constituencies are connected according to a given topology. In other terms, the <em>building blocks</em> (or just <em>blocks</em>) are <em>weaved</em> according to a given <em>net</em>. This is done assigning each block to an edge or (more often) vertex of the net, then the block is rotated to “match” its connectors to the surrounding blocks’ connectors (its <em>slot</em>). For further technical references, see <code class="xref py py-class docutils literal notranslate"><span class="pre">weaver.framework.framework</span></code>.</p>
+<a class="reference internal image-reference" href="_images/0_mofs2net.png"><img alt="frameworks to net: unambiguous" class="align-center" src="_images/0_mofs2net.png" style="width: 700.0px; height: 490.0px;" /></a>
+<p>As Bureekaew <em>et al.</em> highlighted, <a class="footnote-reference brackets" href="#bur15" id="id1">16</a> there exist cases where a framework and its deconstruction in terms of given blocks is not always <em>bijective</em>, <em>i.e.</em> one cannot deconstruct a framework and construct it again reversibly. Indeed, the deconstruction process - the <em>Topological Approach [TA]</em> - is unambiguous for a given set of blocks, <a class="footnote-reference brackets" href="#dut49" id="id2">1</a> whereas the construction process - the <em>Reverse Topological Approach [RTA]</em> - can end up with multiple frameworks out of the same starting nets and blocks. This phenomenon is called <em>isoreticular isomerism</em> and the resulting frameworks are <em>distinct chemical species</em> - they may be even stereoisomers! - with different pore shapes and sizes, physico-chemical properties, and so forth. That is why isoreticular isomerism must be taken into consideration by materials researchers.</p>
+<a class="reference internal image-reference" href="_images/1_net2mofs.png"><img alt="frameworks to net: unambiguous" class="align-center" src="_images/1_net2mofs.png" style="width: 700.0px; height: 490.0px;" /></a>
+</div>
+<div class="section" id="block-multiplicity">
+<h3><span class="section-number">2.2.2.2. </span>Block multiplicity<a class="headerlink" href="#block-multiplicity" title="Permalink to this headline">¶</a></h3>
+<p>The <em>necessary</em> condition for isoreticular isomerism is the <em>block multiplicity</em>.</p>
+<ul class="simple">
+<li><p>Asymmetric blocks which lower the connectivity symmetry of their slots can rotate multiple different ways and then connect accordingly. The framework may show an <em>orientational multiplicity</em>. This is for example the MOF-505/NOTT-100 case described in <a class="footnote-reference brackets" href="#bur15" id="id3">16</a>, where the rectangular linker enters a square slot.</p></li>
+<li><p>Different blocks that can be assigned to the same vertex type (or edge type) can scramble their position multiple ways and then connect accordingly. The framework may show a <em>translational multiplicity</em>. For instance, this case always arises when defects are involved and no given defect correlation is forced. Multivariate frameworks may show this multiplicity too.</p></li>
+</ul>
+<p>Block multiplicity is not a rare property. Let’s take the paddlewheel, which is among the most representative clusters in MOFs.</p>
+<ul class="simple">
+<li><p>When the paddlewheel is unsaturated, just the 4 carbon atoms of the carboxylate moieties count as connectors. These connectors draw a square shape, which fits any nets with planar 4-connected vertices without decreasing the symmetry. That is because the square symmetry group contains the symmetry group of any planar quadrilateral.</p></li>
+<li><p>When the paddlewheel is saturated, the 4 carbon atoms and the apical 2 metal atoms draw a compressed octahedron. No matter the symmetry of its surroundings, there are different inequivalent rotations of the paddlewheel, being 3 the minimum in the case of a regular octahedral slot (these rotations coincide with the 3 orientations of the axes).</p></li>
+</ul>
+<p>Block multiplicity is not <em>sufficient</em> to obtain isoreticular isomers. For instance, a paddlewheel and two symmetric linkers - one with carboxylate moieties and the other with nitrogen connectors - can build only one framework with that net (no isomerism) since the chemistry of the problem constraints paddlewheel rotation to be only one: carbon with carbon and metal with nitrogen. (see further <a class="reference external" href="#examples">here</a>)</p>
+<p>Another trickier example is the family of pillared MOFs based on a <strong>pcu</strong> net with symmetric linkers and saturated paddlewheel. If only the unit cell (<em>i.e.</em> just one vertex) is chosen to represent the bulk MOF, then the paddlewheel and its surrounding linkers rotate synchronously with all their periodic images. The picture changes when we consider supercells, allowing for isoreticular isomerism. (see again <a class="reference external" href="#examples">here</a>)</p>
+</div>
+<div class="section" id="why-colors">
+<h3><span class="section-number">2.2.2.3. </span>Why colors?<a class="headerlink" href="#why-colors" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="_images/blocks-difference.png"><img alt="two blocks in same slot" class="align-center" src="_images/blocks-difference.png" style="width: 700.0px; height: 266.0px;" /></a>
+<p>Here we show several descriptions to represent two different blocks into the same slot. The slot is made of 3 vertices, which draw an equilateral triangle. Regarding the blocks:</p>
+<ul class="simple">
+<li><p>the first block is 1,3,5-benzenetricarboxylate, commonly known as trimesate and shortened as <em>btc</em>: it is a well-established block in the framework community;</p></li>
+<li><p>the second block is 5-(3-pyridinylmethoxy)-isophthalate, which the paper <a class="footnote-reference brackets" href="#bur15" id="id5">16</a> refers to as <em>L3</em>.</p></li>
+</ul>
+<p>For our purpose, the difference to stress here is that the 3 <em>btc</em> moieties are all equivalent, whereas <em>L3</em> has 2 carboxylate moieties and 1 N-donor function (the pyridinyl).</p>
+<p>Here we show several descriptions to represent a block into its slot. We are interested in the connectivity between the block and the slot, therefore in the <em>L3</em> case any conformer is neglected.</p>
+<a class="reference internal image-reference" href="_images/block1-orientations.png"><img alt="btc orientations in equilateral triangle" class="align-center" src="_images/block1-orientations.png" style="width: 700.0px; height: 1411.0px;" /></a>
+<p>If we put the <em>btc</em> into an equilateral slot, there are 3 different orientations which reduce the distance between each carboxylate moiety and one of slot’s vertices. <a class="footnote-reference brackets" href="#orients" id="id6">13</a> These orientations are the most chemically reasonable. If one applies a symmetry operation which belongs to the slot’s space group, the 3 orientations are all equivalent: they seem the same if we do not track the original atomic positions by indices.</p>
+<p>Coloring the carboxylate termini with a <em>red</em> code is an equivalent description of the same structures. No matter the symmetry on the full-red ball-and-stick model is applied, the model remains the same.</p>
+<a class="reference internal image-reference" href="_images/block2-orientations.png"><img alt="L3 orientations in equilateral triangle" class="align-center" src="_images/block2-orientations.png" style="width: 700.0px; height: 1411.0px;" /></a>
+<p>For the <em>L3</em> case, the most chemically reasonable orientations are 3 too. The difference here is when the symmetry operations of the same slot’s space group are applied. For instance, a rotation of 120 degrees lets the pyridinyl connect a different vertex of the triangle. That is evident even without tracking the original atomic positions by indices.</p>
+<p>Coloring the carboxylate termini with the <em>red</em> code and the pyridinyl part with a <em>blue</em> code makes the ball-and-stick model two:one red:blue. Any symmetry of the slot’s space group acts on the molecule and on the 2-red,1-blue model the same.</p>
+<a class="reference internal image-reference" href="_images/blocks-idea.png"><img alt="from blocks to colors: our model" class="align-center" src="_images/blocks-idea.png" style="width: 700.0px; height: 531.0px;" /></a>
+<p>The same concept can be applied to a paddlewheel in a regular 6-connected slot, which is like a compressed octahedron inside a regular octahedron. If the carboxylate moieties are <em>red</em> and the metal ions are <em>blue</em>, then we have a 4-red,2-blue block. Applying any slot’s space group symmetry can result at maximum into 3 different orientations, <em>i.e</em> the paddlewheel metal dimer along the axes of the slot.</p>
+<a class="reference internal image-reference" href="_images/blocks2colors.png"><img alt="blocks to colors" class="align-center" src="_images/blocks2colors.png" style="width: 952.0px; height: 538.0px;" /></a>
+<p>Eventually, our message is:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>these descriptions are all equivalent
+with respect to the symmetry of a block into a slot.
+</pre></div>
+</div>
+<p>Humans discern symmetry many ways, whereas machines need numbers. To us, the color representation is the best compromise between the human and the machine understanding of symmetry loss.</p>
+</div>
+</div>
+<div class="section" id="overview">
+<h2><span class="section-number">2.2.3. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="advanced-reverse-topological-approach">
+<h3><span class="section-number">2.2.3.1. </span><em>advanced</em> Reverse Topological Approach<a class="headerlink" href="#advanced-reverse-topological-approach" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="_images/2_mofs2smt2net.png"><img alt="frameworks to colorings to grey net" class="align-center" src="_images/2_mofs2smt2net.png" style="width: 700.0px; height: 490.0px;" /></a>
+<p><strong>ACAB</strong> is part of the implementation of the <em>advanced Reverse Topological Approach [aRTA]</em>. The original RTA <a class="footnote-reference brackets" href="#bur15" id="id7">16</a> takes into consideration only the orientational multiplicity of the blocks, leaving the user to handle any translational multiplicity outside the approach. Conversely, <em>aRTA</em> includes the translational multiplicity in the scheme.</p>
+<p>These two different multiplicities - translational and orientational - can be handled one step at the time or at the same time.</p>
+<ul class="simple">
+<li><p>A stepwise aRTA - first translational, then orientational multiplicity - permits to focus on the single contributes. Apart from formalizing the first step, this is just an extension to perform before the original <em>RTA</em>.</p></li>
+<li><p>A concerted aRTA - both the multiplicities together - allows a better inter-dependence of the two. This was not formalized by the original <em>RTA</em>.</p></li>
+</ul>
+<a class="reference internal image-reference" href="_images/3_mofs2colors2net.png"><img alt="frameworks to colorings to grey net" class="align-center" src="_images/3_mofs2colors2net.png" style="width: 700.0px; height: 490.0px;" /></a>
+<p>The choice of which <em>aRTA</em> fashion to use depends on the chemistry, its encoding in the problem, the solver, and ultimately on user’s preferences. In general, when either multiplicity dominates the other, then the stepwise aRTA is clearer and easier. When neither wins, the combined aRTA is more efficient.</p>
+</div>
+<div class="section" id="workflow">
+<h3><span class="section-number">2.2.3.2. </span>Workflow<a class="headerlink" href="#workflow" title="Permalink to this headline">¶</a></h3>
+<p>The <em>aRTA</em> workflow to weave (zero,) one or more frameworks from scratch is the following:</p>
+<ol class="arabic simple">
+<li><p><em>Choose net</em></p></li>
+</ol>
+<p>– The net may be invented, generated, or download from a database (<em>e.g.</em> <a class="reference external" href="https://www.mofplus.org/">MOF+</a>). In the current implementation of <a href="#id8"><span class="problematic" id="id9">:py:module:`weaver`</span></a> the embedding of the net is crucial and  different frameworks may result. This weakness may be alleviated with an educated guess on the embedding, <em>e.g.</em> choosing the maximum symmetry embedding, or perform a purely geometrical pre-optimization <em>e.g.</em> with <em>TopoFF</em>. <a class="footnote-reference brackets" href="#keu18" id="id10">17</a></p>
+<ol class="arabic simple" start="2">
+<li><p><em>Color net</em> (here <strong>ACAB</strong> comes into play)</p></li>
+</ol>
+<p>– The net is colored representing the position of a block, its rotation, or even both. Constraints on number and arrangement of colors encode the chemistry of the problem: concentrations of blocks, specific block position and rotation, specific bond connectivity, other geometrical considerations. Constraints are invariant with respect to the embedding as long as they do not rely on coordinates (<em>e.g.</em> the color ratio); others change according to the embedding (<em>e.g.</em> concepts like colors in an axis or on a plane) and could need several attempts to fine-tune this kind of constraints for your problem. <em>N.B.</em>: if the possible coloring nets are more than one, then more than one framework can be weaved: we have isoreticular isomerism. If there exists no possible coloring, then no possible framework can be weaved under the given constraints (there is no colored net which a framework can be weaved on!): if so, <em>aRTA</em> workflow stops here.</p>
+<ol class="arabic simple" start="3">
+<li><p><em>Weave framework(s)</em></p></li>
+</ol>
+<p>– The framework is weaved according to the positions and rotations encoded by the colors. <em>TBI</em>: automatic anisotropic resizing of the net to host blocks inside.</p>
+<ol class="arabic simple" start="4">
+<li><p><em>Optimize framework(s)</em></p></li>
+</ol>
+<p>– The framework is optimized for a given level of theory which satisfies user’s needings.</p>
+<ol class="arabic simple" start="5">
+<li><p><em>Analyze framework(s)</em></p></li>
+</ol>
+<p>– Perform your favorite tools of analysis on the found framework(s).</p>
+<ol class="arabic simple" start="6">
+<li><p><em>Rank frameworks</em></p></li>
+</ol>
+<p>– If more than one framework is found, then it is worthy to sort frameworks according to their properties, <em>e.g.</em> their optimized energy or pore size or similarity to an experimental structure.</p>
+</div>
+</div>
+<div class="section" id="installation">
+<h2><span class="section-number">2.2.4. </span>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>To run <strong>ACAB</strong> you need the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">molsys</span></code> which can be get:</p></li>
+</ul>
+<p>– from <a class="reference external" href="https://github.com/MOFplus/molsys">MOF+ GitHub</a> with the following command if you have a GitHub account with MOF+ reading priviledges:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone ssh://git@github.com/MOFplus/molsys    <span class="c1"># most recent version</span>
+</pre></div>
+</div>
+<p>– or from the secret machine called <code class="docutils literal notranslate"><span class="pre">secret</span></code> (it is a reasonably updated version):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone ssh://name@secret/home/repo/tmp/molsys
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>its related dependencies (mainly <code class="docutils literal notranslate"><span class="pre">spglib</span></code>) using: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">spglib</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest</span></code> for testing purpose using: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pytest</span></code></p></li>
+</ul>
+<p>Please do not forget to add the molsys folder <code class="docutils literal notranslate"><span class="pre">$MOLSDIR</span></code> to your <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code>.</p>
+<div class="section" id="scip-and-pyscipopt">
+<h3><span class="section-number">2.2.4.1. </span>SCIP and PySCIPOpt<a class="headerlink" href="#scip-and-pyscipopt" title="Permalink to this headline">¶</a></h3>
+<p>Current version of <strong>ACAB</strong> uses <em>SCIP</em> [<em>Solver for Constraint Integer Programming</em>] and <em>PySCIPOpt</em> [its python interface]. Other solvers like MC or GA are not available at the moment.</p>
+<p><em>SCIP</em> with its suite can be downloaded <em>via</em> <a class="reference external" href="http://scip.zib.de/">scip website</a> filling a very brief form. <strong>ACAB</strong> is tested with <em>SCIP 5</em> and <em>SCIP 6</em>. <em>PySCIPOpt</em>, <a class="reference external" href="https://github.com/SCIP-Interfaces/PySCIPOpt">which can be cloned or downloaded *via* GitHub</a>, is updated by design just after a new <em>SCIP</em> release, so there should not be any problem with inconsistent versions between them.
+<strong>ACAB</strong> is tested against the current versions (24.10.2018) of <em>SCIP</em> and <em>PySCIPOpt</em>.</p>
+<p>If you are brave enough/have no time to bother with dipendencies, I prepared a script in the <code class="docutils literal notranslate"><span class="pre">secret</span></code> machine which runs automatically the installation of both.</p>
+<ul class="simple">
+<li><p>Since the script uses <code class="docutils literal notranslate"><span class="pre">sudo</span></code>-er’s priviledge, please <strong>do not trust it blindly</strong> and see where these <code class="docutils literal notranslate"><span class="pre">sudo</span></code>-es are needed:</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ssh name@secret grep <span class="s1">&#39;sudo&#39;</span> /home/repo/codes/scip/install.sh <span class="p">|</span> grep sudo
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If you are still suspicious, run:</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ssh name@secret cat /home/repo/codes/scip/install.sh
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>If the script is above your level of trust, you can install <code class="docutils literal notranslate"><span class="pre">scip</span></code> and <code class="docutils literal notranslate"><span class="pre">pyscipopt</span></code> in a glimpse:</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>scp name@secret:/home/repo/codes/scip/install.sh scip_install.sh
+<span class="gp">$ </span>./scip_install.sh
+</pre></div>
+</div>
+<p><em>TIP</em>: By default, only <code class="docutils literal notranslate"><span class="pre">scip</span></code> will be tested. If you installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code> previously, <code class="docutils literal notranslate"><span class="pre">pyscipopt</span></code> will be tested too. Testing <strong>ACAB</strong> is not automatically done by the <code class="docutils literal notranslate"><span class="pre">install.sh</span></code> script: see <a class="reference external" href="#tests">Tests</a>.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2><span class="section-number">2.2.5. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="edge-colored-unit-cell-pcu">
+<h3><span class="section-number">2.2.5.1. </span>2,1-edge colored unit cell <strong>pcu</strong><a class="headerlink" href="#edge-colored-unit-cell-pcu" title="Permalink to this headline">¶</a></h3>
+<p>A minimal working example for ACAB will be as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;pcu&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;acab&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_model</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_ecratio</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">cycle_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Let’s analyze step by step what’s happening here.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">molsys</span></code></p></li>
+</ul>
+<p>– import <code class="docutils literal notranslate"><span class="pre">molsys</span></code> module, which should be available irrespective to whether you have properly installed <strong>ACAB</strong>. Please read <a href="#id11"><span class="problematic" id="id12">:py:module:`molsys`</span></a> troubleshooting if it does not work.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">=</span> <span class="pre">molsys.mol.from_file(&quot;pcu&quot;)</span></code></p></li>
+</ul>
+<p>– read “pcu.mfpx” file, the <strong>pcu</strong> [<em>primitive centered unit</em>] net file with periodic connectivity to each image of the unit cell. If you have not got this mfpx file: 1)go it <a class="reference external" href="https://www.mofplus.org/nets/net/pcu">here</a>; 2)click “Download coordinates” at the bottom of the page; 3)save the file; 4)move the file to the directory of your script. In alternative, you can use <strong>MOF+</strong> api: <code class="xref py py-class docutils literal notranslate"><span class="pre">mofplus.user_api</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m.addon(&quot;acab&quot;)</span></code></p></li>
+</ul>
+<p>– add the <code class="docutils literal notranslate"><span class="pre">acab</span></code> attribute to the <code class="docutils literal notranslate"><span class="pre">m</span></code> instance. <code class="docutils literal notranslate"><span class="pre">m.acab</span></code> is now the interface to access <strong>ACAB</strong> features, and <code class="docutils literal notranslate"><span class="pre">m.acab.Model</span></code> is the interface to <code class="docutils literal notranslate"><span class="pre">PySCIPOpt</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m.acab.setup_model()</span></code></p></li>
+</ul>
+<p>– setup constraint integer model as instance of the <code class="xref py py-class docutils literal notranslate"><span class="pre">pyscipopt.Model</span></code> class. The model has currently no variable or constraint. <code class="docutils literal notranslate"><span class="pre">m.acab.vvars</span></code> and <code class="docutils literal notranslate"><span class="pre">m.acab.evars</span></code> are now empty dictionary of vertex and edge variables, respectively. <em>N.B.</em>: Anytime this method is called, a new instance will be made, so the previous variables and constraints will be wiped out and the dictionaries of variables reset.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m.acab.setup_ecratio([2,1])</span></code></p></li>
+</ul>
+<p>– setup overall edge color ratio of the net as constraint of the model. Each number refers to the colors in increasing order. In this case, there is a number of <em>0-typed</em> edge colors twice as <em>1-typed</em> edge colors, <em>e.g.</em> the ratio between red and blue colors is 2:1. <em>N.B.</em>: any number can be given (even float) and the ratio will be distributed as integers according to pure proportionality. <a class="footnote-reference brackets" href="#dhont" id="id14">4</a> Giving more numbers will have more color types, <em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">[3,1,2]</span></code> means the ratio between red/blue/green colors is as close as possible to 3:1:2.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">m.acab.cycle_loop()</span></code></p></li>
+</ul>
+<p>– perform a loop to get all-and-only the possible <em>colorings</em> (<em>i.e.</em> collective assignment of colors). For each iteration of the loop, a coloring is found as solution of our model, then its equivalent solutions according to space group symmetry are set as negated constraint the next iteration of the loop to decrease the search space and avoid to find a solution in the same symmetry subspace. This goes until <em>infeasibility</em>, <em>i.e.</em> no more solutions are possible. <em>N.B.</em>: that is the power of infeasibility algorithms such as <cite>SCIP</cite>, they can assess whether a problem is feasible. If there is no more feasible solutions, then we have finished!</p>
+<p>In this minimal working example, the exact number of possible colorings is just - and unsurprisingly - 1. Although the connectivity list of the single <strong>pcu</strong> vertex has 6 of its images, the edges are equal in pairs. Therefore, there exist only 3 unique edges, which can be colored in only 3 ways keeping the 2:1 ratio. <a class="footnote-reference brackets" href="#anagr111" id="id15">5</a> These colorings are automatically detected by <code class="docutils literal notranslate"><span class="pre">spglib</span></code> as all equivalent by symmetry, <a class="footnote-reference brackets" href="#sym" id="id16">9</a> so that there exists only 1 structure. This is the reason why there is only one JAST-1 isomer to be weaved out of the 2,1-edge colored unit cell <strong>pcu</strong>.</p>
+</div>
+<div class="section" id="id17">
+<h3><span class="section-number">2.2.5.2. </span>1,1-edge colored unit cell <strong>pcu</strong><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>Let’s slightly modify this little script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;pcu&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;acab&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_model</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_ecratio</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]):</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">cycle_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This results the same output as before: can you explain why?</p>
+</div>
+<div class="section" id="edge-colored-supercell-pcu">
+<h3><span class="section-number">2.2.5.3. </span>2,1-edge colored supercell <strong>pcu</strong><a class="headerlink" href="#edge-colored-supercell-pcu" title="Permalink to this headline">¶</a></h3>
+<p>Let’s use supercells:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;pcu&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;acab&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_model</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_ecratio</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">cycle_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here it starts to get interesting: 41 solutions which are different by symmetry. <em>“Higher the size of the supercell, higher the number of solutions”</em> is expectable: first of all, the bigger the cell the more the edges; secondly, being fewer the edges crossing the boundaries, the periodic boundary conditions constraint fewer edges. If the increasing of solutions from 1 to 41 seems huge, let me consider that they would be 735471 without considering the symmetry space group equivalence. <a class="footnote-reference brackets" href="#anagr222" id="id18">6</a> For the moment being, we have not found a closed formula that inputs these 735471 and outputs only the 41 solutions… Suggestions are very much appreciated!</p>
+<p>Even giving the same net, the supercell size plays a key role.</p>
+<p><em>N.B.</em> if you are curious: with no further constraint, there is a lot of 3x3x3 <strong>pcu</strong> colorings! Please don’t try this if your time is limited.</p>
+</div>
+<div class="section" id="edge-colored-pcu-with-an-axial-constraint">
+<h3><span class="section-number">2.2.5.4. </span>2,1-edge colored <strong>pcu</strong> with an “axial” constraint<a class="headerlink" href="#edge-colored-pcu-with-an-axial-constraint" title="Permalink to this headline">¶</a></h3>
+<p>Some block shows further geometrical requirements. For instance, the paddlewheel can only be connected with nitrogen donors axially. That means we need an additional constraints for the colors these donors assign to. Those colored edges must roughly draw a straight angle.</p>
+<div class="section" id="x1x1-supercell-unit-cell-caveat">
+<h4><span class="section-number">2.2.5.4.1. </span>1x1x1 “supercell”: unit cell <em>caveat</em><a class="headerlink" href="#x1x1-supercell-unit-cell-caveat" title="Permalink to this headline">¶</a></h4>
+<p>The program fails if you add this constraint the <code class="docutils literal notranslate"><span class="pre">m.acab.setup_angle_btw_edges</span></code> constraint to the unit cell. (see further) It’s a painless bug and must be fixed. In the meantime, consider you do not really need this constraint for the unit cell <strong>pcu</strong>. Can you explain why? (tip: see <a class="reference external" href="#edge-colored-unit-cell-pcu">here</a>)</p>
+</div>
+<div class="section" id="x2x2-supercell">
+<h4><span class="section-number">2.2.5.4.2. </span>2x2x2 supercell<a class="headerlink" href="#x2x2-supercell" title="Permalink to this headline">¶</a></h4>
+<p>Let’s start with the 2x2x2 supercell, <em>i.e.</em> the unit cell is repeated twice along the three directions of the space:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;pcu&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;acab&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_model</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_ecratio</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_angle_btw_edges</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">cycle_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">m.make_supercell([2,2,2])</span></code> makes a 2x2x2 supercell starting from the current cell (in this case: <strong>pcu</strong> unit cell). If applied twice, you get for instance the 4x4x4 supercell. (Hadamart product: 2x2x2 * 2x2x2 = 4x4x4)</p>
+<p><code class="docutils literal notranslate"><span class="pre">m.acab.setup_angle_btw_edges(color=1,</span> <span class="pre">theta=3)</span></code> means that: the constraint is applied to the <em>second</em> <a class="footnote-reference brackets" href="#pyind" id="id20">12</a> colors, and the angle <code class="docutils literal notranslate"><span class="pre">theta</span></code> between them must be at least 3 radiants (~172 degrees). To change the comparison, there is the <code class="docutils literal notranslate"><span class="pre">sense</span></code> keyword argument, <em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">sense=&quot;max&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">sense=&quot;close&quot;</span></code>.</p>
+<p>The number of found solutions drops from 41 to 2. One solution has all parallel second colors and the other draws two skew planes of second colors. What’s their meaning framework-side?</p>
+<p>If the first color is the <em>bdc</em> linker, the second is the <em>dabco</em> linker and their intersection hosts a paddlewheel, then it is easier to see a JAST-1 framework in these colored nets. The parallelly-colored net represents the standard JAST-1, the skewedly-colored one represents a twisted JAST-1. Whereas the first structure is common knowledge, the second one is not immediate to consider if one starts from these constraints. All in all, such twisted <em>bdc</em>’s are too higher in energy, and thus the second framework does not form in standard conditions. To actually see a competition of structures that arise from these two colorings, one should use more flexible linkers that can turn around their axis, for instance <em>bipy</em>.</p>
+<p><em>N.B.</em>: watch out, <strong>pcu</strong> is the net with the largest symmetry group, so it is expected it needs more operations to be computed. It is not intended it is <em>so slow</em> to take more than 2 minutes. Investigation will be done.</p>
+</div>
+<div class="section" id="x3x3-supercell">
+<h4><span class="section-number">2.2.5.4.3. </span>3x3x3 supercell<a class="headerlink" href="#x3x3-supercell" title="Permalink to this headline">¶</a></h4>
+<p>The code is the same but you substitute <code class="docutils literal notranslate"><span class="pre">[3,3,3]</span></code> to <code class="docutils literal notranslate"><span class="pre">[2,2,2]</span></code>. What happens to the symmetry? How many solutions you get? May you recognize which solutions have already been found in the <code class="docutils literal notranslate"><span class="pre">[2,2,2]</span></code> case? And in the <code class="docutils literal notranslate"><span class="pre">[1,1,1]</span></code>? Tip: something old is lost, something new is found.</p>
+</div>
+<div class="section" id="x4x4-supercell-and-beyond">
+<h4><span class="section-number">2.2.5.4.4. </span>4x4x4 supercell and beyond<a class="headerlink" href="#x4x4-supercell-and-beyond" title="Permalink to this headline">¶</a></h4>
+<p>The larger the supercell is, the more the solutions and thus the different frameworks are. The larger the supercell is, the more the variables, the symmetry operations and the constraints to apply are, the longer the time to compute the solutions is. Although this general intuition holds, the number of found solutions does not increase rapidly. It is an increase of a few more solutions when increasing the supercell by one unit cell in the three directions. That is mainly due to the axial constraint we imposed since it propagates the constraint through a pillar of edges. Moreover, as soon as the second-colored two edges per vertex are fixed, the rest of the colors are fixed too.</p>
+<p>These new frameworks describe skew planes of pillared edges. The collective orientations of edges per pillar are just two, therefore the problem would be way easier with a global representation than a local one. All in all, it is just to count the number of different anagrams of a word with just A’s and B’s. <a class="footnote-reference brackets" href="#periodanagr" id="id21">7</a> However, this approach is not generalizable since it requires a different formalization per each input problem, <em>i.e</em> per each set of nets and constraints. <a class="footnote-reference brackets" href="#metacolors" id="id22">8</a></p>
+</div>
+</div>
+<div class="section" id="edge-colored-apo-with-an-axial-constraint">
+<h3><span class="section-number">2.2.5.5. </span>2,1-edge colored <strong>apo</strong> with an axial constraint<a class="headerlink" href="#edge-colored-apo-with-an-axial-constraint" title="Permalink to this headline">¶</a></h3>
+<p>This example focuses on the importance of the <em>theta</em> parameter in the axial constraint for nets which have non-straight angles. Let’s consider the <strong>apo</strong> net with the same constraints as the <strong>pcu</strong> example: edge color ratio and angle between edges. A critical difference is that <strong>apo</strong> have two vertex type: one is 6-connected (the octahedron) and the other is 3-connected (the triangle). We must apply the axial constraint only to the octahedron (the paddlewheel) since the triangle (the linker) is free. (and the concept of axiality makes no sense for a triangle!) Therefore we need to select only the 6-connected vertices.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;apo&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;acab&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_model</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_ecratio</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">selection</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">conn</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">]</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">setup_angle_btw_edges</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="n">pi</span><span class="p">,</span> <span class="n">sele</span><span class="o">=</span><span class="n">selection</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">acab</span><span class="o">.</span><span class="n">cycle_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The new line is <code class="docutils literal notranslate"><span class="pre">selection</span> <span class="pre">=</span> <span class="pre">[i</span> <span class="pre">for</span> <span class="pre">i,e</span> <span class="pre">in</span> <span class="pre">enumerate(m.conn)</span> <span class="pre">if</span> <span class="pre">len(e)</span> <span class="pre">==</span> <span class="pre">6]</span></code>. To whom is not familiar with python: it is a list comprehension of all the vertices with a connectivity of length equals to 6, <em>i.e</em> in this case it is the selection of the octahedra. This way we can give <code class="docutils literal notranslate"><span class="pre">selection</span></code> as <code class="docutils literal notranslate"><span class="pre">sele</span></code> keyword argument to the angular constraint: the constraint will be applied only on the secondly-colored edges surrounding octrahedra. This setup results only on 1 structure.</p>
+<p>Decreasing the <code class="docutils literal notranslate"><span class="pre">theta</span></code> parameter, the number of inequivalent solutions increases. For instance, for a <code class="docutils literal notranslate"><span class="pre">theta</span></code> of 2.6 radiants, the number of possible solutions is 2. If the constraint is completely disabled (try it adding a leading sharp to its line), then the number of possible inequivalent 2,1-colorings for unit cell <strong>apo</strong> is 63.</p>
+<p><em>N.B.</em>: comparing the number of solutions of unit cell <strong>apo</strong> against unit cell <strong>pcu</strong> may lead to slippery considerations. The number of vertices in <strong>apo</strong> is 12, while number of vertices in <strong>pcu</strong> is just 1.</p>
+</div>
+<div class="section" id="edge-colored-rtl-with-an-axial-constraint">
+<h3><span class="section-number">2.2.5.6. </span>2,1-edge colored <strong>rtl</strong> with an axial constraint<a class="headerlink" href="#edge-colored-rtl-with-an-axial-constraint" title="Permalink to this headline">¶</a></h3>
+<p>The <strong>rtl</strong> (<em>rutile</em>) unit cell net has the same number of vertices as <strong>apo</strong> so it could be interesting to compare these two nets. Try the same constraints and test different angles for the angular constraint (<em>e.g.</em>: 3, 2.6, and 0).</p>
+</div>
+</div>
+<div class="section" id="algorithm">
+<h2><span class="section-number">2.2.6. </span>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="domain">
+<h3><span class="section-number">2.2.6.1. </span>Domain<a class="headerlink" href="#domain" title="Permalink to this headline">¶</a></h3>
+<p>The net without colors - the so-called <em>uncolored</em> or <em>grey net</em> - defines the search space of the colorings. Indeed, the symmetry of the grey net containts the symmetry of any of its colorings - solutions included. That allows for indexing the net elements and encoding the symmetry operations as <a class="reference external" href="https://en.wikipedia.org/wiki/Permutation">permutations</a> of the indices, <em>i.e.</em> lists of indices which map the grey net to itself as the symmerties would do. Since the symmetry group of the colored net belongs to the symmetry group of the grey net, we can expand any coloring in that symmetry group. (see <a class="reference internal" href="#solutions">Solutions</a>)</p>
+<p>By default, the algorithm initializes the <a class="reference external" href="https://en.wikipedia.org/wiki/Space_group">space group</a> symmetries as permutations. Doing that in advance prevents to perform the same operation each time a solution is found: instead of detecting the space group, just the symmetry-encoding permutations are applied. The initialization of space group symmetry can be disabled, [TBA] which would be extremely beneficial in case the solutions are a very few with respect to the numer of possible (unconstrained) colorings, and the space group of the grey net is huge (<em>e.g.</em> <strong>pcu</strong> supercells).</p>
+</div>
+<div class="section" id="problem">
+<h3><span class="section-number">2.2.6.2. </span>Problem<a class="headerlink" href="#problem" title="Permalink to this headline">¶</a></h3>
+<p>The coloring problem is modeled as a <a class="reference external" href="https://en.wikipedia.org/wiki/Pseudo-Boolean_function">pseudo-boolean optimization</a>, which is a subclass of constraint integer programming. (see further) The involved variables are only binaries and each constraint here implemented maps these variables to a integer value (even a boolean value, and in that case is a boolean function).</p>
+<div class="section" id="variables">
+<h4><span class="section-number">2.2.6.2.1. </span>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h4>
+<a class="reference internal image-reference" href="_images/color-variables.png"><img alt="color variables" class="align-center" src="_images/color-variables.png" style="width: 700.0px; height: 467.0px;" /></a>
+<p>Each net element (a vertex and/or an edge) maps to a vector of binary variables (a list of numbers which may be 0 or 1). Each binary variable of the vector represents a color. For practical reasons, the number of color types of the net is finite and set in advance, thus the length of the vector can be set as finite. The colored net is fully descripted as a <span class="math notranslate nohighlight">\(V \times C_v\)</span> matrix and/or a <span class="math notranslate nohighlight">\(E \times C_e\)</span> matrix. The rows are the net elements and the columns are the color types. If the entry of the m-th color type values 1 for the n-th element, then the n-th net element is m-th colored. Conversely, an entry of the m-th color type valuing 0 means the n-th net element is not m-th colored.</p>
+</div>
+<div class="section" id="constraints">
+<h4><span class="section-number">2.2.6.2.2. </span>Constraints<a class="headerlink" href="#constraints" title="Permalink to this headline">¶</a></h4>
+<a class="reference internal image-reference" href="_images/color-uniqueness.png"><img alt="color uniqueness" class="align-center" src="_images/color-uniqueness.png" style="width: 700.0px; height: 450.0px;" /></a>
+<p>The most important constraint of the model is the <strong>color uniqueness</strong>. Per each element there is one and only 1-entry and the rest are 0-entries. <a class="footnote-reference brackets" href="#binvec" id="id23">2</a> The summation along the vector equals to 1. In other words, one element cannot be at the same time <em>red</em> and <em>blue</em>. (if you want <em>purple</em> you need another color) That comes from the design choice to map each color to a specific position and/or rotation of a block. This constraint is default and cannot be disabled.</p>
+<p>The second most important constraint and the most important for user customization is the global <strong>vertex color ratio</strong> and/or <strong>edge color ratio</strong>. The summation of vertex/edge variables along each color type must fulfill the ratio/s in a given ordered list.  In other words, the number of colored elements is constraint proportionally to the input list. Since the number of net elements are integer, one cannot expect fractional ratios by design. For instance, an edge color ratio of <code class="docutils literal notranslate"><span class="pre">[2,3,1]</span></code> means the first, the second, and the third edges must keep a proportion as close as possible to 2:3:1, respectively. For 4 edges, the edges will be 1 first-colored, 2 second-colored, and 1 third-colored. A 1:2:1 ratio is indeed the closest to 2:3:1 coloring an integer number of edges. <em>N.B.</em>: The length of the vertex/edge ratio lists directly induces the number of vertex/edge color types so no further setup is required.</p>
+<a class="reference internal image-reference" href="_images/color-ratios.png"><img alt="color ratios" class="align-center" src="_images/color-ratios.png" style="width: 700.0px; height: 273.0px;" /></a>
+<p>An alternative to the previous is the local <strong>edge color ratio per vertex</strong> and/or the <strong>vertex color ratio per edge</strong>. These constraints are the same but applied locally: for the edges surrounding each vertices, and for the (two) <a class="footnote-reference brackets" href="#paredge" id="id24">11</a> vertices surrounding each edge, respectively. It is stricter than the previous global constraint since the local holds per each of the elements, not for their summation only. <a class="footnote-reference brackets" href="#det" id="id25">10</a> It often suits better the chemistry of the framework when specific connectivity must be induced by the block connectors, <em>e.g.</em> “4 carboxylate linkers and 2 nitrogen donors surrounding a paddlewheel” is mapped by “4 red and 2 blue colors around 6-connected vertices”. (see <a class="reference external" href="##edge-colored-unit-cell-pcu">here</a>)</p>
+<a class="reference internal image-reference" href="_images/color-axes.png"><img alt="color axes" class="align-center" src="_images/color-axes.png" style="width: 700.0px; height: 273.0px;" /></a>
+<p>Several other constraints may be applied and a specific guide to write your own constraint will be later issued. As an already implemented example, one can set a constraint on the <strong>angle among edges</strong>. Changing the <em>sense</em> of comparison, this angle could be close, lower or higher than a target value in radiants. Note that the drawback of geometric constraints - <em>i.e.</em> based on lengths, angles, torsions, <em>etc.</em> - constists of relying on the <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_embedding">embedding</a> of the net and not on its algebraic representation, a <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)">graph</a>: this may lead to tinker with heuristic values. To mitigate the problem, one could <em>e.g.</em> run a pre-optimization with a purely geometric force field such as TopoFF. <a class="footnote-reference brackets" href="#keu18" id="id27">17</a> This constraint is, however, extremely useful since it may drastically decrease the search space of orders of magnitude.</p>
+<p><em>TBI</em>: selection of atoms. (it works only for the angle between edges constraint)</p>
+</div>
+</div>
+<div class="section" id="solver">
+<h3><span class="section-number">2.2.6.3. </span>Solver<a class="headerlink" href="#solver" title="Permalink to this headline">¶</a></h3>
+<p>Our solver of choice is the <em>Solver of Constraint Integer Programming</em> [SCIP] as <a class="reference external" href="https://en.wikipedia.org/wiki/Branch_and_cut">branch-and-cut</a> framework, which is widely spread in the optimization community. It serves to solve the model as detailed above, being pseudo-boolean optimizations part of the constraint integer programming paradigm. That allows to exploit SCIP back-end features, which we keep as black-box for the purpose of this documentation. For further information, SCIP website is <a class="reference external" href="http://scip.zib.de/">here</a>.</p>
+<p>The solver finds one solution to the problem with a given set of variables and constraints. This solution represents one of the possible colorings of that net.</p>
+<p>A key feature of the solver is it can assess <em>feasibility</em> of the problem: it can answer whether there exists at least one solution for the given problem. The assessment is done without any assumption, for instance the <a class="reference external" href="https://en.wikipedia.org/wiki/Ergodic_hypothesis">ergodicity hypothesis</a> in case of evolutionary (such as <em>Monte Carlo</em>) algorithms. That assessment prevents to tune convergence parameters and to rely on rules-of-thumb, which are required for the latter algorithms.</p>
+<p>The feasibility feature is particularly powerful to assess there exists <em>no</em> solution. Evolutionary algorithms lack this feature and require user’s ingenuity which may be wrong or missing. Conversely, in due time and for a given problem the solver can give an ultimate answer <em>i.e.</em> irrespective to any convergence criterion.</p>
+</div>
+<div class="section" id="solutions">
+<h3><span class="section-number">2.2.6.4. </span>Solutions<a class="headerlink" href="#solutions" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="_images/color-solutions_nosym.png"><img alt="color solutions, w/o symmetry" class="align-center" src="_images/color-solutions_nosym.png" style="width: 700.0px; height: 450.0px;" /></a>
+<p>For each iteration, the found solution and its equivalents are removed from the search space of the next iteration. As soon as we removed all the possible solutions out of the search space, then we have found all-and-only of them: no more, no less.</p>
+<p>Going technical, two colorings are the same if and only if the summations of their colors in the respective positions equate. That holds due to the color uniqueness (see <a class="reference external" href="#constraints">Constraints</a>): per each net element, the only 1-entry is its color and the remaining entries are 0-entries.</p>
+<a class="reference internal image-reference" href="_images/color-solutions_jasym.png"><img alt="color solutions, w/  symmetry" class="align-center" src="_images/color-solutions_jasym.png" style="width: 700.0px; height: 450.0px;" /></a>
+<p>A solution coloring may share the same space group symmetry with other colorings. These colorings are <em>symmetry equivalent</em> and it is enough to choose just one representing all of them since the others can be recovered applying the space group symmetry operations. The chosen set of colorings act as a <em>base</em> of the <em>symmetry solution subspace</em>.</p>
+<p>The symmetry permutations of the grey net are applied to the solution to find all the symmetry equivalent solutions, which the user wants not to find again as different solution. Hence, we force these equivalent solutions as <em>negated constraint</em> for the next iteration. (see <a class="reference internal" href="#loop">Loop</a>) TBI: techincal details.</p>
+<p>If the user chose not to initialize as permutations the space group symmetry of the grey net, it is possible to get as permutations the space group symmetry of each solution. That may be beneficial for very strict constraints applied on a very large domain space. By default, symmetry always applies but can be turned off. [TBI] (debug purpose)</p>
+</div>
+<div class="section" id="loop">
+<h3><span class="section-number">2.2.6.5. </span>Loop<a class="headerlink" href="#loop" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="_images/acab-algorithm.png"><img alt="acab algorithm overview" class="align-center" src="_images/acab-algorithm.png" style="width: 700.0px; height: 347.0px;" /></a>
+<p>To sum up, the core ingredients of <strong>ACAB</strong> are (1) a solver that can assess infeasibility of a problem; (2) a symmetryzer that spans equivalent solutions. Here is an overview how <strong>ACAB</strong> acts:</p>
+<ul class="simple">
+<li><p>read grey net;</p></li>
+<li><p>setup model and maximum iteration</p></li>
+<li><p>setup variables from the grey net;</p></li>
+<li><p>setup colors as initial constraints;</p></li>
+<li><p>set iteration index</p></li>
+<li><dl class="simple">
+<dt>loop</dt><dd><ul>
+<li><p>solve the problem</p></li>
+<li><dl class="simple">
+<dt>if the problem is feasible, then:</dt><dd><ul>
+<li><p>get the permutations of the solution</p></li>
+<li><p>set the permutations of the solution as negated constraint of the next iteration</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>else:</dt><dd><ul>
+<li><p>break</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>increase iteration index</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>return solutions found (may be none)</p></li>
+<li><dl class="simple">
+<dt>if iteration index is lower than maximum iteration:</dt><dd><ul>
+<li><p>all and only solutions are found (may be zero solutions!)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>else:</dt><dd><ul>
+<li><p>a part of the solutions are found</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id30">
+<h2><span class="section-number">2.2.7. </span>Tests<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h2>
+<p>Tests are available with <code class="docutils literal notranslate"><span class="pre">pytest</span></code> in the directory <code class="docutils literal notranslate"><span class="pre">$MOLSDIR/molsys/addon/acab/tests</span></code>. You can run them just changing the directory there and type <code class="docutils literal notranslate"><span class="pre">pytest</span></code>. If everything goes right, all the tests will result as passed. To clean the tests, there is the <code class="docutils literal notranslate"><span class="pre">clean_tests.sh</span></code> script which can be run with: <code class="docutils literal notranslate"><span class="pre">$MOLSDIR/molsys/addon/acab/tests/clean_tests.sh</span></code> or directly with <code class="docutils literal notranslate"><span class="pre">./clean_tests.sh</span></code> if you are already in the test folder.</p>
+<p>There is currently only one test which performs 2,1-edge colorings on different 3,6-connected nets. Each test case checks whether the numer of found structures is equal to the expected number. If it is not, a failure is raised.</p>
+<p>An additional constraint is the angle in radiants between the edges with the second color (the minority) around the 6-connected vertices. <a class="footnote-reference brackets" href="#id34" id="id31">3</a> This last constraint may or may not be applied as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_nets</span></code>: no angle constraint;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_nets_loose_axis</span></code>: an angle constraint greater than 2.6 radiants;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_nets_strict_axis</span></code>: an angle constraint greater than 3 radiants.</p></li>
+</ul>
+<p>The stricted the constraint applies, the fewer the colorings starting from the same net can be found.</p>
+<div class="section" id="feature-tests">
+<h3><span class="section-number">2.2.7.1. </span>Feature tests<a class="headerlink" href="#feature-tests" title="Permalink to this headline">¶</a></h3>
+<p>Feature tests included:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">molsys.mol.from_file</span></code> read interface for <code class="docutils literal notranslate"><span class="pre">mfpx</span></code> files, implicit extension, reading from subfolders;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acab.setup_model</span></code> setup <strong>ACAB</strong> re-initializing the model; (<em>TBT:</em> see what happens when it is called twice after an iteration)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acab.setup_ecratio_per_vertex</span></code> setup the edge color ratio per each vertex according to a list of ratios;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">acab.setup_vcratio_per_edge</span></code> setup the vertex color ratio per each edge according to a list of ratios.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="technical-details">
+<h2><span class="section-number">2.2.8. </span>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="file-i-o">
+<h3><span class="section-number">2.2.8.1. </span>File I/O<a class="headerlink" href="#file-i-o" title="Permalink to this headline">¶</a></h3>
+<p><strong>ACAB</strong> supports as input net any <a href="#id32"><span class="problematic" id="id33">:py:module:`molsys.fileIO`</span></a> format. It is highly recommended that the net file format supports connectivity and periodic connectivity, otherwise results cannot be trusted.</p>
+<p>For each found coloring, <strong>ACAB</strong> outputs both <code class="docutils literal notranslate"><span class="pre">mfpx</span></code> and <code class="docutils literal notranslate"><span class="pre">txyz</span></code> files. An <strong>ACAB</strong> output directory contains by default:</p>
+<ul class="simple">
+<li><p>the <em>grey</em> symmetry structure <code class="docutils literal notranslate"><span class="pre">sym.mfpx</span></code> and <code class="docutils literal notranslate"><span class="pre">sym.txyz</span></code> type, defining the space group symmetry in which colors are searched;</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">colors</span></code> subfolder of coloring <code class="docutils literal notranslate"><span class="pre">mfpx</span></code> files to weave frameworks;</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">pretty</span></code> subfolder of view <code class="docutils literal notranslate"><span class="pre">txyz</span></code> files of the colorings, cutting out the edges with periodic boundary conditions. <em>N.B.</em>: the pretty view may be misleading since not every edge is visible.</p></li>
+</ul>
+<p>A file type <code class="docutils literal notranslate"><span class="pre">chromo</span></code> that reads/writes colors in the file is <em>WIP</em>.</p>
+</div>
+</div>
+<div class="section" id="glossary-wip">
+<h2><span class="section-number">2.2.9. </span>Glossary (<em>WiP</em>)<a class="headerlink" href="#glossary-wip" title="Permalink to this headline">¶</a></h2>
+<p><strong>ACAB</strong> <em>(All Colors Are Beautiful)</em></p>
+<p><em>RTA (Reverse Topological Approach)</em></p>
+<p><em>aRTA (advanced Reverse Topological Approach)</em></p>
+<p><em>block multiplicity</em></p>
+<p><em>positional multiplicity</em></p>
+<p><em>orientational multiplicity</em></p>
+<p><em>crystal net (or topology)</em> [not to be confused with the <a class="reference external" href="https://en.wikipedia.org/wiki/Net_(polyhedron)">net of a polyhedron</a>].</p>
+<p><em>net embedding</em></p>
+<p><em>color</em>:</p>
+<p><em>colored net</em>: a net with colored vertices and/or edges.</p>
+<p><em>coloring</em>: the collective color representation of net elements. <em>Vertex coloring</em> and <em>edge coloring</em> concern vertices and edges, respectively, and they are separated integer sequences. Without further specification, coloring consists of both vertex and edge colorings, thus meaning both the integer sequences.</p>
+<p><em>model</em></p>
+<p><em>constraint integer programming</em></p>
+<p><em>constraint programming</em></p>
+<p><em>integer programming</em></p>
+<p><em>binary programming</em></p>
+<p><em>pseudo-boolean function</em></p>
+<p><em>space group symmetry</em></p>
+<p><em>automorphism</em></p>
+<p><em>isomorphism</em></p>
+<p><em>slot</em>: the surrounding net elements of a net element. It defines the surrounding blocks which a block should be connected to. The slot symmetry group which Just the connectivity is considered as environment???</p>
+<p><em>net element:</em> a vertex or an edge of the net. In the <em>RTA</em>, any block sits on a net element. The barycenter or the centroid of the block is projected onto the net element. For the purpose of coordinates, we consider the edge midpoint. Then, the block is rotated according to its slot and one or more inequivalent positions are found. (see <em>RTA</em>) In <em>aRTA</em>, . Not to be confused with chemical elements.</p>
+<p><em>block</em>: one of the molecular constituents of the framework. It can be a species with no chemical meaning by itself. For instance, the metal paddlewheel [<em>pdw</em>] can be a block with just the COO carboxylate moieties (no further atom after C); the terephthalate [<em>bdc</em>] can be just the aromatic ring without the carboxylate moieties (in formula: C6H4, missing the <em>para</em> functions). A block can be finite like the aforementioned ones, or periodic like the MIL-53 pillar. It is part of the target unit for a force field based on blocks, for instance MOF-FF.</p>
+<p><em>variable</em></p>
+<p><em>constraint</em></p>
+</div>
+<div class="section" id="improvements">
+<h2><span class="section-number">2.2.10. </span>Improvements<a class="headerlink" href="#improvements" title="Permalink to this headline">¶</a></h2>
+<p>Here is the space to write improvements for the program.</p>
+<div class="section" id="new-tests">
+<h3><span class="section-number">2.2.10.1. </span>New Tests<a class="headerlink" href="#new-tests" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>test number of solutions after translation of net. They must be the same number, otherwise there is a problem.</p></li>
+</ul>
+</div>
+<div class="section" id="new-examples">
+<h3><span class="section-number">2.2.10.2. </span>New Examples<a class="headerlink" href="#new-examples" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>examples with vertex set as [1] so that the colored edges and the uncolored vertices can be seen both (and the backbone is recognizable)</p></li>
+</ul>
+</div>
+<div class="section" id="clearer-documentation">
+<h3><span class="section-number">2.2.10.3. </span>Clearer Documentation<a class="headerlink" href="#clearer-documentation" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>more pictures, particularly of examples.</p></li>
+<li><p>fix language</p></li>
+<li><p>check and finish glossary</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="credits">
+<h2><span class="section-number">2.2.11. </span>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h2>
+<p><strong>ACAB</strong> is authored and implemented by <a class="reference external" href="https://github.com/ramabile/">R. Amabile</a>. The net coloring concept and the <em>advanced Reverse Topological Approach</em> is promoted by <a class="reference external" href="http://rochusschmid.de/">R. Schmid</a> too, which also implemented a working MC solver. (C) 2018 Computational Materials Chemistry (Germany).</p>
+<p>This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement No: 641887. (<a class="reference external" href="http://www.defnet-etn.eu/">DEFNET</a>)</p>
+</div>
+<div class="section" id="license">
+<h2><span class="section-number">2.2.12. </span>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>ACAB</strong> is GPL v3.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PySCIPOpt</span></code> is MIT licensed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCIP</span></code> is licensed under <a class="reference external" href="http://scip.zib.de/academic.txt">ZIB Academic License</a>. It is free for academic and non-commercial purpose. If you cannot comply with these conditions, ask SCIP developers for a custom license.</p></li>
+</ul>
+</div>
+<div class="section" id="notes">
+<h2><span class="section-number">2.2.13. </span>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<dl class="footnote brackets">
+<dt class="label" id="dut49"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>Here I leave on purpose the discussion to scholars about which net a framework belongs to. It depends on how the blocks are chosen. For instance, which is DUT-49 net? If we take the paddlewheel and the whole organic linker as blocks, then it is <strong>nbo</strong>. If the organic linker is split into the carbazole and the biphenyl moieties, then it is <strong>tfb</strong>. Anyway, as long as blocks are given in advance, the result of the deconstruction is univocal. <em>The same can’t be said for the construction</em>, which is the <em>crunch</em> of the whole RTA story.</p>
+</dd>
+<dt class="label" id="binvec"><span class="brackets"><a class="fn-backref" href="#id23">2</a></span></dt>
+<dd><p>For a more intuitive understanding and as first though, one could map colors into increasing integer - 0,1,2,… - instead of increasing position of the only 1 in a list of 0’s: [1,0,0,…], [0,1,0,…], [0,0,1,…], <em>etc.</em>. However, the binary vector representation overcomes the integer representation for an easier and faster implementation of the constraints. All-in-all, colors are back-end defined, so there is no repercussion on user’s interface.</p>
+</dd>
+<dt class="label" id="id34"><span class="brackets"><a class="fn-backref" href="#id31">3</a></span></dt>
+<dd><p>Which are 2 by proportion: 6/(2+1)*1.</p>
+</dd>
+<dt class="label" id="dhont"><span class="brackets"><a class="fn-backref" href="#id14">4</a></span></dt>
+<dd><p>Implementation based on <a class="reference external" href="https://en.wikipedia.org/wiki/D%27Hondt_method">D’Hont method</a>. This may result in uncanny ratios, for instance a <code class="docutils literal notranslate"><span class="pre">[1,1]</span></code> ratio of 5 edges implies 3 <em>red</em> edges and 2 <em>blue</em> edges.</p>
+</dd>
+<dt class="label" id="anagr111"><span class="brackets">5</span><span class="fn-backref">(<a href="#id15">1</a>,<a href="#id35">2</a>,<a href="#id36">3</a>)</span></dt>
+<dd><p>3 possible colorings: red-red-blue; red-blue-red; blue-red-red. The total number in formula: 3!/(2!1!)=3, where 3 is the number of edges to be colored, 2 is the number of red edges and 1 is the number of blue edges. See also <a class="reference external" href="https://en.wikipedia.org/wiki/Permutation#Permutations_of_multisets">permutation of multisets</a>, or anagram of finite words. I strongly advice to take a look at the figure <cite>here &lt;https://upload.wikimedia.org/wikipedia/commons/4/4f/Permutations_with_repetition.svg&gt;_</cite>, more valuable than thousand words.</p>
+</dd>
+<dt class="label" id="anagr222"><span class="brackets"><a class="fn-backref" href="#id18">6</a></span></dt>
+<dd><p>As seen in <a class="footnote-reference brackets" href="#anagr111" id="id35">5</a>: the number of vertices are 3 per unit cell, for a total of 24 edges in the 2x2x2 supercell. 16 are reds and 8, so the total number of possible colorings is: 24!/(16!*8!) = 735471.</p>
+</dd>
+<dt class="label" id="periodanagr"><span class="brackets"><a class="fn-backref" href="#id21">7</a></span></dt>
+<dd><p>The same formula as in <a class="footnote-reference brackets" href="#anagr111" id="id36">5</a> holds, so for a NxNxN supercell we have N!/[(N/2)!*(N/2)!]. It is just an upper limit of the possible structures since it does not take into consideration the symmetry of the colored nets. To take them into consideration, one needs to count <em>periodic strings</em> (or <em>words</em>). If curiosity drives you, take a look here. <a class="footnote-reference brackets" href="#adi77" id="id37">14</a> <em>N.B.</em>: <a class="reference external" href="https://en.wikipedia.org/wiki/Algebraic_combinatorics">Algebraic combinatorics</a> is an extremely fascinating world. For a materials researcher with a standard theoretical background, it can be demanding to enter this world.</p>
+</dd>
+<dt class="label" id="metacolors"><span class="brackets"><a class="fn-backref" href="#id22">8</a></span></dt>
+<dd><p>An early-staged idea could be to find the possible colored nets for smaller supercells and assign a <em>“color”</em> to each of them. This <em>“color”</em> will not be on the level of the vertices/edges, but directly on the whole cell: it is a <em>metacolor</em>. For instance, still on the JAST-1 case, one could take the 2 solutions of the 2x2x2 cell and the 1 solution of the 1x1x1 cell as basis to color fast any supercell of a pillared colored net. By the way, implementation is not on the menu, we are currently at the stage of ideas.</p>
+</dd>
+<dt class="label" id="sym"><span class="brackets"><a class="fn-backref" href="#id16">9</a></span></dt>
+<dd><p>Intuitively, any right angle you choose keeps an elongated octahedron in a regular octahedral cage the same.</p>
+</dd>
+<dt class="label" id="det"><span class="brackets"><a class="fn-backref" href="#id25">10</a></span></dt>
+<dd><p>Here holds the same consideration as between the balance equation and the detailed balance equation. If an <a class="reference external" href="https://en.wikipedia.org/wiki/Intensive_and_extensive_properties">intensive</a> constraint holds for each of the partition of a domain, then it holds for the domain as a whole. The inverse is not true, <em>e.g.</em> the constraint could hold on average and not for the single elements (there could be an accumulation of color 0 on one side and of color 1 on another side)</p>
+</dd>
+<dt class="label" id="paredge"><span class="brackets"><a class="fn-backref" href="#id24">11</a></span></dt>
+<dd><p>Crystal nets have at most 1 edge linking each pair of vertices. It is said there is no <em>parallel</em> edge.</p>
+</dd>
+<dt class="label" id="pyind"><span class="brackets"><a class="fn-backref" href="#id20">12</a></span></dt>
+<dd><p>Keep in mind that indices start with 0 instead of 1 (python convention). So that the first color is 0, the second color is 1, <em>etc</em>. The index of the color you select is the same as the index of its ratio: <code class="docutils literal notranslate"><span class="pre">cratio=[2,1]</span></code> means color 0 has ratio <code class="docutils literal notranslate"><span class="pre">cratio[0]</span> <span class="pre">==</span> <span class="pre">2</span></code> and color 1 has <code class="docutils literal notranslate"><span class="pre">cratio[1]</span> <span class="pre">==</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt class="label" id="orients"><span class="brackets"><a class="fn-backref" href="#id6">13</a></span></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">weaver</span></code> is slightly different since it minimizes the different in orientation of the block connectors against the slot connectors.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="references">
+<h2><span class="section-number">2.2.14. </span>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<dl class="footnote brackets">
+<dt class="label" id="adi77"><span class="brackets"><a class="fn-backref" href="#id37">14</a></span></dt>
+<dd><p>S.I. Adian, <em>Classifications of periodic words and their application in group theory.</em> Proceedings of the Burnside Workshop <strong>1977</strong>. (accessible <a class="reference external" href="https://link.springer.com/content/pdf/10.1007/BFb0091266.pdf">here</a>)</p>
+</dd>
+<dt class="label" id="eub11"><span class="brackets">15</span></dt>
+<dd><p>J.F. Eubank, L. Wojtas, M.R. Hight, T. Bousquet, V.Ch. Kravtsov, and M. Eddaoudi, <em>The Next Chapter in MOF Pillaring Strategies: Trigonal Heterofunctional Ligands To Access Targeted High-Connected Three Dimensional Nets, Isoreticular Platforms.</em> <strong>2011</strong>.</p>
+</dd>
+<dt class="label" id="bur15"><span class="brackets">16</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id3">2</a>,<a href="#id5">3</a>,<a href="#id7">4</a>)</span></dt>
+<dd><ol class="upperalpha simple" start="19">
+<li><p>Bureekaew, V. Balwani, S. Amirjalayer, and R. Schmid, <em>Isoreticular isomerism in 4,4-connected paddle-wheel metal–organic frameworks: structural prediction by the reverse topological approach.</em>, CrystEngComm <strong>2015</strong>.</p></li>
+</ol>
+</dd>
+<dt class="label" id="keu18"><span class="brackets">17</span><span class="fn-backref">(<a href="#id10">1</a>,<a href="#id27">2</a>)</span></dt>
+<dd><ol class="upperalpha simple" start="10">
+<li><p>Keupp and R. Schmid, <em>TopoFF: MOF structure prediction using specifically optimized blue prints.</em> Faraday Discussions <strong>2018</strong>.</p></li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user_util.html" class="btn btn-neutral float-right" title="3. Utility Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_addon_ff.html" class="btn btn-neutral float-left" title="2.1. The FF addon" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

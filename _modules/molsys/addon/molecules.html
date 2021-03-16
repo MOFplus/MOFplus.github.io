@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.addon.molecules &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="molsys 1.0.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">molsys</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>molsys.addon.molecules</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.addon.molecules</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">molsys.mol</span>
+<span class="c1"># molecules module</span>
+
+<span class="c1"># atm it is just those routines that are removed from the old molsys stored here as backup</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.molecules&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="molecules"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules">[docs]</a><span class="k">class</span> <span class="nc">molecules</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_molecules</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nmols</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># self.detect_molecules()</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="molecules.get_names"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.get_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_molecules</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="molecules.add_molecule"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.add_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">add_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molname</span><span class="p">,</span> <span class="n">nmols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ff</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a molecule to the parent mol object</span>
+
+<span class="sd">        A molecules is a sub mol object that can be added to the parent system many times</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molname (string): name of the molecule</span>
+<span class="sd">            fname (string, optional): Defaults to None. if the filename is different to the name of the molecule,</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">molsys.addon.ff</span> <span class="k">import</span> <span class="n">ic</span>
+        <span class="n">newmol</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">molname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_molecules</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">molname</span><span class="p">:</span> <span class="n">newmol</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nmols</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">molname</span><span class="p">:</span><span class="n">nmols</span><span class="p">})</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmols</span><span class="p">):</span>
+            <span class="n">rndxyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_xyz_from_frac</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,(</span><span class="mi">3</span><span class="p">,)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">add_mol</span><span class="p">(</span><span class="n">newmol</span><span class="p">,</span><span class="n">translate</span><span class="o">=</span><span class="n">rndxyz</span><span class="p">)</span>
+        <span class="c1">#self.nmols += nmols</span>
+
+        <span class="k">if</span> <span class="n">ff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">,</span><span class="s1">&#39;ff&#39;</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">&#39;mol instance has no ff loaded!&#39;</span><span class="p">)</span>
+            <span class="n">newmol</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s1">&#39;ff&#39;</span><span class="p">)</span>
+            <span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">molname</span><span class="p">)</span>
+            <span class="c1">### par update</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">par</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">par</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">par</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;ff information of molecule </span><span class="si">%s</span><span class="s1"> red&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">molname</span><span class="p">,))</span>
+            <span class="c1">### ric_type update</span>
+            <span class="c1">#import pdb; pdb.set_trace()</span>
+            <span class="n">temp_ric_type</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">ric_type</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">temp_ric_type</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">moli</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmols</span><span class="p">):</span>    
+                    <span class="n">rictype</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temp_ric_type</span><span class="p">[</span><span class="n">k</span><span class="p">])):</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temp_ric_type</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">])):</span>
+                            <span class="n">rictype</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_ric_type</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">moli</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="c1">#print k, moli, rictype</span>
+                    <span class="k">if</span> <span class="n">rictype</span> <span class="o">!=</span> <span class="p">[]:</span>
+                        <span class="c1">#rictype = [rictype]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">ric_type</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">ic</span><span class="p">(</span><span class="n">rictype</span><span class="p">)]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">parind</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">parind</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="c1">### parind update </span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">newmol</span><span class="o">.</span><span class="n">ff</span><span class="o">.</span><span class="n">parind</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">pass</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="molecules.detect_molecules_new"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.detect_molecules_new">[docs]</a>    <span class="k">def</span> <span class="nf">detect_molecules_new</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Detect molecules by connectivity</span>
+<span class="sd">            atm only what&#39;s absolutely necessary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whichmol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">whichmol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nmols</span><span class="p">)</span></div>
+            <span class="c1"># WORK HERE!</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            keep deprecated call method for legacy reasons and map it onto detect_molecules&#39;</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detect_molecules</span><span class="p">()</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="molecules.detect_molecules"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.detect_molecules">[docs]</a>    <span class="k">def</span> <span class="nf">detect_molecules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Detects independent (not connected) fragments and stores them as </span>
+<span class="sd">            - mols     :</span>
+<span class="sd">            - moltypes :</span>
+<span class="sd">            - whichmol :</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># the default moleculename is &quot;xyz&quot; -&gt; molecules from the xyz file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;xyz&quot;</span><span class="p">]</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">whichmol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span> <span class="o">*</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nmol</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># localize one molecule starting from the first available atom</span>
+            <span class="n">leafs</span> <span class="o">=</span> <span class="p">[</span><span class="n">atoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">curr_mol</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">leafs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_leafs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># add all to curr_mol, remove from atoms and generate new_leafs</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">leafs</span><span class="p">:</span>
+                    <span class="n">atoms</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="n">curr_mol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="n">new_leafs</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+                <span class="c1"># first remove duplicates in new_leafs</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">new_leafs</span><span class="p">):</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">new_leafs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                            <span class="n">new_leafs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="c1"># now cut new_leafs (remove all those we already have in curr_mol)</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">new_leafs</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">curr_mol</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                        <span class="n">new_leafs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="c1"># now make new_leafs to leafs and continue</span>
+                <span class="n">leafs</span> <span class="o">=</span> <span class="n">new_leafs</span>
+            <span class="c1"># at this point the molecule is complete</span>
+            <span class="n">curr_mol</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_mol</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">curr_mol</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">whichmol</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nmol</span>
+            <span class="c1"># at this point all molecules found get the type 0 = &quot;xyz&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_molecules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1">#for latest GCMD version this needs to be done here</span>
+                <span class="c1"># not at its final beazty here ... </span>
+                <span class="k">if</span> <span class="n">nmol</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">nmol</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># all atoms are assigned</span>
+        <span class="c1"># if mol.verbose:</span>
+        <span class="c1">#print(&quot;$$ -- found %d independent molecules from connectivity&quot; % nmol)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span> <span class="o">=</span> <span class="n">nmol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molnames</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_names</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
+    <span class="c1">### for use with pydlpoly&#39;s pdlpmol</span>
+<div class="viewcode-block" id="molecules.to_pdlpmol"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.to_pdlpmol">[docs]</a>    <span class="k">def</span> <span class="nf">to_pdlpmol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">pd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;fill the pdlpmol instance with the data from the molecuels addon</span>
+<span class="sd">        </span>
+<span class="sd">        Fills the date from the molecules addon into the pdlpmol instance from pydlpoly</span>
+
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            pdlpmol (pdlpmol.pdlpmol): pdlpmol instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdmol</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">mol</span>
+        <span class="n">pdmolecules</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">molecules</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_names</span><span class="p">():</span>
+            <span class="n">moltype</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pdmol</span><span class="o">.</span><span class="n">molnames</span><span class="p">)</span>
+            <span class="n">pdmol</span><span class="o">.</span><span class="n">molnames</span> <span class="o">+=</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">pdmol</span><span class="o">.</span><span class="n">moltypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">moltype</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span><span class="p">[</span><span class="n">name</span><span class="p">]])</span>
+        
+        
+        <span class="k">return</span></div>
+
+    <span class="c1"># that one is from assign_FF!</span>
+<div class="viewcode-block" id="molecules.add_mol_tinker_xyz"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.molecules.molecules.add_mol_tinker_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">add_mol_tinker_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">molname</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">moltype</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molnames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">molname</span><span class="p">)</span>
+        <span class="c1"># read it in first into some temp arrays</span>
+        <span class="c1">#f = open(fname, &quot;r&quot;)</span>
+        <span class="c1">#lbuffer = string.split(f.readline())</span>
+        <span class="c1">#mna = string.atoi(lbuffer[0])</span>
+        <span class="c1">#mxyz = []</span>
+        <span class="c1">#melems = []</span>
+        <span class="c1">#mtypes = []</span>
+        <span class="c1">#mcnct = []</span>
+        <span class="c1">#for i in xrange(mna):</span>
+        <span class="c1">#    lbuffer = string.split(f.readline())</span>
+        <span class="c1">#    mxyz.append(map(string.atof, lbuffer[2:5]))</span>
+        <span class="c1">#    melems.append(string.lower(lbuffer[1]))</span>
+        <span class="c1">#    t = lbuffer[5]</span>
+        <span class="c1">#    mtypes.append(t)</span>
+        <span class="c1">#    if not self.typedata.has_key(t): self.typedata[t] = None</span>
+        <span class="c1">#    mcnct.append(num.array(map(string.atoi, lbuffer[6:]))-1)</span>
+        <span class="c1">#f.close()</span>
+        <span class="c1">#self.ntypes = len(self.typedata.keys())</span>
+        <span class="c1"># center</span>
+        <span class="c1">#amass = []</span>
+        <span class="c1">#for e in melems: amass.append(atomicmass[e])</span>
+        <span class="c1">#amass = num.array(amass)</span>
+        <span class="c1">#mxyz = num.array(mxyz)</span>
+        <span class="c1">#com = sum(mxyz*amass[:,num.newaxis],0)/sum(amass)</span>
+        <span class="c1">#mxyz -= com</span>
+        <span class="c1"># now generate N translated/rotated copies</span>
+        <span class="c1">#if self.verbose: print  (&quot;$$ -- generating %d copies of the molecule in the box&quot;%N)</span>
+        <span class="c1">#cell = num.array(self.cell)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="c1">#    act_mxyz = mxyz.copy()</span>
+        <span class="c1">#    if rotate:</span>
+        <span class="c1">#        # rotate molecule by random quaternion</span>
+        <span class="c1">#        act_mxyz = rotate_random(act_mxyz)</span>
+        <span class="c1">#    # translate</span>
+        <span class="c1">#    #act_gxyz += cell*num.random.random(3)</span>
+        <span class="c1">#    rand_vect = offset+(num.random.random(3)*scale)</span>
+        <span class="c1">#    act_mxyz += num.sum(cell*rand_vect,axis=0)</span>
+            <span class="c1"># register moltype (per molecule) and to which mol the atom belongs (per atom)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moltypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moltype</span><span class="p">)</span>
+            <span class="n">current_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span><span class="o">+</span><span class="n">i</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">mna</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xyz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act_mxyz</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">melems</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mtypes</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cnct</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">mcnct</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">whichmol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_mol</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="o">+</span><span class="n">mna</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">natoms</span> <span class="o">+=</span> <span class="n">mna</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nmols</span> <span class="o">+=</span> <span class="n">N</span>
+        <span class="c1"># update exclude list</span>
+        <span class="n">old_natoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="o">-</span><span class="n">old_natoms</span><span class="p">)</span><span class="o">*</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frozen</span>  <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="o">-</span><span class="n">old_natoms</span><span class="p">)</span><span class="o">*</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>        
+        <span class="k">return</span></div></div>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

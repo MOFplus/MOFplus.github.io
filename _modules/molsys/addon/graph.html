@@ -1,0 +1,1227 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>molsys.addon.graph &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">2. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.addon.graph</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.addon.graph</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">       module to implement an addon feature: graphs using the graph_tool library</span>
+
+<span class="sd">       NOTE: this is only imported by __init__.py if graph_tool is present</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">graph_tool</span>
+<span class="kn">from</span> <span class="nn">graph_tool</span> <span class="kn">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span>
+<span class="kn">from</span> <span class="nn">graph_tool.topology</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">molsys</span>
+<span class="kn">from</span> <span class="nn">molsys.util</span> <span class="kn">import</span> <span class="n">elems</span>
+
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.graph&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph">[docs]</a><span class="k">class</span> <span class="nc">graph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        instantiate a graph object which will be attached to the parent mol</span>
+
+<span class="sd">        :Parameter:</span>
+
+<span class="sd">             - mol : a mol type object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">molid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="c1"># defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span>   <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;generated the graph addon&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="graph.make_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.make_graph">[docs]</a>    <span class="k">def</span> <span class="nf">make_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hashes</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate a graph for the mol object (atoms should be typed)</span>
+<span class="sd">        we use the atomtype name with the &quot;_&quot; and everything after it (rule=2) truncated.</span>
+<span class="sd">        in other words the vertex property is the element plus the coordination number</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">idx</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span>
+        <span class="c1"># now add vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># this list maps vertex indices to the real atoms becasue we omit the hydrogens in the graph</span>
+        <span class="n">ig</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span> <span class="c1"># allways start from a fresh graph</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">vtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">atypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="c1"># extract element and coordination number</span>
+                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">vtype</span><span class="p">:</span>
+                    <span class="n">vtype</span> <span class="o">=</span> <span class="n">vtype</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># if the coordination number is one replace the element by a #</span>
+                <span class="k">if</span> <span class="n">hashes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">vtype</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+                        <span class="n">vtype</span> <span class="o">=</span> <span class="s2">&quot;#&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">ig</span><span class="p">]</span> <span class="o">=</span> <span class="n">vtype</span>
+                <span class="n">ig</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;generated a graph for a mol object with </span><span class="si">%d</span><span class="s2"> vertices&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span><span class="p">)</span>
+        <span class="c1"># now add edges ... only bonds between vertices</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span><span class="p">):</span>
+            <span class="n">ia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">ja</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">ia</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">ja</span><span class="o">&gt;=</span><span class="n">ia</span><span class="p">:</span>   <span class="c1">#we need a .le. here for those atoms/vertices connected to itself twice in different boxes</span>
+                    <span class="k">if</span> <span class="n">ja</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">:</span>
+                    <span class="c1"># print(&quot;bond from %d to %d&quot; % (ia, ja))</span>
+                    <span class="c1"># print(self._mol.atypes[ia], self._mol.atypes[ja])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ja</span><span class="p">)))</span>
+                        <span class="c1">#self.molg.add_edge( self.molg.vertex(self.vert2atom.index(ja)),self.molg.vertex(i))</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.make_comp_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.make_comp_graph">[docs]</a>    <span class="k">def</span> <span class="nf">make_comp_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">],</span> <span class="n">idx</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Like make_graph this creates a graph for the mol object, but here we focus on a graph </span>
+<span class="sd">        for comparing molecular species in reactions. In the current graph we only look at the C-graph</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">idx</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">)</span>
+        <span class="c1"># now add vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span> <span class="o">=</span> <span class="p">[]</span>  
+        <span class="n">ig</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># allways start from a fresh graph</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">elem_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">vtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">atypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="c1"># extract element and coordination number</span>
+                <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">vtype</span><span class="p">:</span>
+                    <span class="n">vtype</span> <span class="o">=</span> <span class="n">vtype</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">ig</span><span class="p">]</span> <span class="o">=</span> <span class="n">vtype</span>
+                <span class="n">ig</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;generated a graph for a mol object with </span><span class="si">%d</span><span class="s2"> vertices&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span><span class="p">)</span>
+        <span class="c1"># now add edges ... only bonds between vertices</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nvertices</span><span class="p">):</span>
+            <span class="n">ia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">ja</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">ia</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">ja</span><span class="o">&gt;=</span><span class="n">ia</span><span class="p">:</span>   <span class="c1">#we need a .le. here for those atoms/vertices connected to itself twice in different boxes</span>
+                    <span class="k">if</span> <span class="n">ja</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ja</span><span class="p">)))</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.plot_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.plot_graph">[docs]</a>    <span class="k">def</span> <span class="nf">plot_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fsize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">vsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ptype</span> <span class="o">=</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;arf&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        plot the graph (needs more tuning options) [via **kwargs? RA]</span>
+
+<span class="sd">        :Parameter:</span>
+<span class="sd">            - fname  : filename (will write filename.pdf)</span>
+<span class="sd">            - size   : outputsize will be (size, size) in px [default 800]</span>
+<span class="sd">            - fsize  : font size [default 10]</span>
+<span class="sd">            - method : placement method to draw graph, can be one of</span>
+<span class="sd">                       arf</span>
+<span class="sd">                       frucht</span>
+<span class="sd">                       radtree</span>
+<span class="sd">                       sfdp</span>
+<span class="sd">                       random</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#GS TODO call plot_molgraph to do actual plotting</span>
+
+        <span class="kn">import</span> <span class="nn">graph_tool.draw</span> <span class="k">as</span> <span class="nn">gtd</span>
+        <span class="k">if</span> <span class="n">g</span><span class="p">:</span>
+            <span class="n">draw_g</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">draw_g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">vlabel</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vlabel</span> <span class="o">=</span> <span class="s2">&quot;type&quot;</span>
+        <span class="n">g</span><span class="o">=</span><span class="n">draw_g</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;arf&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">arf_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;frucht&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">fruchterman_reingold_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;radtree&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">radial_tree_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">draw_g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;sfdp&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">sfdp_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">random_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pos</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">gtd</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">vertex_text</span><span class="o">=</span><span class="n">draw_g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="n">vlabel</span><span class="p">],</span> <span class="n">vertex_font_size</span><span class="o">=</span><span class="n">fsize</span><span class="p">,</span> <span class="n">vertex_size</span><span class="o">=</span><span class="n">vsize</span><span class="p">,</span> \
+            <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="n">fname</span><span class="o">+</span><span class="s2">&quot;.&quot;</span><span class="o">+</span><span class="n">ptype</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.plot_mol_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.plot_mol_graph">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">plot_mol_graph</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edge_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">fsize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">vsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ptype</span> <span class="o">=</span> <span class="s2">&quot;pdf&quot;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;arf&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        plot the graph (needs more tuning options) [via **kwargs? RA]</span>
+
+<span class="sd">        :Parameter:</span>
+<span class="sd">            - fname  : filename (will write filename.pdf)</span>
+<span class="sd">            - size   : outputsize will be (size, size) in px [default 800]</span>
+<span class="sd">            - fsize  : font size [default 10]</span>
+<span class="sd">            - method : placement method to draw graph, can be one of</span>
+<span class="sd">                       arf</span>
+<span class="sd">                       frucht</span>
+<span class="sd">                       radtree</span>
+<span class="sd">                       sfdp</span>
+<span class="sd">                       random</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">graph_tool.draw</span> <span class="k">as</span> <span class="nn">gtd</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">vlabel</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vlabel</span> <span class="o">=</span> <span class="s2">&quot;type&quot;</span>
+
+        <span class="n">draw_g</span> <span class="o">=</span> <span class="n">g</span>
+
+        <span class="k">if</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;arf&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">arf_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;frucht&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">fruchterman_reingold_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;radtree&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">radial_tree_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span> <span class="n">draw_g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;sfdp&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">sfdp_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">gtd</span><span class="o">.</span><span class="n">random_layout</span><span class="p">(</span><span class="n">draw_g</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pos</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">gtd</span><span class="o">.</span><span class="n">graph_draw</span><span class="p">(</span><span class="n">draw_g</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">vertex_text</span><span class="o">=</span><span class="n">draw_g</span><span class="o">.</span><span class="n">vp</span><span class="p">[</span><span class="n">vlabel</span><span class="p">],</span> <span class="n">vertex_font_size</span><span class="o">=</span><span class="n">fsize</span><span class="p">,</span> <span class="n">vertex_size</span><span class="o">=</span><span class="n">vsize</span><span class="p">,</span> \
+            <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">output</span><span class="o">=</span><span class="n">fname</span><span class="o">+</span><span class="s2">&quot;.&quot;</span><span class="o">+</span><span class="n">ptype</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.find_subgraph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.find_subgraph">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_subgraph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">subg</span><span class="p">,</span> <span class="n">graph_property</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">subg_property</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        use graph_tools subgraph_isomorphism tool to find substructures</span>
+
+<span class="sd">        :Parameter:</span>
+
+<span class="sd">            - graph : parent graph to be searched</span>
+<span class="sd">            - subg  : graph to be found</span>
+<span class="sd">            - N (int): number of subgraphs to find, N=0 is all (defaults to N=0)</span>
+
+<span class="sd">        :Returns:</span>
+
+<span class="sd">            a list of lists with the (sorted) vertex indices of the substructure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">graph_property</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">graph_property</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span>
+        <span class="k">if</span> <span class="n">subg_property</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">subg_property</span> <span class="o">=</span> <span class="n">subg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span>
+        <span class="n">property_maps</span> <span class="o">=</span> <span class="p">(</span><span class="n">subg_property</span><span class="p">,</span> <span class="n">graph_property</span><span class="p">)</span>
+        <span class="n">maps</span> <span class="o">=</span> <span class="n">subgraph_isomorphism</span><span class="p">(</span><span class="n">subg</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">vertex_label</span><span class="o">=</span><span class="n">property_maps</span><span class="p">,</span><span class="n">max_n</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">subs_check</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+            <span class="n">sl</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">sl_check</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span>
+            <span class="n">sl_check</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">sl_check</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subs_check</span><span class="p">:</span> 
+                <span class="n">subs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span>
+                <span class="n">subs_check</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sl_check</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subs</span></div>
+
+
+<div class="viewcode-block" id="graph.find_sub"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.find_sub">[docs]</a>    <span class="k">def</span> <span class="nf">find_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        use graph_tools subgraph_isomorphism tool to find substructures</span>
+
+<span class="sd">        :Parameter:</span>
+
+<span class="sd">            - subg : graph object (from another molsys) to be searched</span>
+
+<span class="sd">        :Returns:</span>
+
+<span class="sd">            a list of lists with the (sorted) vertex indices of the substructure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="p">,</span> <span class="n">subg</span><span class="o">.</span><span class="n">molg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subs</span></div>
+
+<div class="viewcode-block" id="graph.check_sub"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.check_sub">[docs]</a>    <span class="k">def</span> <span class="nf">check_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;check if subg found in self.graph</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            subg (mol.graph objects): subgraph to be tested</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="p">,</span> <span class="n">subg</span><span class="o">.</span><span class="n">molg</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">subs</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+        
+
+<div class="viewcode-block" id="graph.find_fragment"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.find_fragment">[docs]</a>    <span class="k">def</span> <span class="nf">find_fragment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frag</span><span class="p">,</span><span class="n">add_hydrogen</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find a complete fragment (including the hydrogen atoms not included in the graph)</span>
+<span class="sd">        Note that the fragment found can be different from the fragment by the number of hydrogen atoms!!</span>
+
+<span class="sd">        :Parameter:</span>
+
+<span class="sd">            - frag : mol object with graph addon to be found</span>
+
+<span class="sd">        :Returns:</span>
+
+<span class="sd">            a list of lists with the atom indices of the fragment in the full system</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_sub</span><span class="p">(</span><span class="n">frag</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="n">frags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">subs</span><span class="p">:</span>
+            <span class="c1"># loop over all vertices</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert2atom</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+                <span class="c1"># check all atoms connected to this atom if they are hydrogen</span>
+                <span class="k">if</span> <span class="n">add_hydrogen</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">ca</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">a</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">ca</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ca</span><span class="p">)</span>
+            <span class="n">frags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frags</span></div>
+
+<div class="viewcode-block" id="graph.util_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.util_graph">[docs]</a>    <span class="k">def</span> <span class="nf">util_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">vtypes2</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate a graph with vertices and connectivity in conn</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">vtypes2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vtypes2</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># now add vertices</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vtypes2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">types2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vertices</span><span class="p">):</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="n">vtypes2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">types2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vtypes2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="c1"># now add edges ...</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vertices</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">j</span><span class="o">&gt;=</span><span class="n">i</span><span class="p">:</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">g</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">g</span></div>
+
+<div class="viewcode-block" id="graph.filter_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.filter_graph">[docs]</a>    <span class="k">def</span> <span class="nf">filter_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        filters all atoms besides the given out of the graph</span>
+<span class="sd">        :Parameters:</span>
+<span class="sd">            - idx (list): indices of atoms to keep</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO use vert2atom</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">clear_filters</span><span class="p">()</span>
+        <span class="nb">filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>
+        <span class="nb">filter</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="nb">filter</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">=</span><span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.unfilter_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.unfilter_graph">[docs]</a>    <span class="k">def</span> <span class="nf">unfilter_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">clear_filters</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.get_components"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.get_components">[docs]</a>    <span class="k">def</span> <span class="nf">get_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fidx</span><span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all the components aka molecules from the atomic graph</span>
+
+<span class="sd">        it adds a property map molid to the graph</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            number of components found</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># filter </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_graph</span><span class="p">(</span><span class="n">fidx</span><span class="p">)</span>
+        <span class="n">label_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="p">,</span> <span class="n">vprop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">molid</span><span class="p">)</span>
+        <span class="n">ncomp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">molid</span><span class="o">.</span><span class="n">a</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">fidx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unfilter_graph</span><span class="p">()</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">molid</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">comp</span></div>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    #############################################################################################</span>
+<span class="sd">           decomposition (or deconstruction)</span>
+<span class="sd">    #############################################################################################</span>
+
+<span class="sd">    Since the molg graph above is really used for fragment finding with a special way to treat </span>
+<span class="sd">    hydrogens we use a seperate graph called moldg (mol decomposition graph) which contains all atoms</span>
+<span class="sd">    and uses only lower case element symbols as vertex symbols. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="graph.decompose"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.decompose">[docs]</a>    <span class="k">def</span> <span class="nf">decompose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;ringsize&quot;</span><span class="p">,</span> <span class="n">join_organic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;decompose the molecular graph into BBs and the underlying net</span>
+
+<span class="sd">        There are different strategies to split the graph into parts and also the returned information</span>
+<span class="sd">        can be tuned.</span>
+<span class="sd">        In general, a topo mol object of the underlying net and a set of BB mol objects with a mapping </span>
+<span class="sd">        to vertices and edges will be returned.</span>
+<span class="sd">        </span>
+<span class="sd">        modes:</span>
+<span class="sd">            ringsize: use clusters of minimum ring size as used by Topos for decomposition</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mode (str, optional): mode of splitting into BBs. Defaults to &quot;ringsize&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># set up the graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_decomp_graph</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;graph made&quot;</span><span class="p">)</span>
+        <span class="c1"># first test for interp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interp</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># if interp &gt; 1 then we have N interp nets which are in moldg_full, mappings in self.interp_map</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_interp</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;interp detected  :&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="c1"># split it</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;ringsize&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">split_ringsize</span><span class="p">()</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;split by ringsize&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make_bb_graph</span><span class="p">()</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;bb graph made&quot;</span><span class="p">)</span>
+            <span class="c1"># if we join organic BBs do this now and regenerate bbg afterwards</span>
+            <span class="k">if</span> <span class="n">join_organic</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_organic</span><span class="p">():</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;joined organic&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">make_bb_graph</span><span class="p">()</span>
+                    <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;bb graph remade&quot;</span><span class="p">)</span>
+            <span class="c1"># now test if there have been 2c BBs side by side and remove these splits</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">join_2c</span><span class="p">():</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;joined 2c&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">make_bb_graph</span><span class="p">()</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;bb graph remade&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unknown decomosition mode&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># now get the BBs and the net and collect the output</span>
+
+        <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_net</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;net constructed&quot;</span><span class="p">)</span>
+        <span class="c1"># generate the BBs as mol objects and theri distribution to the vertices and edges</span>
+        <span class="c1">#   NOTE: return values are also available as self.decomp_&lt;name&gt;</span>
+        <span class="n">vbb</span><span class="p">,</span> <span class="n">vbb_map</span><span class="p">,</span> <span class="n">ebb</span><span class="p">,</span> <span class="n">ebb_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bbs</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;bbs extracted&quot;</span><span class="p">)</span>
+        <span class="c1"># return complete info as a tuple</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">vbb</span><span class="p">,</span> <span class="n">vbb_map</span><span class="p">,</span> <span class="n">ebb</span><span class="p">,</span> <span class="n">ebb_map</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="graph.make_decomp_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.make_decomp_graph">[docs]</a>    <span class="k">def</span> <span class="nf">make_decomp_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;make a mol graph for decomposition</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>     <span class="c1"># bb index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>  <span class="c1"># connector atom (-1 no con, else atom to which is bonded)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>    <span class="c1"># vertex filter (for endgroups aka hydrogen)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">atype</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>  <span class="c1"># atomtype</span>
+        <span class="c1"># generate vertices and edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>  <span class="c1"># element</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_elems</span><span class="p">()</span>
+        <span class="n">conn</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">elem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">j</span><span class="o">&lt;</span><span class="n">i</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+        <span class="c1"># add all further properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>      <span class="c1"># smallest ringsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">)</span>     <span class="c1"># filter for splitting into BBs</span>
+        <span class="c1"># init properties</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="c1"># determine the atype from the graph</span>
+            <span class="n">atype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">elem</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">atype</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="n">v</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span>
+            <span class="n">nel</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">elem</span><span class="p">[</span><span class="n">nv</span><span class="p">]</span> <span class="k">for</span> <span class="n">nv</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">()]</span>
+            <span class="n">nels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nel</span><span class="p">))</span>
+            <span class="n">nels</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nels</span><span class="p">:</span>
+                <span class="n">atype</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">nel</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">atype</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">atype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span><span class="o">.</span><span class="n">a</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># set up flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_split</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bb_exist</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.detect_interp"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.detect_interp">[docs]</a>    <span class="k">def</span> <span class="nf">detect_interp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method helps to identify interpenetration and remaining solvent</span>
+
+<span class="sd">        use bb vertex property to do the component analysis of the unsplit moldg</span>
+<span class="sd">        ==&gt; if we have more than one compnent then there are three options:</span>
+<span class="sd">         - the system is interpenetrated</span>
+<span class="sd">         - the system contains unconnected solvent</span>
+<span class="sd">         - something went wrong with the connectivity detection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comp</span><span class="p">,</span> <span class="n">hist</span> <span class="o">=</span> <span class="n">label_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;DEBUG DEBUG check interpenetration&quot;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+            <span class="c1"># we have more than one component, let&#39;s see if these are all the same subgraphs</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span><span class="o">*</span><span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">():</span>
+                <span class="c1"># mask out all but the first interp net</span>
+                <span class="c1"># TBI: check if the others are really subgraphs and how much they are shifted</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertices</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="n">comp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># make a copy of molg that contains only the first subgraph</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># unset filter</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg_full</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="c1"># now check the substructure mapping</span>
+                <span class="c1">#maps = subgraph_isomorphism(self.moldg, self.moldg_full, vertex_label=(self.moldg.vp.elem, self.moldg_full.vp.elem))</span>
+                <span class="c1">#subs = []</span>
+                <span class="c1">#subs_check = []</span>
+                <span class="c1">#for m in maps:</span>
+                <span class="c1">#    sl = list(m)</span>
+                <span class="c1">#    sl_check = copy.deepcopy(sl)</span>
+                <span class="c1">#    sl_check.sort()</span>
+                <span class="c1">#    if sl_check not in subs_check: </span>
+                <span class="c1">#        subs.append(sl)</span>
+                <span class="c1">#        subs_check.append(sl_check)</span>
+                <span class="c1">#assert len(hist) == len(subs), &quot;Something in itnerp checking went wrong: hist is %s&quot; % str(hist)</span>
+                <span class="c1">#self.interp = len(subs)</span>
+                <span class="c1">#self.interp_map = subs</span>
+                <span class="c1"># elems = self._mol.get_elems()</span>
+                <span class="c1"># xyz   = self._mol.get_xyz()</span>
+                <span class="c1"># for i in range(1,self.interp):</span>
+                <span class="c1">#     print (&quot;analysing %d. net&quot; % (i+1))</span>
+                <span class="c1">#     for i,j in zip(self.interp_map[0],self.interp_map[i]):</span>
+                <span class="c1">#         r = xyz[i]-xyz[j]</span>
+                <span class="c1">#         d = np.sqrt((r*r).sum())</span>
+                <span class="c1">#         print (&quot;Atom pair %3d %3d: %3s %3s  dist: %12.6f&quot; % (i, j, elems[i], elems[j], d))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;&quot;&quot;We are in big trouble .. </span>
+<span class="s2">                there are components in your system which are not interpenetrated nets but other stuff</span>
+<span class="s2">                like sovent molecules. Please check your onput structure!!</span>
+<span class="s2">                Decomposition is going to fail miserably&quot;&quot;&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>  </div>
+
+
+<div class="viewcode-block" id="graph.split_ringsize"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.split_ringsize">[docs]</a>    <span class="k">def</span> <span class="nf">split_ringsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        split by determining ringsizes follwoing the topos strategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_split</span> <span class="ow">is</span> <span class="kc">False</span>
+        <span class="c1"># first step: remove all vertices of degree 1 (hydrogen)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">kcore_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">)</span><span class="o">.</span><span class="n">get_array</span><span class="p">()</span>
+        <span class="n">k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">k1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">filt</span><span class="p">)</span>
+        <span class="c1"># second step: determine minimal ring size to each edge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">shortest_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">(),</span> <span class="n">target</span><span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="mi">2147483647</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span><span class="o">+</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">)</span>
+        <span class="c1"># third step: determine where to cut</span>
+        <span class="n">Nks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span><span class="o">.</span><span class="n">get_array</span><span class="p">()))</span>
+        <span class="n">Nks</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">Nks</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># print Nks</span>
+        <span class="n">cut_at_Nk</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Nks</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Nks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">Nks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
+                <span class="c1">#cut_at_Nk.append(Nks[i+1])</span>
+                <span class="n">cut_at_Nk</span> <span class="o">=</span> <span class="n">Nks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">break</span>
+        <span class="c1"># print cut_at_Nk</span>
+        <span class="c1"># fourth step: get all vertices back and set the cuts by filtering the edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_vertex_filter</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">Nk</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cut_at_Nk</span><span class="p">:</span>
+                <span class="c1"># this is a cut -&gt; set edge filter to False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># print &quot;cut at bond %d %d&quot; % (int(e.source()), int(e.target()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_split</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># DEBUG DEBUG DEBUG</span>
+        <span class="c1"># self.plot_graph(&quot;topo&quot;, g=self.moldg, label=&quot;elem&quot;, method=&quot;sfdb&quot;)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.make_bb_graph"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.make_bb_graph">[docs]</a>    <span class="k">def</span> <span class="nf">make_bb_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_split</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="c1"># label the BBs -&gt; this generates the BBid valid for both vertices and edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">)</span>
+        <span class="n">label_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">,</span> <span class="n">vprop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">set_edge_filter</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># prepare lists with mappings for the vertices to the BBs (which atom is in which vertex BB etc)</span>
+        <span class="c1"># Note:</span>
+        <span class="c1">#    the number of vertices nv is not equal to the number of BBs (nbb) since some BBs sit on edges</span>
+        <span class="c1">#    we thus need a mapping from BBs to atom indices and another mapping of vertices to BBs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_nbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span>
+        <span class="c1"># now we make a temporary graph bbg for the BBs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="c1">#  these two edge properties store the connecting atom indices </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="c1">#  from the original molg </span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nbb</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>  <span class="c1"># vertices of this graph can be indexed by bbid (it contains also the 2c edges)</span>
+        <span class="c1"># now check all split edges, register the connected atoms and add edges to the bbg graph</span>
+        <span class="c1"># reinit the con vertex property og moldg in case we do this again</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()</span> 
+                <span class="n">j</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">()</span>
+                <span class="c1"># also add the connector info as a string because we could have multiple</span>
+                <span class="c1"># if len(self.moldg.vp.con[i]) &gt; 0:</span>
+                    <span class="c1"># print (&quot;atom %d has already con %s ... connects to %d&quot; % (i, self.moldg.vp.con[i], j)) </span>
+                <span class="c1"># if len(self.moldg.vp.con[j]) &gt; 0:</span>
+                    <span class="c1"># print (&quot;atom %d has already con %s ... connects to %d&quot; % (j, self.moldg.vp.con[j], i)) </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">j</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">i</span>
+                <span class="n">ibb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">jbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="c1"># print (&quot;bond %d-%d for bbs %d %d&quot; % (i, j, ibb, jbb))</span>
+                <span class="c1"># TBI if we have two bonds between BBs we get edges twice here ... we could check if the edge is already there</span>
+                <span class="n">ne</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">ibb</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">jbb</span><span class="p">))</span>
+                <span class="c1"># we define source(small bb) - &gt; target(large bb)</span>
+                <span class="k">if</span> <span class="n">ibb</span><span class="o">&lt;</span><span class="n">jbb</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">ne</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">ne</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">ne</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">ne</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="c1"># add vertex and edge properties for bbs and init them (edges are -1 by default =&gt; no bb)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">new_edge_property</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2cons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nbb</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2cons</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="c1"># iterate over all vertices of the moldg </span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="n">vbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="p">[</span><span class="n">vbb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">v</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># this is a connector</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2cons</span><span class="p">[</span><span class="n">vbb</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="c1"># set flag that we can proceed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span> <span class="o">=</span><span class="kc">True</span>
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">(</span><span class="s2">&quot;bbg&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bb&quot;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="graph.join_2c"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.join_2c">[docs]</a>    <span class="k">def</span> <span class="nf">join_2c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;this method combines all 2c BBs into one, needs bbg but a call to make_bbg_graph has to be repeated</span>
+
+<span class="sd">        returns a flag which is True if a merge happend</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span>
+        <span class="c1"># iterate over edges in the molgraph ... those which are edges of the bbg -&gt; check if both ends are 2c and remove</span>
+        <span class="n">bb2v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">merge</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">ibb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()]</span>
+                <span class="n">jbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">()]</span>
+                <span class="n">iv</span> <span class="o">=</span> <span class="n">bb2v</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ibb</span><span class="p">)</span>
+                <span class="n">jv</span> <span class="o">=</span> <span class="n">bb2v</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">jbb</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">iv</span><span class="p">)</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">jv</span><span class="p">)</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="c1"># print (&quot;DEBUG: vertices %d and %d are both 2c: merging&quot; % (ibb, jbb))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># now invalidate bbg</span>
+        <span class="k">if</span> <span class="n">merge</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">merge</span></div>
+
+<div class="viewcode-block" id="graph.join_organic"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.join_organic">[docs]</a>    <span class="k">def</span> <span class="nf">join_organic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;this method combines organic BBs into one (be it edges or vertices)</span>
+
+<span class="sd">        returns a flag which is True if a merge happened and make_bbg_graph needs to be rerun</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span>
+        <span class="c1"># iterate over vertices -&gt; flag all vertices as organic or inorganic</span>
+        <span class="n">orgbbs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">molelem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_elems</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="n">vbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">velem</span> <span class="o">=</span> <span class="p">[</span><span class="n">molelem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="p">[</span><span class="n">vbb</span><span class="p">]]</span>
+            <span class="n">organic</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">velem</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="o">.</span><span class="n">metals</span><span class="p">:</span>
+                    <span class="n">organic</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">organic</span><span class="p">:</span>
+                <span class="n">orgbbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vbb</span><span class="p">)</span>
+        <span class="c1"># iterate over edges in the molgraph ... those which bridge two organic bbs will be cleared</span>
+        <span class="n">bb2v</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">merge</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">ibb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()]</span>
+                <span class="n">jbb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">()]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ibb</span> <span class="ow">in</span> <span class="n">orgbbs</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">jbb</span> <span class="ow">in</span> <span class="n">orgbbs</span><span class="p">):</span>
+                    <span class="c1"># print (&quot;DEBUG: BBs %d and %d are both organic: merging&quot; % (ibb, jbb))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">filt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">merge</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># now invalidate bbg</span>
+        <span class="k">if</span> <span class="n">merge</span><span class="p">:</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bbg</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">merge</span></div>
+
+
+<div class="viewcode-block" id="graph.get_net"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.get_net">[docs]</a>    <span class="k">def</span> <span class="nf">get_net</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;coc&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;this method takes a sliced moldg and creates a graph of the underlying net</span>
+
+<span class="sd">        TBI: currently no pconn is detected .. we rely on being able to construct it from the embedding</span>
+<span class="sd">             this needs to be tested for very small thigs like a 1x1x1 pcu based MOF</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mode (str, otional): Defaults to &quot;coc&quot;, mode how to compute the position of the BBs vertex position</span>
+<span class="sd">                                 coc - center of connectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="c1"># now reduce the graph to its basis without the 2c edges (edge bbs go into the ep.bb)</span>
+        <span class="n">remove_v</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">remove_v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">()</span>
+                <span class="n">new_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">j</span><span class="p">))</span>
+                <span class="c1"># we have to assign the satom/tatom for this new edge from the (to be destroyed) edges i-v-j</span>
+                <span class="c1"># using the order i smaller than j (for the bb index)</span>
+                <span class="n">iv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">jv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">v</span><span class="p">:</span>
+                    <span class="n">ina</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">iv</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ina</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">iv</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">j</span><span class="o">&lt;</span><span class="n">v</span><span class="p">:</span>
+                    <span class="n">jna</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">jv</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">jna</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">jv</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">j</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">new_edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">ina</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">new_edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">jna</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">new_edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">ina</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">new_edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">jna</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">new_edge</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="c1">#print (&quot;REMOVE edge BB %d - connected to BBs %d %d - edge atoms %d %d&quot; % (int(v), i, j, self.bbg.ep.satom[new_edge], self.bbg.ep.tatom[new_edge]))</span>
+        <span class="c1"># self.bbg.remove_vertex(remove_v)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">remove_v</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">remove_vertex</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_nv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">(</span><span class="s2">&quot;bbg_after&quot;</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bb&quot;</span><span class="p">)</span>
+        <span class="c1"># generate xyz coordinates of the original system where the BBs are properly wrapped into one image</span>
+        <span class="n">wrap_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nbb</span><span class="p">):</span>
+            <span class="n">bb_xyz</span> <span class="o">=</span> <span class="n">wrap_xyz</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="n">bb_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">apply_pbc</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="n">bb_xyz</span><span class="p">)</span>
+            <span class="n">wrap_xyz</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">bb_xyz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrap_mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrap_mol</span><span class="o">.</span><span class="n">set_xyz</span><span class="p">(</span><span class="n">wrap_xyz</span><span class="p">)</span>
+        <span class="c1">#DEBUG</span>
+        <span class="c1">#self.wrap_mol.write(&quot;DEBUG_wrap_mol.mfpx&quot;)</span>
+        <span class="c1"># now compute the vertex positions of the BBs as the scaled embedding depending on the mode</span>
+        <span class="n">vpos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nv</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;coc&quot;</span><span class="p">:</span>
+                <span class="c1"># compute by centroid of connectors (note that this considers pbc correctly but we might have to wrap)</span>
+                <span class="n">bbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="c1"># vpos[int(v)] = self._mol.get_coc(idx = self.decomp_map_bb2cons[bbid])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">vpos</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_mol</span><span class="o">.</span><span class="n">get_coc</span><span class="p">(</span><span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2cons</span><span class="p">[</span><span class="n">bbid</span><span class="p">])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unknown mode in get_net&quot;</span><span class="p">)</span>
+                <span class="k">raise</span>
+        <span class="c1"># now make a mol object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">vpos</span><span class="p">)</span>
+        <span class="c1"># since this is the unscaled embedding we can directly take the cell from the parent mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+        <span class="c1"># self.decomp_net.apply_pbc()</span>
+        <span class="c1"># now generate a net_conn from the edges of the bbg graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nv</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">())</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">ia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">satom</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="c1"># atom indices of the original molg</span>
+            <span class="n">ja</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">tatom</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="c1"># that form this BB connection</span>
+            <span class="c1"># print (&quot;bond between BBs atom: %3d %3d   BBs: %2d %2d&quot; % (ia, ja, i, j))</span>
+            <span class="n">dist_ij</span> <span class="o">=</span> <span class="n">wrap_xyz</span><span class="p">[</span><span class="n">ja</span><span class="p">]</span> <span class="o">-</span> <span class="n">wrap_xyz</span><span class="p">[</span><span class="n">ia</span><span class="p">]</span>
+            <span class="n">fracdist_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dist_ij</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">inv_cell</span><span class="p">)</span>
+            <span class="n">pconn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">fracdist_ij</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">j</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">pconn</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pconn</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pconn</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">pconn</span><span class="p">)</span>
+        <span class="n">vert_elems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_nv</span><span class="p">):</span>
+            <span class="n">vert_elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">topotypes</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span><span class="p">[</span><span class="n">i</span><span class="p">])])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">set_elems</span><span class="p">(</span><span class="n">vert_elems</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">set_conn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_conn</span><span class="p">)</span>
+        <span class="c1"># this is a bit hacky ... we want to use pconn but can not rely on check_need_pconn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">set_pconn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_net_pconn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">use_pconn</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span><span class="o">.</span><span class="n">make_topo</span><span class="p">(</span><span class="n">check_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_net</span></div>
+
+<div class="viewcode-block" id="graph.get_bbs"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.get_bbs">[docs]</a>    <span class="k">def</span> <span class="nf">get_bbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_mfpx</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;this method generates the unique bbs from moldg and bbg</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">get_all</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;PLEASE IMPLEMENT get_all option!!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># vertex BB mol objects (only unique)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># edge/linker BB mol objects (only unique)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb_map</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># mapping of BBs to the vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb_map</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># mapping of the BBS to the edges</span>
+        <span class="c1"># VERTICES</span>
+        <span class="c1"># start with the vertices ... check all</span>
+        <span class="n">vbb_graphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">vbb_map</span>   <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">vbb_remap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">nvbbs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">():</span>
+            <span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">cur_bbsg</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vfilt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">bb</span><span class="p">)</span>
+            <span class="c1"># now check if we have this bb already</span>
+            <span class="n">known</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vbb_graphs</span><span class="p">)):</span>
+                <span class="n">old_bbsg</span> <span class="o">=</span> <span class="n">vbb_graphs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">old_bbsg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">!=</span> <span class="n">cur_bbsg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">():</span>
+                    <span class="k">continue</span>
+                <span class="c1">#JK: there is an error thrown for single atom graphs (1 vertex 0 edges)</span>
+                <span class="c1"># in this case we simply check if the elements are the same</span>
+                <span class="k">if</span> <span class="n">old_bbsg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">cur_bbsg</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">old_bbsg</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()[</span><span class="mi">0</span><span class="p">]]:</span>
+                        <span class="n">known</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="c1"># check if isomorphic</span>
+                <span class="c1"># if isomorphism(cur_bbsg, old_bbsg, vertex_inv1 = cur_bbsg.vp.elem, vertex_inv2 = old_bbsg.vp.elem):</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">isomorphism</span><span class="p">(</span><span class="n">cur_bbsg</span><span class="p">,</span> <span class="n">old_bbsg</span><span class="p">):</span>
+                        <span class="n">known</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">known</span><span class="p">:</span>
+                <span class="c1"># add graph</span>
+                <span class="n">vbb_graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Graph</span><span class="p">(</span><span class="n">cur_bbsg</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="n">vbb_map</span><span class="p">[</span><span class="n">nvbbs</span><span class="p">]</span>   <span class="o">=</span> <span class="p">[</span><span class="n">bb</span><span class="p">]</span>
+                <span class="n">vbb_remap</span><span class="p">[</span><span class="n">nvbbs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span>
+                <span class="n">nvbbs</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># known already .. i equals nvbb</span>
+                <span class="n">vbb_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+                <span class="n">vbb_remap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="c1"># we assume that all the BBs have a similar structure and we pick the first from the list to generate the BB object</span>
+        <span class="c1"># TBI: with flag get_all==True convert them all</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nvbbs</span><span class="p">):</span>
+            <span class="n">bb</span>   <span class="o">=</span> <span class="n">vbb_map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># take the first</span>
+            <span class="n">vbbg</span> <span class="o">=</span> <span class="n">vbb_graphs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># now we need to convert bb into a mol object and store it in self.decomp_vbb</span>
+            <span class="n">mol_bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_bb2mol</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vbbg</span><span class="p">)</span>
+            <span class="c1"># now add to the final list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol_bb</span><span class="p">)</span>
+            <span class="c1"># store the map from the dicitonary into the nested list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vbb_remap</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c1"># DEBUG</span>
+            <span class="k">if</span> <span class="n">write_mfpx</span><span class="p">:</span>
+                <span class="n">mol_bb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;bb_</span><span class="si">%d</span><span class="s2">.mfpx&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+        <span class="c1"># EDGES</span>
+        <span class="c1"># now analyze the edges .. check all edges if their edge property bb is larger than -1 (-1 means no edge bb) </span>
+        <span class="n">ebb_graphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ebb_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ebb_remap</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">nebbs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbg</span><span class="o">.</span><span class="n">ep</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+                <span class="n">cur_bbsg</span> <span class="o">=</span> <span class="n">GraphView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vfilt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">a</span> <span class="o">==</span> <span class="n">bb</span><span class="p">)</span>
+                <span class="c1"># now check if we have this bb already</span>
+                <span class="n">known</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ebb_graphs</span><span class="p">)):</span>
+                    <span class="n">old_bbsg</span> <span class="o">=</span> <span class="n">ebb_graphs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">old_bbsg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">!=</span> <span class="n">cur_bbsg</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">():</span>
+                        <span class="k">continue</span>
+                    <span class="c1"># check if isomorphic</span>
+                    <span class="c1"># if isomorphism(cur_bbsg, old_bbsg, vertex_inv1 = cur_bbsg.vp.elem, vertex_inv2 = old_bbsg.vp.elem):</span>
+                    <span class="k">if</span> <span class="n">isomorphism</span><span class="p">(</span><span class="n">cur_bbsg</span><span class="p">,</span> <span class="n">old_bbsg</span><span class="p">):</span>
+                        <span class="n">known</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">known</span><span class="p">:</span>
+                    <span class="c1"># add graph</span>
+                    <span class="n">ebb_graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Graph</span><span class="p">(</span><span class="n">cur_bbsg</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                    <span class="n">ebb_map</span><span class="p">[</span><span class="n">nebbs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">bb</span><span class="p">]</span>
+                    <span class="n">ebb_remap</span><span class="p">[</span><span class="n">nebbs</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">]</span>
+                    <span class="n">nebbs</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># known already .. i equals nvbb</span>
+                    <span class="n">ebb_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+                    <span class="n">ebb_remap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># we assume that all the BBs have a similar structure and we pick the first from the list to generate the BB object</span>
+        <span class="c1"># TBI: with flag get_all==True convert them all</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nebbs</span><span class="p">):</span>
+            <span class="n">bb</span>   <span class="o">=</span> <span class="n">ebb_map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># take the first</span>
+            <span class="n">ebbg</span> <span class="o">=</span> <span class="n">ebb_graphs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># now we need to convert bb into a mol object and store it in self.decomp_ebb</span>
+            <span class="n">mol_bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_bb2mol</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">ebbg</span><span class="p">)</span>
+            <span class="c1"># now add to the final list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol_bb</span><span class="p">)</span>
+            <span class="c1"># store the map from the dicitonary into the nested list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb_map</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ebb_remap</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c1"># DEBUG</span>
+            <span class="k">if</span> <span class="n">write_mfpx</span><span class="p">:</span>
+                <span class="n">mol_bb</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ebb_</span><span class="si">%d</span><span class="s2">.mfpx&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decomp_bb_exist</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_vbb_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_ebb_map</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="graph.is_equal"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.graph.graph.is_equal">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_equal</span><span class="p">(</span><span class="n">molg1</span><span class="p">,</span> <span class="n">molg2</span><span class="p">,</span> <span class="n">use_fast_check</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;helper function to identify if two molecular graphs are equal </span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            molg1 (molecular graph): molecular graph to be compared to molg2 </span>
+<span class="sd">            molg2 (molecular graph): molecular graph to be compared to molg1 </span>
+<span class="sd">            use_fast_check (bool): will enforce a fast check based on the similarity rather than a graph isomorphisim</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">error_code</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">use_fast_check</span><span class="p">:</span>
+
+            <span class="n">similarity</span> <span class="o">=</span> <span class="n">graph_tool</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="n">molg1</span><span class="p">,</span><span class="n">molg2</span><span class="p">)</span>
+
+            <span class="n">is_equal</span> <span class="o">=</span> <span class="p">(</span><span class="n">similarity</span> <span class="o">&gt;</span> <span class="mf">0.99</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+
+                <span class="n">e1</span> <span class="o">=</span> <span class="n">molg1</span><span class="o">.</span><span class="n">get_edges</span><span class="p">()</span>
+                <span class="n">e2</span> <span class="o">=</span> <span class="n">molg2</span><span class="o">.</span><span class="n">get_edges</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="n">e1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+                    <span class="c1"># quick exist?</span>
+                    <span class="n">vert1</span> <span class="o">=</span> <span class="n">molg1</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()</span>
+                    <span class="n">vert2</span> <span class="o">=</span> <span class="n">molg2</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vert1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vert2</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">e2</span><span class="p">):</span>
+                       <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">False</span>
+                       <span class="k">return</span> <span class="n">is_equal</span><span class="p">,</span> <span class="n">error_code</span>
+                     
+                    <span class="n">masterg</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">molg2</span><span class="p">)</span>
+                    <span class="n">masterg</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span> 
+
+                    <span class="n">vertex_maps</span> <span class="o">=</span> <span class="n">graph_tool</span><span class="o">.</span><span class="n">topology</span><span class="o">.</span><span class="n">subgraph_isomorphism</span><span class="p">(</span><span class="n">molg1</span><span class="p">,</span> <span class="n">masterg</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vertex_label</span><span class="o">=</span><span class="p">(</span><span class="n">molg1</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">,</span><span class="n">masterg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">),</span> <span class="n">edge_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">induced</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">subgraph</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                    <span class="n">is_equal</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex_maps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+                    <span class="k">if</span> <span class="n">is_equal</span><span class="p">:</span>
+                       <span class="k">for</span> <span class="n">vi</span><span class="p">,</span><span class="n">vj</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">molg1</span><span class="o">.</span><span class="n">vertices</span><span class="p">(),</span><span class="n">vertex_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                           <span class="k">if</span> <span class="n">molg1</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">vi</span><span class="p">]</span> <span class="o">!=</span> <span class="n">molg2</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">vj</span><span class="p">]:</span>
+                               <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">False</span>
+                               <span class="k">break</span>
+                       
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># We don&#39;t have any edges... </span>
+
+                    <span class="c1"># compare vertices</span>
+                    <span class="n">vert1</span> <span class="o">=</span> <span class="n">molg1</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()</span>
+                    <span class="n">vert2</span> <span class="o">=</span> <span class="n">molg2</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vert1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vert2</span><span class="p">):</span>
+                       <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">False</span>
+                       <span class="k">return</span> <span class="n">is_equal</span><span class="p">,</span> <span class="n">error_code</span>
+
+                    <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="k">for</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vert1</span><span class="p">,</span><span class="n">vert2</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">molg1</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">molg2</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">type</span><span class="p">[</span><span class="n">v2</span><span class="p">]:</span>
+                            <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="k">break</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An error occured during the graph comparison&quot;</span><span class="p">)</span>
+                <span class="n">is_equal</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">error_code</span> <span class="o">=</span> <span class="mi">1</span> 
+
+
+        <span class="k">return</span> <span class="n">is_equal</span><span class="p">,</span> <span class="n">error_code</span></div>
+
+    <span class="k">def</span> <span class="nf">_convert_bb2mol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bb</span><span class="p">,</span> <span class="n">bbg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;helper function to convert a bb (index) and bbg (graph) to a mol object</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            bb (int): index of building block to convert</span>
+<span class="sd">            bbg (graph): graph of the bb</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            mol object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bb_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2atoms</span><span class="p">[</span><span class="n">bb</span><span class="p">]</span>
+        <span class="n">bb_cons</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomp_map_bb2cons</span><span class="p">[</span><span class="n">bb</span><span class="p">]</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_mol</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">(</span><span class="n">bb_atoms</span><span class="p">)</span>
+        <span class="c1">#xyz = self._mol.get_xyz(bb_atoms)</span>
+        <span class="c1"># generate a mol object just from positions (inherit cell)</span>
+        <span class="n">mol_bb</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">set_elems</span><span class="p">([</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">elem</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">()])</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">set_atypes</span><span class="p">([</span><span class="n">bbg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">atype</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">bbg</span><span class="o">.</span><span class="n">vertices</span><span class="p">()])</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">set_real_mass</span><span class="p">()</span>
+        <span class="n">ctab</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">source</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">target</span><span class="p">())]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">bbg</span><span class="o">.</span><span class="n">edges</span><span class="p">()]</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">set_conn_from_tab</span><span class="p">(</span><span class="n">ctab</span><span class="p">)</span>
+        <span class="c1"># the positions could be split by pbc -&gt; fix it and then remove periodicity</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">center_com</span><span class="p">(</span><span class="n">check_periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">apply_pbc</span><span class="p">()</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">make_nonperiodic</span><span class="p">()</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;bb&quot;</span><span class="p">)</span>
+        <span class="c1"># compute connector indices of local BB</span>
+        <span class="n">connector</span> <span class="o">=</span> <span class="p">[</span><span class="n">bb_atoms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">bb_cons</span><span class="p">]</span>
+        <span class="c1"># compute atypes of atoms bonded to the connectors</span>
+        <span class="n">connector_atypes</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">atype</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moldg</span><span class="o">.</span><span class="n">vp</span><span class="o">.</span><span class="n">con</span><span class="p">[</span><span class="n">j</span><span class="p">])]]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">bb_cons</span><span class="p">]</span>
+        <span class="n">mol_bb</span><span class="o">.</span><span class="n">bb</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">connector</span><span class="p">,</span> <span class="n">connector_atypes</span><span class="o">=</span><span class="n">connector_atypes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mol_bb</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

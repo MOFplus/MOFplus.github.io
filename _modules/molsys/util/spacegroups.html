@@ -1,0 +1,715 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.spacegroups &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.spacegroups</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.spacegroups</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author: julian</span>
+
+<span class="sd">Minimum set to convert spacegroup symbols to the respective spacegroup number</span>
+<span class="sd">Much more has to be added here!</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">spacegroups</span><span class="o">=</span><span class="p">{</span>
+<span class="s1">&#39;P1&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+<span class="s1">&#39;P-1&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+<span class="s1">&#39;P2&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+<span class="s1">&#39;P21&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+<span class="s1">&#39;C2&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span>
+<span class="s1">&#39;Pm&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span>
+<span class="s1">&#39;Pc&#39;</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span>
+<span class="s1">&#39;Cm&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span>
+<span class="s1">&#39;Cc&#39;</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span>
+<span class="s1">&#39;P2/m&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+<span class="s1">&#39;P21/m&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">,</span>
+<span class="s1">&#39;C2/m&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span>
+<span class="s1">&#39;P2/c&#39;</span><span class="p">:</span><span class="mi">13</span><span class="p">,</span>
+<span class="s1">&#39;P21/c&#39;</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span>
+<span class="s1">&#39;C2/c&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s1">&#39;P222&#39;</span><span class="p">:</span><span class="mi">16</span><span class="p">,</span>
+<span class="s1">&#39;P2221&#39;</span><span class="p">:</span><span class="mi">17</span><span class="p">,</span>
+<span class="s1">&#39;P21212&#39;</span><span class="p">:</span><span class="mi">18</span><span class="p">,</span>
+<span class="s1">&#39;P212121&#39;</span><span class="p">:</span><span class="mi">19</span><span class="p">,</span>
+<span class="s1">&#39;C2221&#39;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span>
+<span class="s1">&#39;C222&#39;</span><span class="p">:</span><span class="mi">21</span><span class="p">,</span>
+<span class="s1">&#39;F222&#39;</span><span class="p">:</span><span class="mi">22</span><span class="p">,</span>
+<span class="s1">&#39;I222&#39;</span><span class="p">:</span><span class="mi">23</span><span class="p">,</span>
+<span class="s1">&#39;I212121&#39;</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span>
+<span class="s1">&#39;Pmm2&#39;</span><span class="p">:</span><span class="mi">25</span><span class="p">,</span>
+<span class="s1">&#39;Pmc21&#39;</span><span class="p">:</span><span class="mi">26</span><span class="p">,</span>
+<span class="s1">&#39;Pmc2(1)&#39;</span><span class="p">:</span><span class="mi">26</span><span class="p">,</span>
+<span class="s1">&#39;Pcc2&#39;</span><span class="p">:</span><span class="mi">27</span><span class="p">,</span>
+<span class="s1">&#39;Pma2&#39;</span><span class="p">:</span><span class="mi">28</span><span class="p">,</span>
+<span class="s1">&#39;Pca21&#39;</span><span class="p">:</span><span class="mi">29</span><span class="p">,</span>
+<span class="s1">&#39;Pnc2&#39;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span>
+<span class="s1">&#39;Pmn21&#39;</span><span class="p">:</span><span class="mi">31</span><span class="p">,</span>
+<span class="s1">&#39;Pba2&#39;</span><span class="p">:</span><span class="mi">32</span><span class="p">,</span>
+<span class="s1">&#39;Pna21&#39;</span><span class="p">:</span><span class="mi">33</span><span class="p">,</span>
+<span class="s1">&#39;Pnn2&#39;</span><span class="p">:</span><span class="mi">34</span><span class="p">,</span>
+<span class="s1">&#39;Cmm2&#39;</span><span class="p">:</span><span class="mi">35</span><span class="p">,</span>
+<span class="s1">&#39;Cmc21&#39;</span><span class="p">:</span><span class="mi">36</span><span class="p">,</span>
+<span class="s1">&#39;Ccc2&#39;</span><span class="p">:</span><span class="mi">37</span><span class="p">,</span>
+<span class="s1">&#39;Amm2&#39;</span><span class="p">:</span><span class="mi">38</span><span class="p">,</span>
+<span class="s1">&#39;Abm2&#39;</span><span class="p">:</span><span class="mi">39</span><span class="p">,</span>
+<span class="s1">&#39;Ama2&#39;</span><span class="p">:</span><span class="mi">40</span><span class="p">,</span>
+<span class="s1">&#39;Aba2&#39;</span><span class="p">:</span><span class="mi">41</span><span class="p">,</span>
+<span class="s1">&#39;Fmm2&#39;</span><span class="p">:</span><span class="mi">42</span><span class="p">,</span>
+<span class="s1">&#39;Fdd2&#39;</span><span class="p">:</span><span class="mi">43</span><span class="p">,</span>
+<span class="s1">&#39;Imm2&#39;</span><span class="p">:</span><span class="mi">44</span><span class="p">,</span>
+<span class="s1">&#39;Iba2&#39;</span><span class="p">:</span><span class="mi">45</span><span class="p">,</span>
+<span class="s1">&#39;Ima2&#39;</span><span class="p">:</span><span class="mi">46</span><span class="p">,</span>
+<span class="s1">&#39;Pmmm&#39;</span><span class="p">:</span><span class="mi">47</span><span class="p">,</span>
+<span class="s1">&#39;Pmmmm&#39;</span><span class="p">:</span><span class="mi">47</span><span class="p">,</span>
+<span class="s1">&#39;Pnnn&#39;</span><span class="p">:</span><span class="mi">48</span><span class="p">,</span>
+<span class="s1">&#39;Pccm&#39;</span><span class="p">:</span><span class="mi">49</span><span class="p">,</span>
+<span class="s1">&#39;Pban&#39;</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span>
+<span class="s1">&#39;Pmma&#39;</span><span class="p">:</span><span class="mi">51</span><span class="p">,</span>
+<span class="s1">&#39;Pmbm&#39;</span><span class="p">:</span><span class="mi">51</span><span class="p">,</span>
+<span class="s1">&#39;Pnna&#39;</span><span class="p">:</span><span class="mi">52</span><span class="p">,</span>
+<span class="s1">&#39;Pmna&#39;</span><span class="p">:</span><span class="mi">53</span><span class="p">,</span>
+<span class="s1">&#39;Pcca&#39;</span><span class="p">:</span><span class="mi">54</span><span class="p">,</span>
+<span class="s1">&#39;Pbam&#39;</span><span class="p">:</span><span class="mi">55</span><span class="p">,</span>
+<span class="s1">&#39;Pbamm&#39;</span><span class="p">:</span><span class="mi">55</span><span class="p">,</span>
+<span class="s1">&#39;Pccn&#39;</span><span class="p">:</span><span class="mi">56</span><span class="p">,</span>
+<span class="s1">&#39;Pbcm&#39;</span><span class="p">:</span><span class="mi">57</span><span class="p">,</span>
+<span class="s1">&#39;Pnnm&#39;</span><span class="p">:</span><span class="mi">58</span><span class="p">,</span>
+<span class="s1">&#39;Pmmn&#39;</span><span class="p">:</span><span class="mi">59</span><span class="p">,</span>
+<span class="s1">&#39;Pbcn&#39;</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span>
+<span class="s1">&#39;Pbca&#39;</span><span class="p">:</span><span class="mi">61</span><span class="p">,</span>
+<span class="s1">&#39;Pnma&#39;</span><span class="p">:</span><span class="mi">62</span><span class="p">,</span>
+<span class="s1">&#39;Cmcm&#39;</span><span class="p">:</span><span class="mi">63</span><span class="p">,</span>
+<span class="s1">&#39;Cmca&#39;</span><span class="p">:</span><span class="mi">64</span><span class="p">,</span>
+<span class="s1">&#39;Cmmm&#39;</span><span class="p">:</span><span class="mi">65</span><span class="p">,</span>
+<span class="s1">&#39;Cmmmm&#39;</span><span class="p">:</span><span class="mi">65</span><span class="p">,</span>
+<span class="s1">&#39;Cccm&#39;</span><span class="p">:</span><span class="mi">66</span><span class="p">,</span>
+<span class="s1">&#39;Cmma&#39;</span><span class="p">:</span><span class="mi">67</span><span class="p">,</span>
+<span class="s1">&#39;Ccca&#39;</span><span class="p">:</span><span class="mi">68</span><span class="p">,</span>
+<span class="s1">&#39;Fmmm&#39;</span><span class="p">:</span><span class="mi">69</span><span class="p">,</span>
+<span class="s1">&#39;Fddd&#39;</span><span class="p">:</span><span class="mi">70</span><span class="p">,</span>
+<span class="s1">&#39;Immm&#39;</span><span class="p">:</span><span class="mi">71</span><span class="p">,</span>
+<span class="s1">&#39;Ibam&#39;</span><span class="p">:</span><span class="mi">72</span><span class="p">,</span>
+<span class="s1">&#39;Ibca&#39;</span><span class="p">:</span><span class="mi">73</span><span class="p">,</span>
+<span class="s1">&#39;Imma&#39;</span><span class="p">:</span><span class="mi">74</span><span class="p">,</span>
+<span class="s1">&#39;P4&#39;</span><span class="p">:</span><span class="mi">75</span><span class="p">,</span>
+<span class="s1">&#39;P41&#39;</span><span class="p">:</span><span class="mi">76</span><span class="p">,</span>
+<span class="s1">&#39;P42&#39;</span><span class="p">:</span><span class="mi">77</span><span class="p">,</span>
+<span class="s1">&#39;P43&#39;</span><span class="p">:</span><span class="mi">78</span><span class="p">,</span>
+<span class="s1">&#39;I4&#39;</span><span class="p">:</span><span class="mi">79</span><span class="p">,</span>
+<span class="s1">&#39;I41&#39;</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span>
+<span class="s1">&#39;P-4&#39;</span><span class="p">:</span><span class="mi">81</span><span class="p">,</span>
+<span class="s1">&#39;I-4&#39;</span><span class="p">:</span><span class="mi">82</span><span class="p">,</span>
+<span class="s1">&#39;P4/m&#39;</span><span class="p">:</span><span class="mi">83</span><span class="p">,</span>
+<span class="s1">&#39;P42/m&#39;</span><span class="p">:</span><span class="mi">84</span><span class="p">,</span>
+<span class="s1">&#39;P4/n&#39;</span><span class="p">:</span><span class="mi">85</span><span class="p">,</span>
+<span class="s1">&#39;P42/n&#39;</span><span class="p">:</span><span class="mi">86</span><span class="p">,</span>
+<span class="s1">&#39;I4/m&#39;</span><span class="p">:</span><span class="mi">87</span><span class="p">,</span>
+<span class="s1">&#39;I41/a&#39;</span><span class="p">:</span><span class="mi">88</span><span class="p">,</span>
+<span class="s1">&#39;P422&#39;</span><span class="p">:</span><span class="mi">89</span><span class="p">,</span>
+<span class="s1">&#39;P4212&#39;</span><span class="p">:</span><span class="mi">90</span><span class="p">,</span>
+<span class="s1">&#39;P4122&#39;</span><span class="p">:</span><span class="mi">91</span><span class="p">,</span>
+<span class="s1">&#39;P41212&#39;</span><span class="p">:</span><span class="mi">92</span><span class="p">,</span>
+<span class="s1">&#39;P4222&#39;</span><span class="p">:</span><span class="mi">93</span><span class="p">,</span>
+<span class="s1">&#39;P42212&#39;</span><span class="p">:</span><span class="mi">94</span><span class="p">,</span>
+<span class="s1">&#39;P4322&#39;</span><span class="p">:</span><span class="mi">95</span><span class="p">,</span>
+<span class="s1">&#39;P43212&#39;</span><span class="p">:</span><span class="mi">96</span><span class="p">,</span>
+<span class="s1">&#39;I422&#39;</span><span class="p">:</span><span class="mi">97</span><span class="p">,</span>
+<span class="s1">&#39;I4122&#39;</span><span class="p">:</span><span class="mi">98</span><span class="p">,</span>
+<span class="s1">&#39;P4mm&#39;</span><span class="p">:</span><span class="mi">99</span><span class="p">,</span>
+<span class="s1">&#39;P4bm&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span>
+<span class="s1">&#39;P42cm&#39;</span><span class="p">:</span><span class="mi">101</span><span class="p">,</span>
+<span class="s1">&#39;P42nm&#39;</span><span class="p">:</span><span class="mi">102</span><span class="p">,</span>
+<span class="s1">&#39;P4cc&#39;</span><span class="p">:</span><span class="mi">103</span><span class="p">,</span>
+<span class="s1">&#39;P4nc&#39;</span><span class="p">:</span><span class="mi">104</span><span class="p">,</span>
+<span class="s1">&#39;P42mc&#39;</span><span class="p">:</span><span class="mi">105</span><span class="p">,</span>
+<span class="s1">&#39;P42/mc&#39;</span><span class="p">:</span><span class="mi">105</span><span class="p">,</span>
+<span class="s1">&#39;P42bc&#39;</span><span class="p">:</span><span class="mi">106</span><span class="p">,</span>
+<span class="s1">&#39;I4mm&#39;</span><span class="p">:</span><span class="mi">107</span><span class="p">,</span>
+<span class="s1">&#39;I4cm&#39;</span><span class="p">:</span><span class="mi">108</span><span class="p">,</span>
+<span class="s1">&#39;I41md&#39;</span><span class="p">:</span><span class="mi">109</span><span class="p">,</span>
+<span class="s1">&#39;I41cd&#39;</span><span class="p">:</span><span class="mi">110</span><span class="p">,</span>
+<span class="s1">&#39;P-42m&#39;</span><span class="p">:</span><span class="mi">111</span><span class="p">,</span>
+<span class="s1">&#39;P-42c&#39;</span><span class="p">:</span><span class="mi">112</span><span class="p">,</span>
+<span class="s1">&#39;P-421m&#39;</span><span class="p">:</span><span class="mi">113</span><span class="p">,</span>
+<span class="s1">&#39;P-421c&#39;</span><span class="p">:</span><span class="mi">114</span><span class="p">,</span>
+<span class="s1">&#39;P-4m2&#39;</span><span class="p">:</span><span class="mi">115</span><span class="p">,</span>
+<span class="s1">&#39;P-4c2&#39;</span><span class="p">:</span><span class="mi">116</span><span class="p">,</span>
+<span class="s1">&#39;P-4b2&#39;</span><span class="p">:</span><span class="mi">117</span><span class="p">,</span>
+<span class="s1">&#39;P-4n2&#39;</span><span class="p">:</span><span class="mi">118</span><span class="p">,</span>
+<span class="s1">&#39;I-4m2&#39;</span><span class="p">:</span><span class="mi">119</span><span class="p">,</span>
+<span class="s1">&#39;I-4c2&#39;</span><span class="p">:</span><span class="mi">120</span><span class="p">,</span>
+<span class="s1">&#39;I-42m&#39;</span><span class="p">:</span><span class="mi">121</span><span class="p">,</span>
+<span class="s1">&#39;I-42d&#39;</span><span class="p">:</span><span class="mi">122</span><span class="p">,</span>
+<span class="s1">&#39;P4/mmm&#39;</span><span class="p">:</span><span class="mi">123</span><span class="p">,</span>
+<span class="s1">&#39;P4/mcc&#39;</span><span class="p">:</span><span class="mi">124</span><span class="p">,</span>
+<span class="s1">&#39;P4/nbm&#39;</span><span class="p">:</span><span class="mi">125</span><span class="p">,</span>
+<span class="s1">&#39;P4/nnc&#39;</span><span class="p">:</span><span class="mi">126</span><span class="p">,</span>
+<span class="s1">&#39;P4/mbm&#39;</span><span class="p">:</span><span class="mi">127</span><span class="p">,</span>
+<span class="s1">&#39;P4/mnc&#39;</span><span class="p">:</span><span class="mi">128</span><span class="p">,</span>
+<span class="s1">&#39;P4/nmm&#39;</span><span class="p">:</span><span class="mi">129</span><span class="p">,</span>
+<span class="s1">&#39;P4/ncc&#39;</span><span class="p">:</span><span class="mi">130</span><span class="p">,</span>
+<span class="s1">&#39;P42/mmc&#39;</span><span class="p">:</span><span class="mi">131</span><span class="p">,</span>
+<span class="s1">&#39;P42/mcm&#39;</span><span class="p">:</span><span class="mi">132</span><span class="p">,</span>
+<span class="s1">&#39;P42/nbc&#39;</span><span class="p">:</span><span class="mi">133</span><span class="p">,</span>
+<span class="s1">&#39;P42/nnm&#39;</span><span class="p">:</span><span class="mi">134</span><span class="p">,</span>
+<span class="s1">&#39;P42/mbc&#39;</span><span class="p">:</span><span class="mi">135</span><span class="p">,</span>
+<span class="s1">&#39;P42/mnm&#39;</span><span class="p">:</span><span class="mi">136</span><span class="p">,</span>
+<span class="s1">&#39;P42/nmc&#39;</span><span class="p">:</span><span class="mi">137</span><span class="p">,</span>
+<span class="s1">&#39;P42/ncm&#39;</span><span class="p">:</span><span class="mi">138</span><span class="p">,</span>
+<span class="s1">&#39;I4/mmm&#39;</span><span class="p">:</span><span class="mi">139</span><span class="p">,</span>
+<span class="s1">&#39;I4/mcm&#39;</span><span class="p">:</span><span class="mi">140</span><span class="p">,</span>
+<span class="s1">&#39;I41/amd&#39;</span><span class="p">:</span><span class="mi">141</span><span class="p">,</span>
+<span class="s1">&#39;I41/acd&#39;</span><span class="p">:</span><span class="mi">142</span><span class="p">,</span>
+<span class="s1">&#39;P3&#39;</span><span class="p">:</span><span class="mi">143</span><span class="p">,</span>
+<span class="s1">&#39;P31&#39;</span><span class="p">:</span><span class="mi">144</span><span class="p">,</span>
+<span class="s1">&#39;P32&#39;</span><span class="p">:</span><span class="mi">145</span><span class="p">,</span>
+<span class="s1">&#39;R3&#39;</span><span class="p">:</span><span class="mi">146</span><span class="p">,</span>
+<span class="s1">&#39;P-3&#39;</span><span class="p">:</span><span class="mi">147</span><span class="p">,</span>
+<span class="s1">&#39;R-3&#39;</span><span class="p">:</span><span class="mi">148</span><span class="p">,</span>
+<span class="s1">&#39;P312&#39;</span><span class="p">:</span><span class="mi">149</span><span class="p">,</span>
+<span class="s1">&#39;P321&#39;</span><span class="p">:</span><span class="mi">150</span><span class="p">,</span>
+<span class="s1">&#39;P3112&#39;</span><span class="p">:</span><span class="mi">151</span><span class="p">,</span>
+<span class="s1">&#39;P3121&#39;</span><span class="p">:</span><span class="mi">152</span><span class="p">,</span>
+<span class="s1">&#39;P3212&#39;</span><span class="p">:</span><span class="mi">153</span><span class="p">,</span>
+<span class="s1">&#39;P3221&#39;</span><span class="p">:</span><span class="mi">154</span><span class="p">,</span>
+<span class="s1">&#39;R32&#39;</span><span class="p">:</span><span class="mi">155</span><span class="p">,</span>
+<span class="s1">&#39;P3m1&#39;</span><span class="p">:</span><span class="mi">156</span><span class="p">,</span>
+<span class="s1">&#39;P31m&#39;</span><span class="p">:</span><span class="mi">157</span><span class="p">,</span>
+<span class="s1">&#39;P3c1&#39;</span><span class="p">:</span><span class="mi">158</span><span class="p">,</span>
+<span class="s1">&#39;P31c&#39;</span><span class="p">:</span><span class="mi">159</span><span class="p">,</span>
+<span class="s1">&#39;R3m&#39;</span><span class="p">:</span><span class="mi">160</span><span class="p">,</span>
+<span class="s1">&#39;R3c&#39;</span><span class="p">:</span><span class="mi">161</span><span class="p">,</span>
+<span class="s1">&#39;P-31m&#39;</span><span class="p">:</span><span class="mi">162</span><span class="p">,</span>
+<span class="s1">&#39;P-31c&#39;</span><span class="p">:</span><span class="mi">163</span><span class="p">,</span>
+<span class="s1">&#39;P-3m1&#39;</span><span class="p">:</span><span class="mi">164</span><span class="p">,</span>
+<span class="s1">&#39;P-3c1&#39;</span><span class="p">:</span><span class="mi">165</span><span class="p">,</span>
+<span class="s1">&#39;R-3m&#39;</span><span class="p">:</span><span class="mi">166</span><span class="p">,</span>
+<span class="s1">&#39;R-3c&#39;</span><span class="p">:</span><span class="mi">167</span><span class="p">,</span>
+<span class="s1">&#39;P6&#39;</span><span class="p">:</span><span class="mi">168</span><span class="p">,</span>
+<span class="s1">&#39;P61&#39;</span><span class="p">:</span><span class="mi">169</span><span class="p">,</span>
+<span class="s1">&#39;P65&#39;</span><span class="p">:</span><span class="mi">170</span><span class="p">,</span>
+<span class="s1">&#39;P62&#39;</span><span class="p">:</span><span class="mi">171</span><span class="p">,</span>
+<span class="s1">&#39;P64&#39;</span><span class="p">:</span><span class="mi">172</span><span class="p">,</span>
+<span class="s1">&#39;P63&#39;</span><span class="p">:</span><span class="mi">173</span><span class="p">,</span>
+<span class="s1">&#39;P-6&#39;</span><span class="p">:</span><span class="mi">174</span><span class="p">,</span>
+<span class="s1">&#39;P6/m&#39;</span><span class="p">:</span><span class="mi">175</span><span class="p">,</span>
+<span class="s1">&#39;P63/m&#39;</span><span class="p">:</span><span class="mi">176</span><span class="p">,</span>
+<span class="s1">&#39;P622&#39;</span><span class="p">:</span><span class="mi">177</span><span class="p">,</span>
+<span class="s1">&#39;P6122&#39;</span><span class="p">:</span><span class="mi">178</span><span class="p">,</span>
+<span class="s1">&#39;P6522&#39;</span><span class="p">:</span><span class="mi">179</span><span class="p">,</span>
+<span class="s1">&#39;P6222&#39;</span><span class="p">:</span><span class="mi">180</span><span class="p">,</span>
+<span class="s1">&#39;P6422&#39;</span><span class="p">:</span><span class="mi">181</span><span class="p">,</span>
+<span class="s1">&#39;P6322&#39;</span><span class="p">:</span><span class="mi">182</span><span class="p">,</span>
+<span class="s1">&#39;P6mm&#39;</span><span class="p">:</span><span class="mi">183</span><span class="p">,</span>
+<span class="s1">&#39;P6cc&#39;</span><span class="p">:</span><span class="mi">184</span><span class="p">,</span>
+<span class="s1">&#39;P63cm&#39;</span><span class="p">:</span><span class="mi">185</span><span class="p">,</span>
+<span class="s1">&#39;P63mc&#39;</span><span class="p">:</span><span class="mi">186</span><span class="p">,</span>
+<span class="s1">&#39;P-6m2&#39;</span><span class="p">:</span><span class="mi">187</span><span class="p">,</span>
+<span class="s1">&#39;P-6c2&#39;</span><span class="p">:</span><span class="mi">188</span><span class="p">,</span>
+<span class="s1">&#39;P-62m&#39;</span><span class="p">:</span><span class="mi">189</span><span class="p">,</span>
+<span class="s1">&#39;P-62c&#39;</span><span class="p">:</span><span class="mi">190</span><span class="p">,</span>
+<span class="s1">&#39;P6/mmm&#39;</span><span class="p">:</span><span class="mi">191</span><span class="p">,</span>
+<span class="s1">&#39;P6/mcc&#39;</span><span class="p">:</span><span class="mi">192</span><span class="p">,</span>
+<span class="s1">&#39;P63/mcm&#39;</span><span class="p">:</span><span class="mi">193</span><span class="p">,</span>
+<span class="s1">&#39;P63/mmc&#39;</span><span class="p">:</span><span class="mi">194</span><span class="p">,</span>
+<span class="s1">&#39;P23&#39;</span><span class="p">:</span><span class="mi">195</span><span class="p">,</span>
+<span class="s1">&#39;F23&#39;</span><span class="p">:</span><span class="mi">196</span><span class="p">,</span>
+<span class="s1">&#39;I23&#39;</span><span class="p">:</span><span class="mi">197</span><span class="p">,</span>
+<span class="s1">&#39;P213&#39;</span><span class="p">:</span><span class="mi">198</span><span class="p">,</span>
+<span class="s1">&#39;I213&#39;</span><span class="p">:</span><span class="mi">199</span><span class="p">,</span>
+<span class="s1">&#39;Pm-3&#39;</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span>
+<span class="s1">&#39;Pn-3&#39;</span><span class="p">:</span><span class="mi">201</span><span class="p">,</span>
+<span class="s1">&#39;Fm-3&#39;</span><span class="p">:</span><span class="mi">202</span><span class="p">,</span>
+<span class="s1">&#39;Fd-3&#39;</span><span class="p">:</span><span class="mi">203</span><span class="p">,</span>
+<span class="s1">&#39;Im-3&#39;</span><span class="p">:</span><span class="mi">204</span><span class="p">,</span>
+<span class="s1">&#39;Pa-3&#39;</span><span class="p">:</span><span class="mi">205</span><span class="p">,</span>
+<span class="s1">&#39;Ia-3&#39;</span><span class="p">:</span><span class="mi">206</span><span class="p">,</span>
+<span class="s1">&#39;P432&#39;</span><span class="p">:</span><span class="mi">207</span><span class="p">,</span>
+<span class="s1">&#39;P4232&#39;</span><span class="p">:</span><span class="mi">208</span><span class="p">,</span>
+<span class="s1">&#39;F432&#39;</span><span class="p">:</span><span class="mi">209</span><span class="p">,</span>
+<span class="s1">&#39;F4132&#39;</span><span class="p">:</span><span class="mi">210</span><span class="p">,</span>
+<span class="s1">&#39;I432&#39;</span><span class="p">:</span><span class="mi">211</span><span class="p">,</span>
+<span class="s1">&#39;P4332&#39;</span><span class="p">:</span><span class="mi">212</span><span class="p">,</span>
+<span class="s1">&#39;P4132&#39;</span><span class="p">:</span><span class="mi">213</span><span class="p">,</span>
+<span class="s1">&#39;I4132&#39;</span><span class="p">:</span><span class="mi">214</span><span class="p">,</span>
+<span class="s1">&#39;P-43m&#39;</span><span class="p">:</span><span class="mi">215</span><span class="p">,</span>
+<span class="s1">&#39;F4-3m&#39;</span><span class="p">:</span><span class="mi">216</span><span class="p">,</span>
+<span class="s1">&#39;F-43m&#39;</span><span class="p">:</span><span class="mi">216</span><span class="p">,</span>
+<span class="s1">&#39;I-43m&#39;</span><span class="p">:</span><span class="mi">217</span><span class="p">,</span>
+<span class="s1">&#39;P-43n&#39;</span><span class="p">:</span><span class="mi">218</span><span class="p">,</span>
+<span class="s1">&#39;F-43c&#39;</span><span class="p">:</span><span class="mi">219</span><span class="p">,</span>
+<span class="s1">&#39;I-43d&#39;</span><span class="p">:</span><span class="mi">220</span><span class="p">,</span>
+<span class="s1">&#39;Pm-3m&#39;</span><span class="p">:</span><span class="mi">221</span><span class="p">,</span>
+<span class="s1">&#39;Pn-3n&#39;</span><span class="p">:</span><span class="mi">222</span><span class="p">,</span>
+<span class="s1">&#39;Pm-3n&#39;</span><span class="p">:</span><span class="mi">223</span><span class="p">,</span>
+<span class="s1">&#39;Pn-3m&#39;</span><span class="p">:</span><span class="mi">224</span><span class="p">,</span>
+<span class="s1">&#39;Fm-3m&#39;</span><span class="p">:</span><span class="mi">225</span><span class="p">,</span>
+<span class="s1">&#39;Fm-3c&#39;</span><span class="p">:</span><span class="mi">226</span><span class="p">,</span>
+<span class="s1">&#39;Fd-3m&#39;</span><span class="p">:</span><span class="mi">227</span><span class="p">,</span>
+<span class="s1">&#39;Fd-3c&#39;</span><span class="p">:</span><span class="mi">228</span><span class="p">,</span>
+<span class="s1">&#39;Im-3m&#39;</span><span class="p">:</span><span class="mi">229</span><span class="p">,</span>
+<span class="s1">&#39;Ia-3d&#39;</span><span class="p">:</span><span class="mi">230</span><span class="p">,</span>
+<span class="s1">&#39;C12/m1&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span>
+<span class="s1">&#39;I12/m1&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span>
+<span class="s1">&#39;I12/a1&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s1">&#39;C12/c1&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s1">&#39;A12/n1&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s1">&#39;P121/c1&#39;</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span>
+<span class="s1">&#39;P121/n1&#39;</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span>
+<span class="s1">&#39;C1m1&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span>
+<span class="s1">&#39;P12/m1&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+<span class="s1">&#39;P1211&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+<span class="s1">&#39;I2/m&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span>
+<span class="s1">&#39;I2/a&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s1">&#39;P21/n&#39;</span><span class="p">:</span><span class="mi">14</span><span class="p">,</span>
+<span class="s1">&#39;A2/n&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+<span class="s2">&quot;P 4/m&quot;</span><span class="p">:</span> <span class="mi">83</span><span class="p">,</span>
+<span class="s2">&quot;P 4/n&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+<span class="s2">&quot;P n n a&quot;</span><span class="p">:</span> <span class="mi">52</span><span class="p">,</span>
+<span class="s2">&quot;I -4 2 m&quot;</span><span class="p">:</span> <span class="mi">121</span><span class="p">,</span>
+<span class="s2">&quot;P n n n&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+<span class="s2">&quot;P n n m&quot;</span><span class="p">:</span> <span class="mi">58</span><span class="p">,</span>
+<span class="s2">&quot;P 43 2 2&quot;</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span>
+<span class="s2">&quot;I -4 2 d&quot;</span><span class="p">:</span> <span class="mi">122</span><span class="p">,</span>
+<span class="s2">&quot;P c&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+<span class="s2">&quot;F d -3&quot;</span><span class="p">:</span> <span class="mi">203</span><span class="p">,</span>
+<span class="s2">&quot;P 2/m&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="s2">&quot;I 4 c m&quot;</span><span class="p">:</span> <span class="mi">108</span><span class="p">,</span>
+<span class="s2">&quot;I 41/a m d&quot;</span><span class="p">:</span> <span class="mi">141</span><span class="p">,</span>
+<span class="s2">&quot;P 62 2 2&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span>
+<span class="s2">&quot;I 41 c d&quot;</span><span class="p">:</span> <span class="mi">110</span><span class="p">,</span>
+<span class="s2">&quot;P 2/c&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+<span class="s2">&quot;P m&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+<span class="s2">&quot;P 4 b n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+<span class="s2">&quot;I 4 2 2&quot;</span><span class="p">:</span> <span class="mi">97</span><span class="p">,</span>
+<span class="s2">&quot;P 42 2 2&quot;</span><span class="p">:</span> <span class="mi">93</span><span class="p">,</span>
+<span class="s2">&quot;P 3 1 c&quot;</span><span class="p">:</span> <span class="mi">159</span><span class="p">,</span>
+<span class="s2">&quot;I 4 m m&quot;</span><span class="p">:</span> <span class="mi">107</span><span class="p">,</span>
+<span class="s2">&quot;P 61 2 2&quot;</span><span class="p">:</span> <span class="mi">178</span><span class="p">,</span>
+<span class="s2">&quot;I m m 2&quot;</span><span class="p">:</span> <span class="mi">44</span><span class="p">,</span>
+<span class="s2">&quot;R 3 2&quot;</span><span class="p">:</span> <span class="mi">155</span><span class="p">,</span>
+<span class="s2">&quot;I b a 2&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+<span class="s2">&quot;P 3 m 1&quot;</span><span class="p">:</span> <span class="mi">156</span><span class="p">,</span>
+<span class="s2">&quot;P b a m&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+<span class="s2">&quot;P b a n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+<span class="s2">&quot;P 4/n n c&quot;</span><span class="p">:</span> <span class="mi">126</span><span class="p">,</span>
+<span class="s2">&quot;C c c a&quot;</span><span class="p">:</span> <span class="mi">68</span><span class="p">,</span>
+<span class="s2">&quot;C m m 2&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+<span class="s2">&quot;I 41 m d&quot;</span><span class="p">:</span> <span class="mi">109</span><span class="p">,</span>
+<span class="s2">&quot;C c c m&quot;</span><span class="p">:</span> <span class="mi">66</span><span class="p">,</span>
+<span class="s2">&quot;P 42/n b c&quot;</span><span class="p">:</span> <span class="mi">133</span><span class="p">,</span>
+<span class="s2">&quot;P 3&quot;</span><span class="p">:</span> <span class="mi">143</span><span class="p">,</span>
+<span class="s2">&quot;P 2&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="s2">&quot;P 1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="s2">&quot;P 6&quot;</span><span class="p">:</span> <span class="mi">168</span><span class="p">,</span>
+<span class="s2">&quot;P 4&quot;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+<span class="s2">&quot;P 42/n n m&quot;</span><span class="p">:</span> <span class="mi">134</span><span class="p">,</span>
+<span class="s2">&quot;P n -3 n&quot;</span><span class="p">:</span> <span class="mi">222</span><span class="p">,</span>
+<span class="s2">&quot;P 64&quot;</span><span class="p">:</span> <span class="mi">172</span><span class="p">,</span>
+<span class="s2">&quot;C 2 2 2&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+<span class="s2">&quot;I -4 m 2&quot;</span><span class="p">:</span> <span class="mi">119</span><span class="p">,</span>
+<span class="s2">&quot;P 42 c m&quot;</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+<span class="s2">&quot;P n n 2&quot;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span>
+<span class="s2">&quot;P 21 21 21&quot;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+<span class="s2">&quot;A m a 2&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+<span class="s2">&quot;F m -3 m&quot;</span><span class="p">:</span> <span class="mi">225</span><span class="p">,</span>
+<span class="s2">&quot;F m -3 c&quot;</span><span class="p">:</span> <span class="mi">226</span><span class="p">,</span>
+<span class="s2">&quot;P 63&quot;</span><span class="p">:</span> <span class="mi">173</span><span class="p">,</span>
+<span class="s2">&quot;P -3&quot;</span><span class="p">:</span> <span class="mi">147</span><span class="p">,</span>
+<span class="s2">&quot;I -4 c 2&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+<span class="s2">&quot;P -1&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="s2">&quot;P 65&quot;</span><span class="p">:</span> <span class="mi">170</span><span class="p">,</span>
+<span class="s2">&quot;P 62&quot;</span><span class="p">:</span> <span class="mi">171</span><span class="p">,</span>
+<span class="s2">&quot;C m m a&quot;</span><span class="p">:</span> <span class="mi">67</span><span class="p">,</span>
+<span class="s2">&quot;C c c 2&quot;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span>
+<span class="s2">&quot;P -4&quot;</span><span class="p">:</span> <span class="mi">81</span><span class="p">,</span>
+<span class="s2">&quot;C m m m&quot;</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>
+<span class="s2">&quot;P n -3 m&quot;</span><span class="p">:</span> <span class="mi">224</span><span class="p">,</span>
+<span class="s2">&quot;P 61&quot;</span><span class="p">:</span> <span class="mi">169</span><span class="p">,</span>
+<span class="s2">&quot;P m -3&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+<span class="s2">&quot;P b a 2&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+<span class="s2">&quot;I b a m&quot;</span><span class="p">:</span> <span class="mi">72</span><span class="p">,</span>
+<span class="s2">&quot;R 3 m&quot;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+<span class="s2">&quot;I m m m&quot;</span><span class="p">:</span> <span class="mi">71</span><span class="p">,</span>
+<span class="s2">&quot;P -4 2 m&quot;</span><span class="p">:</span> <span class="mi">111</span><span class="p">,</span>
+<span class="s2">&quot;P 63/m m c&quot;</span><span class="p">:</span> <span class="mi">194</span><span class="p">,</span>
+<span class="s2">&quot;P -4 2 c&quot;</span><span class="p">:</span> <span class="mi">112</span><span class="p">,</span>
+<span class="s2">&quot;I 41 3 2&quot;</span><span class="p">:</span> <span class="mi">214</span><span class="p">,</span>
+<span class="s2">&quot;P -4 m 2&quot;</span><span class="p">:</span> <span class="mi">115</span><span class="p">,</span>
+<span class="s2">&quot;I m m a&quot;</span><span class="p">:</span> <span class="mi">74</span><span class="p">,</span>
+<span class="s2">&quot;I 2 2 2&quot;</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span>
+<span class="s2">&quot;I a -3 d&quot;</span><span class="p">:</span> <span class="mi">230</span><span class="p">,</span>
+<span class="s2">&quot;P 63 2 2&quot;</span><span class="p">:</span> <span class="mi">182</span><span class="p">,</span>
+<span class="s2">&quot;R 3 c&quot;</span><span class="p">:</span> <span class="mi">161</span><span class="p">,</span>
+<span class="s2">&quot;P -3 c 1&quot;</span><span class="p">:</span> <span class="mi">165</span><span class="p">,</span>
+<span class="s2">&quot;P 3 1 2&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
+<span class="s2">&quot;P 6 2 2&quot;</span><span class="p">:</span> <span class="mi">177</span><span class="p">,</span>
+<span class="s2">&quot;P 42/m c m&quot;</span><span class="p">:</span> <span class="mi">132</span><span class="p">,</span>
+<span class="s2">&quot;P 4/n c c&quot;</span><span class="p">:</span> <span class="mi">130</span><span class="p">,</span>
+<span class="s2">&quot;P 43 21 2&quot;</span><span class="p">:</span> <span class="mi">96</span><span class="p">,</span>
+<span class="s2">&quot;P n m a&quot;</span><span class="p">:</span> <span class="mi">62</span><span class="p">,</span>
+<span class="s2">&quot;F d -3 c&quot;</span><span class="p">:</span> <span class="mi">228</span><span class="p">,</span>
+<span class="s2">&quot;P -6&quot;</span><span class="p">:</span> <span class="mi">174</span><span class="p">,</span>
+<span class="s2">&quot;P 42 m c&quot;</span><span class="p">:</span> <span class="mi">105</span><span class="p">,</span>
+<span class="s2">&quot;A m m 2&quot;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span>
+<span class="s2">&quot;I 41 2 2&quot;</span><span class="p">:</span> <span class="mi">98</span><span class="p">,</span>
+<span class="s2">&quot;P 42/n c m&quot;</span><span class="p">:</span> <span class="mi">138</span><span class="p">,</span>
+<span class="s2">&quot;P 4/m n c&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+<span class="s2">&quot;R 3&quot;</span><span class="p">:</span> <span class="mi">146</span><span class="p">,</span>
+<span class="s2">&quot;P 4 2 2&quot;</span><span class="p">:</span> <span class="mi">89</span><span class="p">,</span>
+<span class="s2">&quot;P -3 1 c&quot;</span><span class="p">:</span> <span class="mi">163</span><span class="p">,</span>
+<span class="s2">&quot;P -3 1 m&quot;</span><span class="p">:</span> <span class="mi">162</span><span class="p">,</span>
+<span class="s2">&quot;I 41&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+<span class="s2">&quot;I 4 3 2&quot;</span><span class="p">:</span> <span class="mi">211</span><span class="p">,</span>
+<span class="s2">&quot;I 4/m m m&quot;</span><span class="p">:</span> <span class="mi">139</span><span class="p">,</span>
+<span class="s2">&quot;P 42/n m c&quot;</span><span class="p">:</span> <span class="mi">137</span><span class="p">,</span>
+<span class="s2">&quot;P 64 2 2&quot;</span><span class="p">:</span> <span class="mi">181</span><span class="p">,</span>
+<span class="s2">&quot;P 63 c m&quot;</span><span class="p">:</span> <span class="mi">185</span><span class="p">,</span>
+<span class="s2">&quot;P 42/m n m&quot;</span><span class="p">:</span> <span class="mi">136</span><span class="p">,</span>
+<span class="s2">&quot;C m c 21&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+<span class="s2">&quot;P m -3 n&quot;</span><span class="p">:</span> <span class="mi">223</span><span class="p">,</span>
+<span class="s2">&quot;P n a 21&quot;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span>
+<span class="s2">&quot;P 42 b c&quot;</span><span class="p">:</span> <span class="mi">106</span><span class="p">,</span>
+<span class="s2">&quot;P 32 1 2&quot;</span><span class="p">:</span> <span class="mi">153</span><span class="p">,</span>
+<span class="s2">&quot;A b m 2&quot;</span><span class="p">:</span> <span class="mi">39</span><span class="p">,</span>
+<span class="s2">&quot;I a -3&quot;</span><span class="p">:</span> <span class="mi">206</span><span class="p">,</span>
+<span class="s2">&quot;P -4 21 c&quot;</span><span class="p">:</span> <span class="mi">114</span><span class="p">,</span>
+<span class="s2">&quot;P 63 m c&quot;</span><span class="p">:</span> <span class="mi">186</span><span class="p">,</span>
+<span class="s2">&quot;P 4/m b m&quot;</span><span class="p">:</span> <span class="mi">127</span><span class="p">,</span>
+<span class="s2">&quot;P 31 2 1&quot;</span><span class="p">:</span> <span class="mi">152</span><span class="p">,</span>
+<span class="s2">&quot;P -6 2 m&quot;</span><span class="p">:</span> <span class="mi">189</span><span class="p">,</span>
+<span class="s2">&quot;P -6 2 c&quot;</span><span class="p">:</span> <span class="mi">190</span><span class="p">,</span>
+<span class="s2">&quot;P -4 b 2&quot;</span><span class="p">:</span> <span class="mi">117</span><span class="p">,</span>
+<span class="s2">&quot;P -4 21 m&quot;</span><span class="p">:</span> <span class="mi">113</span><span class="p">,</span>
+<span class="s2">&quot;P 6/m&quot;</span><span class="p">:</span> <span class="mi">175</span><span class="p">,</span>
+<span class="s2">&quot;P -6 c 2&quot;</span><span class="p">:</span> <span class="mi">188</span><span class="p">,</span>
+<span class="s2">&quot;P 4/n b m&quot;</span><span class="p">:</span> <span class="mi">125</span><span class="p">,</span>
+<span class="s2">&quot;I 41/a c d&quot;</span><span class="p">:</span> <span class="mi">142</span><span class="p">,</span>
+<span class="s2">&quot;R -3 m&quot;</span><span class="p">:</span> <span class="mi">166</span><span class="p">,</span>
+<span class="s2">&quot;P 6/m m m&quot;</span><span class="p">:</span> <span class="mi">191</span><span class="p">,</span>
+<span class="s2">&quot;F d -3 m&quot;</span><span class="p">:</span> <span class="mi">227</span><span class="p">,</span>
+<span class="s2">&quot;R -3 c&quot;</span><span class="p">:</span> <span class="mi">167</span><span class="p">,</span>
+<span class="s2">&quot;P -4 3 m&quot;</span><span class="p">:</span> <span class="mi">215</span><span class="p">,</span>
+<span class="s2">&quot;P -4 3 n&quot;</span><span class="p">:</span> <span class="mi">218</span><span class="p">,</span>
+<span class="s2">&quot;P 21/m&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+<span class="s2">&quot;P 4 3 2&quot;</span><span class="p">:</span> <span class="mi">207</span><span class="p">,</span>
+<span class="s2">&quot;P 21/c&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+<span class="s2">&quot;F 4 3 2&quot;</span><span class="p">:</span> <span class="mi">209</span><span class="p">,</span>
+<span class="s2">&quot;P 4 n c&quot;</span><span class="p">:</span> <span class="mi">104</span><span class="p">,</span>
+<span class="s2">&quot;P 2 2 2&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+<span class="s2">&quot;F -4 3 m&quot;</span><span class="p">:</span> <span class="mi">216</span><span class="p">,</span>
+<span class="s2">&quot;P 3 2 1&quot;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>
+<span class="s2">&quot;P 3 1 m&quot;</span><span class="p">:</span> <span class="mi">157</span><span class="p">,</span>
+<span class="s2">&quot;P 43 3 2&quot;</span><span class="p">:</span> <span class="mi">212</span><span class="p">,</span>
+<span class="s2">&quot;P 41 3 2&quot;</span><span class="p">:</span> <span class="mi">213</span><span class="p">,</span>
+<span class="s2">&quot;P 6 m m&quot;</span><span class="p">:</span> <span class="mi">183</span><span class="p">,</span>
+<span class="s2">&quot;I 21 21 21&quot;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+<span class="s2">&quot;F m m 2&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+<span class="s2">&quot;P m m 2&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+<span class="s2">&quot;P b c n&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+<span class="s2">&quot;C 2 2 21&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+<span class="s2">&quot;P b c m&quot;</span><span class="p">:</span> <span class="mi">57</span><span class="p">,</span>
+<span class="s2">&quot;I m -3&quot;</span><span class="p">:</span> <span class="mi">204</span><span class="p">,</span>
+<span class="s2">&quot;P 4 21 2&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+<span class="s2">&quot;P m -3 m&quot;</span><span class="p">:</span> <span class="mi">221</span><span class="p">,</span>
+<span class="s2">&quot;P 21 21 2&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+<span class="s2">&quot;P 42/m m c&quot;</span><span class="p">:</span> <span class="mi">131</span><span class="p">,</span>
+<span class="s2">&quot;P b c a&quot;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
+<span class="s2">&quot;P m a 2&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span>
+<span class="s2">&quot;F d d d&quot;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+<span class="s2">&quot;P 42 21 2&quot;</span><span class="p">:</span> <span class="mi">94</span><span class="p">,</span>
+<span class="s2">&quot;P 41 2 2&quot;</span><span class="p">:</span> <span class="mi">91</span><span class="p">,</span>
+<span class="s2">&quot;P m m n&quot;</span><span class="p">:</span> <span class="mi">59</span><span class="p">,</span>
+<span class="s2">&quot;P m m m&quot;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span>
+<span class="s2">&quot;F m m m&quot;</span><span class="p">:</span> <span class="mi">69</span><span class="p">,</span>
+<span class="s2">&quot;P -4 n 2&quot;</span><span class="p">:</span> <span class="mi">118</span><span class="p">,</span>
+<span class="s2">&quot;P -3 m 1&quot;</span><span class="p">:</span> <span class="mi">164</span><span class="p">,</span>
+<span class="s2">&quot;P m m a&quot;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span>
+<span class="s2">&quot;I 2 3&quot;</span><span class="p">:</span> <span class="mi">197</span><span class="p">,</span>
+<span class="s2">&quot;P 32 2 1&quot;</span><span class="p">:</span> <span class="mi">154</span><span class="p">,</span>
+<span class="s2">&quot;P 65 2 2&quot;</span><span class="p">:</span> <span class="mi">179</span><span class="p">,</span>
+<span class="s2">&quot;P 42/m&quot;</span><span class="p">:</span> <span class="mi">84</span><span class="p">,</span>
+<span class="s2">&quot;P m c 21&quot;</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span>
+<span class="s2">&quot;P 42/n&quot;</span><span class="p">:</span> <span class="mi">86</span><span class="p">,</span>
+<span class="s2">&quot;P 6 c c&quot;</span><span class="p">:</span> <span class="mi">184</span><span class="p">,</span>
+<span class="s2">&quot;P 63/m&quot;</span><span class="p">:</span> <span class="mi">176</span><span class="p">,</span>
+<span class="s2">&quot;P 63/m c m&quot;</span><span class="p">:</span> <span class="mi">193</span><span class="p">,</span>
+<span class="s2">&quot;P -4 c 2&quot;</span><span class="p">:</span> <span class="mi">116</span><span class="p">,</span>
+<span class="s2">&quot;F d d 2&quot;</span><span class="p">:</span> <span class="mi">43</span><span class="p">,</span>
+<span class="s2">&quot;P m n a&quot;</span><span class="p">:</span> <span class="mi">53</span><span class="p">,</span>
+<span class="s2">&quot;C m c m&quot;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span>
+<span class="s2">&quot;I b c a&quot;</span><span class="p">:</span> <span class="mi">73</span><span class="p">,</span>
+<span class="s2">&quot;F m -3&quot;</span><span class="p">:</span> <span class="mi">202</span><span class="p">,</span>
+<span class="s2">&quot;P 21&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="s2">&quot;P 21 3&quot;</span><span class="p">:</span> <span class="mi">198</span><span class="p">,</span>
+<span class="s2">&quot;P 4 m m&quot;</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+<span class="s2">&quot;P 2 3&quot;</span><span class="p">:</span> <span class="mi">195</span><span class="p">,</span>
+<span class="s2">&quot;F -4 3 c&quot;</span><span class="p">:</span> <span class="mi">219</span><span class="p">,</span>
+<span class="s2">&quot;I -4 3 d&quot;</span><span class="p">:</span> <span class="mi">220</span><span class="p">,</span>
+<span class="s2">&quot;I 4/m&quot;</span><span class="p">:</span> <span class="mi">87</span><span class="p">,</span>
+<span class="s2">&quot;P a -3&quot;</span><span class="p">:</span> <span class="mi">205</span><span class="p">,</span>
+<span class="s2">&quot;C 2&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+<span class="s2">&quot;I -4 3 m&quot;</span><span class="p">:</span> <span class="mi">217</span><span class="p">,</span>
+<span class="s2">&quot;F 2 3&quot;</span><span class="p">:</span> <span class="mi">196</span><span class="p">,</span>
+<span class="s2">&quot;F 2 2 2&quot;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
+<span class="s2">&quot;I 41/a&quot;</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span>
+<span class="s2">&quot;P 4 c c&quot;</span><span class="p">:</span> <span class="mi">103</span><span class="p">,</span>
+<span class="s2">&quot;P -6 m 2&quot;</span><span class="p">:</span> <span class="mi">187</span><span class="p">,</span>
+<span class="s2">&quot;P n c 2&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+<span class="s2">&quot;I 4/m c m&quot;</span><span class="p">:</span> <span class="mi">140</span><span class="p">,</span>
+<span class="s2">&quot;P 4/m m m&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+<span class="s2">&quot;P 31 1 2&quot;</span><span class="p">:</span> <span class="mi">151</span><span class="p">,</span>
+<span class="s2">&quot;I 21 3&quot;</span><span class="p">:</span> <span class="mi">199</span><span class="p">,</span>
+<span class="s2">&quot;P 41 21 2&quot;</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span>
+<span class="s2">&quot;C 2/m&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+<span class="s2">&quot;P 42 3 2&quot;</span><span class="p">:</span> <span class="mi">208</span><span class="p">,</span>
+<span class="s2">&quot;C 2/c&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+<span class="s2">&quot;P 6/m c c&quot;</span><span class="p">:</span> <span class="mi">192</span><span class="p">,</span>
+<span class="s2">&quot;P 31&quot;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span>
+<span class="s2">&quot;P c c 2&quot;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span>
+<span class="s2">&quot;P 32&quot;</span><span class="p">:</span> <span class="mi">145</span><span class="p">,</span>
+<span class="s2">&quot;P c a 21&quot;</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span>
+<span class="s2">&quot;I 4&quot;</span><span class="p">:</span> <span class="mi">79</span><span class="p">,</span>
+<span class="s2">&quot;P 3 c 1&quot;</span><span class="p">:</span> <span class="mi">158</span><span class="p">,</span>
+<span class="s2">&quot;P 2 2 21&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+<span class="s2">&quot;C m&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="s2">&quot;I -4&quot;</span><span class="p">:</span> <span class="mi">82</span><span class="p">,</span>
+<span class="s2">&quot;P 4/n m m&quot;</span><span class="p">:</span> <span class="mi">129</span><span class="p">,</span>
+<span class="s2">&quot;C c&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+<span class="s2">&quot;R -3&quot;</span><span class="p">:</span> <span class="mi">148</span><span class="p">,</span>
+<span class="s2">&quot;I m -3 m&quot;</span><span class="p">:</span> <span class="mi">229</span><span class="p">,</span>
+<span class="s2">&quot;P c c n&quot;</span><span class="p">:</span> <span class="mi">56</span><span class="p">,</span>
+<span class="s2">&quot;P c c m&quot;</span><span class="p">:</span> <span class="mi">49</span><span class="p">,</span>
+<span class="s2">&quot;P 42 n m&quot;</span><span class="p">:</span> <span class="mi">102</span><span class="p">,</span>
+<span class="s2">&quot;F 41 3 2&quot;</span><span class="p">:</span> <span class="mi">210</span><span class="p">,</span>
+<span class="s2">&quot;A b a 2&quot;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span>
+<span class="s2">&quot;P 42/m b c&quot;</span><span class="p">:</span> <span class="mi">135</span><span class="p">,</span>
+<span class="s2">&quot;P m n 21&quot;</span><span class="p">:</span> <span class="mi">31</span><span class="p">,</span>
+<span class="s2">&quot;C m c a&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+<span class="s2">&quot;P c c a&quot;</span><span class="p">:</span> <span class="mi">54</span><span class="p">,</span>
+<span class="s2">&quot;I m a 2&quot;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span>
+<span class="s2">&quot;P n -3&quot;</span><span class="p">:</span> <span class="mi">201</span><span class="p">,</span>
+<span class="s2">&quot;P 41&quot;</span><span class="p">:</span> <span class="mi">76</span><span class="p">,</span>
+<span class="s2">&quot;P 42&quot;</span><span class="p">:</span> <span class="mi">77</span><span class="p">,</span>
+<span class="s2">&quot;P 43&quot;</span><span class="p">:</span> <span class="mi">78</span><span class="p">,</span>
+<span class="s2">&quot;P 4/m c c&quot;</span><span class="p">:</span> <span class="mi">124</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="get_spacegroup_number"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.spacegroups.get_spacegroup_number">[docs]</a><span class="k">def</span> <span class="nf">get_spacegroup_number</span><span class="p">(</span><span class="n">sg_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; returns the spacegroup number if the string is found in the dictionary. Returns None if not found</span>
+
+<span class="sd">    :Parameters:</span>
+<span class="sd">        -sg_name    (str): name(symbol) of the spacegroup</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sgnum</span> <span class="o">=</span> <span class="n">spacegroups</span><span class="p">[</span><span class="n">sg_name</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sgnum</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">sgnum</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

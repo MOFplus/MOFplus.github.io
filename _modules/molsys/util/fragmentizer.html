@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.util.fragmentizer &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.util.fragmentizer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.util.fragmentizer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Mon Nov 28 18:29:19 2016</span>
+
+<span class="sd">@author: rochus</span>
+
+<span class="sd">          Fragmentizer class</span>
+
+<span class="sd">          depends on graph addon (this means graph_tool must be installed)</span>
+<span class="sd">          </span>
+<span class="sd">          MPI-safe version .. Warning: use prnt function which is overloaded</span>
+
+
+<span class="sd">        RS (May 2020, corona times)</span>
+<span class="sd">        This is a complete revision of the fragmentizer. we allow only fragments with more than 1 atom.</span>
+<span class="sd">        All single atom fragments like halides Me groups, ether Os or thio SHs are assigned &quot;by hand&quot; in a hardcoded way</span>
+<span class="sd">        Note that some names of fragments are thus defined here and NOT in the MOFplus database.</span>
+
+<span class="sd">        - Option for local fragments is removed!!</span>
+<span class="sd">        - fragments are cached if you do multiple fragmentizations</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">molsys</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">atomtyper</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">mpi4py</span> <span class="k">import</span> <span class="n">MPI</span>
+    <span class="n">mpi_comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+    <span class="n">mpi_rank</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+    <span class="n">mpi_size</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">mpi_comm</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mpi_size</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mpi_rank</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mpi_err</span> <span class="o">=</span> <span class="n">e</span>
+
+<span class="c1"># overload print function in parallel case</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">__builtin__</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">builtins</span> <span class="k">as</span> <span class="nn">__builtin__</span>
+<div class="viewcode-block" id="print"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.fragmentizer.print">[docs]</a><span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">__builtin__</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span></div>
+
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.fragmentizer&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">mpi_comm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;MPI NOT IMPORTED DUE TO ImportError&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">mpi_err</span><span class="p">)</span>
+
+<span class="c1">############## single atom fragment rules #################################</span>
+<span class="c1"># sarules_1 first attempt rules with full atomtype</span>
+<span class="c1"># sarules_2 second attempt for atoms with only a root atomtype</span>
+<span class="n">sarules_1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;f1_c1&quot;</span>   <span class="p">:</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span>         <span class="c1"># we define the halogens explicit ... if they are not at C but at what else? N-Cl ?? </span>
+    <span class="s2">&quot;cl1_c1&quot;</span>  <span class="p">:</span> <span class="s2">&quot;cl&quot;</span><span class="p">,</span>        <span class="c1">#                                     --&gt; should be a bigger fragment then</span>
+    <span class="s2">&quot;br1_c1&quot;</span>  <span class="p">:</span> <span class="s2">&quot;br&quot;</span><span class="p">,</span>        <span class="c1">#</span>
+    <span class="s2">&quot;i1_c1&quot;</span>   <span class="p">:</span> <span class="s2">&quot;i&quot;</span><span class="p">,</span>         <span class="c1">#</span>
+    <span class="s2">&quot;o2_c2&quot;</span>   <span class="p">:</span> <span class="s2">&quot;eth&quot;</span><span class="p">,</span>        <span class="c1"># this is an ether and NOT an OH</span>
+    <span class="s2">&quot;o2_c1h1&quot;</span> <span class="p">:</span> <span class="s2">&quot;oh&quot;</span><span class="p">,</span>         <span class="c1"># alcohol .. NOT a carboxylic acid .. found as co2-one anyway</span>
+    <span class="s2">&quot;s2_c1h1&quot;</span> <span class="p">:</span> <span class="s2">&quot;sh&quot;</span><span class="p">,</span>         <span class="c1"># thiol</span>
+    <span class="s2">&quot;s2_c2&quot;</span>   <span class="p">:</span> <span class="s2">&quot;thio&quot;</span><span class="p">,</span>       <span class="c1"># thioether</span>
+    <span class="s2">&quot;n3_c3&quot;</span>   <span class="p">:</span> <span class="s2">&quot;tamin&quot;</span><span class="p">,</span>      <span class="c1"># tertiary amine</span>
+    <span class="s2">&quot;n3_c1h2&quot;</span> <span class="p">:</span> <span class="s2">&quot;nh2&quot;</span><span class="p">,</span>        <span class="c1"># primary amine </span>
+<span class="p">}</span>
+
+<span class="n">sarules_2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;c4&quot;</span>      <span class="p">:</span> <span class="s2">&quot;me&quot;</span><span class="p">,</span>         <span class="c1"># this is a methyl group .. sp3 carbon </span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="fragmentizer"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.fragmentizer.fragmentizer">[docs]</a><span class="k">class</span> <span class="nc">fragmentizer</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        fragmentizer gets a catalog of fragments</span>
+<span class="sd">        it will use the API to download from MOF+</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span> <span class="o">=</span> <span class="p">{}</span>          <span class="c1"># this is a cache and can be reused if multiple calls are done</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frag_vtypes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frag_prio</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># API calls are done on the master only</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">mofplus</span> <span class="k">import</span> <span class="n">FF_api</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">FF_api</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">catalog_from_API</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frag_vtypes</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+        <span class="k">return</span>
+
+
+<div class="viewcode-block" id="fragmentizer.catalog_from_API"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.fragmentizer.fragmentizer.catalog_from_API">[docs]</a>    <span class="k">def</span> <span class="nf">catalog_from_API</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        API call on master only ... broadcasted to other nodes</span>
+
+<span class="sd">        Ignore prio == 1 fragments (just to be sure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">frags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">list_FFfrags</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frags</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">mpi_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">frags</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">frags</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frags</span><span class="p">:</span>
+            <span class="c1"># ignore if prio is one</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frag_vtypes</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">vt</span> <span class="k">for</span> <span class="n">vt</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">vt</span> <span class="o">!=</span> <span class="s2">&quot;h1&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frag_prio</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="fragmentizer.read_frags_from_API"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.fragmentizer.fragmentizer.read_frags_from_API">[docs]</a>    <span class="k">def</span> <span class="nf">read_frags_from_API</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fnames</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        API call on master only ... broadcsted to other nodes </span>
+
+<span class="sd">        New (2020):</span>
+<span class="sd">        gets only those that are not in the cache already</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fnames_get</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fnames</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames_get</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Getting fragments from MOF+:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">fnames_get</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mpi_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mstr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_FFfrags</span><span class="p">(</span><span class="n">fnames_get</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;str&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mstr</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">mpi_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">mstr</span> <span class="o">=</span> <span class="n">mpi_comm</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">mstr</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span><span class="n">lines</span> <span class="ow">in</span> <span class="n">mstr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">hashes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="k">return</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">get_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        tries to assign all fragmnets in the catalog to the mol object</span>
+
+<span class="sd">        :Parameters:</span>
+
+<span class="sd">            - mol  (mol object): mol object to be fragmentized</span>
+<span class="sd">            - plot (bool, opt): write fragment graphs as png file (defualts to False)</span>
+<span class="sd">            - get_missing (bool, opt): if True analyze in case of failure and propose missing fragments </span>
+<span class="sd">            - verbose (bool, opt): talk to the user (defaults to True) </span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;This is Fragmentizer&quot;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;====================&quot;</span><span class="p">)</span>
+        <span class="c1"># set all fragment info to none</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+        <span class="c1">#</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">)</span>
+        <span class="n">mol</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">hashes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+            <span class="n">mol</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="n">vsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="c1"># get list of atypes</span>
+        <span class="n">atypes</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_atypelist</span><span class="p">()</span>
+        <span class="n">vtype</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">atypes</span><span class="p">)</span>
+        <span class="n">vtype</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;h&quot;</span><span class="p">),</span> <span class="n">vtype</span><span class="p">)</span>
+        <span class="n">vtype</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">vtype</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;The system contains the following root atomtypes for which we test fragments:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="n">vtype</span><span class="p">)</span>
+        <span class="c1"># scan for relevant fragments</span>
+        <span class="n">scan_frag</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">scan_prio</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tmpnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># check if all vtypes in frag appear in the systems vtype</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">vtype</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frag_vtypes</span><span class="p">[</span><span class="n">fname</span><span class="p">]):</span>
+                <span class="n">scan_frag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                <span class="n">scan_prio</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frag_prio</span><span class="p">[</span><span class="n">fname</span><span class="p">])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">tmpnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_frags_from_API</span><span class="p">(</span><span class="n">tmpnames</span><span class="p">)</span>
+        <span class="c1"># now sort according to prio</span>
+        <span class="n">sorted_scan_frag</span> <span class="o">=</span> <span class="p">[</span><span class="n">scan_frag</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">scan_prio</span><span class="p">)]</span>
+        <span class="n">sorted_scan_frag</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="c1"># now run over the system and test the fragments</span>
+        <span class="n">atypes</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_atypes</span><span class="p">()</span>
+        <span class="n">fragnames</span> <span class="o">=</span> <span class="p">[]</span>        <span class="c1"># this a list of all existing fragment names</span>
+        <span class="n">frag_atoms</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># a list of the fragments with their atoms</span>
+        <span class="n">fi</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">sorted_scan_frag</span><span class="p">:</span>
+            <span class="n">fidx</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">find_fragment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">fname</span><span class="p">],</span><span class="n">add_hydrogen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">alist</span> <span class="ow">in</span> <span class="n">fidx</span><span class="p">:</span>
+                <span class="c1"># if any of the atoms in alist is already in a fragment we can skip</span>
+                <span class="n">assigned_already</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">assigned_already</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">fragments</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">ptype</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="n">vsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">:</span>
+                        <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>   <span class="o">=</span> <span class="n">fname</span>
+                        <span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fi</span>
+                        <span class="c1"># print &quot;atom %s set to fragment %s&quot; % (atypes[i], fname)</span>
+                    <span class="n">fragnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                    <span class="n">frag_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alist</span><span class="p">)</span>
+                    <span class="n">fi</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># now all retrieved frags are tested .. now try to assign the remaining atoms with fragments if possible</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-1&#39;</span><span class="p">:</span>
+                <span class="n">at</span>  <span class="o">=</span> <span class="n">atypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># atomtype</span>
+                <span class="n">rat</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># root atomtype</span>
+                <span class="c1"># this is unassigned .. is it hydrogen?</span>
+                <span class="k">if</span> <span class="n">rat</span> <span class="o">!=</span> <span class="s2">&quot;h1&quot;</span><span class="p">:</span>
+                    <span class="n">fname</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="c1"># first test explicit sarules_1</span>
+                    <span class="k">if</span> <span class="n">at</span> <span class="ow">in</span> <span class="n">sarules_1</span><span class="p">:</span>
+                        <span class="n">fname</span> <span class="o">=</span> <span class="n">sarules_1</span><span class="p">[</span><span class="n">at</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">rat</span> <span class="ow">in</span> <span class="n">sarules_2</span><span class="p">:</span>
+                            <span class="n">fname</span> <span class="o">=</span> <span class="n">sarules_2</span><span class="p">[</span><span class="n">rat</span><span class="p">]</span>
+                    <span class="c1"># did we find something that applies?</span>
+                    <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="c1"># all hydogens connected to this atom are also part of the fragment (check if already assigned .. should not be)</span>
+                        <span class="n">alist</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">conn</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">atypes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;h1&quot;</span><span class="p">:</span>
+                                <span class="n">alist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+                                <span class="k">assert</span> <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;-1&quot;</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">alist</span><span class="p">:</span>
+                            <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+                            <span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fi</span>
+                        <span class="n">fragnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+                        <span class="n">frag_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alist</span><span class="p">)</span>
+                        <span class="n">fi</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">nfrags</span> <span class="o">=</span>  <span class="nb">max</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="c1"># now analyse if fragmentation was successful and propse missing fragments if get_missing is True</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;The following fragments have been found in the system&quot;</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fragnames</span><span class="p">))</span>
+            <span class="n">nuassigned</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;-1&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nuassigned</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;!!!! Unassigned atoms: </span><span class="si">%d</span><span class="s2">    mol </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nuassigned</span><span class="p">,</span> <span class="n">mol</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">get_missing</span><span class="p">:</span>
+            <span class="c1"># try to identify groups of atoms</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span>
+
+    <span class="c1"># this method should go evetually and is left here only for legacy reasons (who needs it as a static method?)</span>
+<div class="viewcode-block" id="fragmentizer.pure_check"><a class="viewcode-back" href="../../../_api/molsys.util.html#molsys.util.fragmentizer.fragmentizer.pure_check">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">pure_check</span><span class="p">(</span><span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        check if all atoms are in a fragment and all is consistent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fragnames</span> <span class="o">=</span> <span class="p">[]</span>        <span class="c1"># this a list of all existing fragment names</span>
+        <span class="n">frag_atoms</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># a list of the fragments with their atoms</span>
+        <span class="n">nfrags</span> <span class="o">=</span>  <span class="nb">max</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">fraglist</span>  <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nfrags</span><span class="p">)</span> <span class="c1"># additional list to hold the fragments with their name</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nfrags</span><span class="p">):</span>
+            <span class="n">frag_atoms</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="n">ft</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ft</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fraglist</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># set name of fragment</span>
+                    <span class="n">fraglist</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span> <span class="o">=</span> <span class="n">ft</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># check if this is the same name</span>
+                    <span class="k">if</span> <span class="n">fraglist</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ft</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">ft</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fragnames</span><span class="p">:</span>
+                    <span class="n">fragnames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ft</span><span class="p">)</span>
+                <span class="n">frag_atoms</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">fragnumbers</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="c1"># in the end make sure that all fragments have been named</span>
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">fraglist</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

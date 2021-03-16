@@ -1,0 +1,906 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>molsys.addon.spg &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_addon.html">1. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_util.html">2. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../file_io.html">1. File I/O</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>molsys.addon.spg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for molsys.addon.spg</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    spg</span>
+
+<span class="sd">    implements an addon to access the features of the spglib within molsys</span>
+<span class="sd">    https://atztogo.github.io/spglib/</span>
+
+<span class="sd">    you need a recent spglib (&gt;= 1.9.0) because the python import has changed at some point</span>
+<span class="sd">    it can be installed via pip (pip install spglib)</span>
+
+<span class="sd">    comment by JK: i&#39;ve added spacegroups.py in util containing a (an incomplete) list of spacegroup</span>
+<span class="sd">    strings with the corresponding spacegroup numbers.</span>
+<span class="sd">    molsys.util.spacegroups (herein imported as spacegroup) call via:</span>
+<span class="sd">    spacegroup.get_spacegroup_number(sgname). returns None if not in dict.</span>
+
+<span class="sd">Created on Wed Dec  7 15:44:36 2016</span>
+
+<span class="sd">@author: rochus</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">spglib</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">molsys.util</span> <span class="k">import</span> <span class="n">elems</span>
+<span class="kn">from</span> <span class="nn">molsys.util</span> <span class="k">import</span> <span class="n">spacegroups</span>
+<span class="kn">import</span> <span class="nn">molsys</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;molsys.spg&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">molsys.util.misc</span> <span class="k">import</span> <span class="n">sort_by_columns</span><span class="p">,</span> <span class="n">argsort_by_columns</span><span class="p">,</span> <span class="n">sort_by_columns_in_place</span>
+<span class="kn">from</span> <span class="nn">molsys.util.sysmisc</span> <span class="k">import</span> <span class="n">isatty</span>
+<span class="kn">from</span> <span class="nn">molsys.util.timing</span> <span class="k">import</span> <span class="n">timer</span><span class="p">,</span> <span class="n">Timer</span> <span class="c1">#to be removed</span>
+
+<div class="viewcode-block" id="get_frac_match"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.get_frac_match">[docs]</a><span class="k">def</span> <span class="nf">get_frac_match</span><span class="p">(</span><span class="n">frac</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="n">symperm</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">frac</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">-</span><span class="n">sym</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">whereint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">))</span>
+    <span class="n">x</span><span class="p">[</span><span class="n">whereint</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">whereint</span><span class="p">])</span> <span class="o">+</span> <span class="n">eps</span>
+    <span class="c1">#x -= np.floor(x) ### np.round does not work! [?RA] MAYBE WE FLOOR x+.5</span>
+    <span class="c1">#symperm = np.where((x&lt;thresh).all(axis=-1))[-1]</span>
+    <span class="n">x</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="o">+.</span><span class="mi">5</span><span class="p">)</span> <span class="c1">### np.round does not work! [?RA] MAYBE WE FLOOR x+.5</span>
+    <span class="n">symperm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">&lt;</span><span class="n">thresh</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">symperm</span></div>
+
+<div class="viewcode-block" id="spg"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg">[docs]</a><span class="k">class</span> <span class="nc">spg</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        generate a spg object</span>
+
+<span class="sd">        :Parameters:</span>
+
+<span class="sd">            - mol: mol object to be kept as a parent ref</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># tuple of (lattice, position, numbers) as used in spglib</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spg_version</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_version</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="mf">1.0e-2</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Addon spg loaded (version </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">spg_version</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span> <span class="c1">#to be removed</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="spg.set_symprec"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.set_symprec">[docs]</a>    <span class="k">def</span> <span class="nf">set_symprec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresh</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the symmetry threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span> <span class="o">=</span> <span class="n">thresh</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="spg.get_symprec"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.get_symprec">[docs]</a>    <span class="k">def</span> <span class="nf">get_symprec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the symmetry threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span></div>
+
+<div class="viewcode-block" id="spg.generate_spgcell"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.generate_spgcell">[docs]</a>    <span class="k">def</span> <span class="nf">generate_spgcell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omit</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the spglib specific representation of the structure</span>
+<span class="sd">        (Needs to be called before any other call to spg methods)</span>
+<span class="sd">         :Parameters:</span>
+
+<span class="sd">             - omit : a list of either integers (atomic numbers) or element strings to be omited [optional]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># convert element symbols into atomic numbers</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">omit</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">new_omit</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">omit</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">==</span><span class="nb">str</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="k">continue</span> <span class="c1">###needed?</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">new_omit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">number</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">lower</span><span class="p">()])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_omit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">omit</span> <span class="o">=</span> <span class="n">new_omit</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+        <span class="n">pos</span>     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="n">pos</span>     <span class="o">=</span> <span class="n">pos</span><span class="o">%</span><span class="mf">1.0</span>
+        <span class="c1"># pos     = pos%1.0</span>
+        <span class="n">num</span>     <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_elems_number</span><span class="p">()</span>
+        <span class="n">pos_rem</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num_rem</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">omit</span><span class="p">:</span>
+                <span class="n">pos_rem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">num_rem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">num</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">pos_rem</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos_rem</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+        <span class="n">num_rem</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">num_rem</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;intc&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span> <span class="o">=</span> <span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">pos_rem</span><span class="p">,</span> <span class="n">num_rem</span><span class="p">)</span>
+        <span class="n">spglib</span><span class="o">.</span><span class="n">standardize_cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">,</span> <span class="n">no_idealize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#is that needed?</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="spg.get_spacegroup"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.get_spacegroup">[docs]</a>    <span class="k">def</span> <span class="nf">get_spacegroup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        determine the space group of the current system</span>
+<span class="sd">        returns a tuple with the symbol and the integer number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span> <span class="o">!=</span> <span class="kc">None</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_spgcell</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_spacegroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">symbol</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;symmetry detection claims it&#39;s P1&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;detected spacegroup </span><span class="si">%s</span><span class="s1"> </span><span class="si">%i</span><span class="s1"> with symprec=</span><span class="si">%5.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="spg.equivalent_sites"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.equivalent_sites">[docs]</a>    <span class="k">def</span> <span class="nf">equivalent_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="p">,</span> <span class="n">onduplicates</span><span class="o">=</span><span class="s1">&#39;error&#39;</span><span class="p">,</span>
+                         <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the scaled positions and all their equivalent sites.</span>
+<span class="sd">		Shamelessly and gratefully copied from ase.spacegroup</span>
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        scaled_positions: list | array</span>
+<span class="sd">            List of non-equivalent sites given in unit cell coordinates.</span>
+<span class="sd">        onduplicates : &#39;keep&#39; | &#39;replace&#39; | &#39;warn&#39; | &#39;error&#39;</span>
+<span class="sd">            Action if `scaled_positions` contain symmetry-equivalent</span>
+<span class="sd">            positions:</span>
+
+<span class="sd">            &#39;keep&#39;</span>
+<span class="sd">               ignore additional symmetry-equivalent positions</span>
+<span class="sd">            &#39;replace&#39;</span>
+<span class="sd">                replace</span>
+<span class="sd">            &#39;warn&#39;</span>
+<span class="sd">                like &#39;keep&#39;, but issue an UserWarning</span>
+<span class="sd">            &#39;error&#39;</span>
+<span class="sd">                raises a SpacegroupValueError</span>
+
+<span class="sd">        symprec: float</span>
+<span class="sd">            Minimum &quot;distance&quot; betweed two sites in scaled coordinates</span>
+<span class="sd">            before they are counted as the same site.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        sites: array</span>
+<span class="sd">            A NumPy array of equivalent sites.</span>
+<span class="sd">        kinds: list</span>
+<span class="sd">            A list of integer indices specifying which input site is</span>
+<span class="sd">            equivalent to the corresponding returned site.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from ase.spacegroup import Spacegroup</span>
+<span class="sd">        &gt;&gt;&gt; sg = Spacegroup(225)  # fcc</span>
+<span class="sd">        &gt;&gt;&gt; sites, kinds = sg.equivalent_sites([[0, 0, 0], [0.5, 0.0, 0.0]])</span>
+<span class="sd">        &gt;&gt;&gt; sites</span>
+<span class="sd">        array([[ 0. ,  0. ,  0. ],</span>
+<span class="sd">               [ 0. ,  0.5,  0.5],</span>
+<span class="sd">               [ 0.5,  0. ,  0.5],</span>
+<span class="sd">               [ 0.5,  0.5,  0. ],</span>
+<span class="sd">               [ 0.5,  0. ,  0. ],</span>
+<span class="sd">               [ 0. ,  0.5,  0. ],</span>
+<span class="sd">               [ 0. ,  0. ,  0.5],</span>
+<span class="sd">               [ 0.5,  0.5,  0.5]])</span>
+<span class="sd">        &gt;&gt;&gt; kinds</span>
+<span class="sd">        [0, 0, 0, 0, 1, 1, 1, 1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scaled_positions</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1">### EXPERIMENTAL #######################################################</span>
+        <span class="n">rots</span><span class="p">,</span> <span class="n">transs</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sg</span><span class="o">.</span><span class="n">get_symop</span><span class="p">())</span>
+        <span class="n">rots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">transs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">transs</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">batchdot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;aij,bj-&gt;abi&#39;</span><span class="p">,</span> <span class="n">rots</span><span class="p">,</span> <span class="n">scaled</span><span class="p">)</span>
+        <span class="c1">#### TO DEBUG / TO DEMONSTRATE THIS ### -&gt; put elsewhee [RA]</span>
+        <span class="c1">#allfine = True</span>
+        <span class="c1">#for i,rot in enumerate(rots):</span>
+        <span class="c1">#    for j,pos in enumerate(scaled):</span>
+        <span class="c1">#        standard = np.dot(rot,pos)</span>
+        <span class="c1">#        experimental = batchdot[i,j]</span>
+        <span class="c1">#        if not np.all(np.isclose(standard, experimental, atol=symprec)):</span>
+        <span class="c1">#            print(&quot;ERROR: dot product standard[%i,%i] != experimental[%i,%i]:\n\</span>
+        <span class="c1">#                %s != %s&quot; % (i,j,i,j,standard,experimental))</span>
+        <span class="c1">#            allfine = False</span>
+        <span class="c1">#if not allfine:</span>
+        <span class="c1">#    import pdb; pdb.set_trace()</span>
+        <span class="c1">#### END DEBUG / DEMONSTRATION #####</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">batchdot</span> <span class="o">+</span> <span class="n">transs</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">scaled</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">sites</span>
+        <span class="n">diff</span> <span class="o">-=</span> <span class="p">(</span><span class="n">diff</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">symprec</span><span class="p">)</span> <span class="o">//</span> <span class="mf">1.</span> <span class="o">+</span> <span class="n">symprec</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">*</span><span class="n">symprec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># which elements project to </span>
+        <span class="n">where</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="c1">########################################################################</span>
+        <span class="n">kinds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">kinds_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">kinds_table</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">batchdot</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">kind</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scaled</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">rot</span><span class="p">,</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sg</span><span class="o">.</span><span class="n">get_symop</span><span class="p">():</span>
+                <span class="n">site</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span> <span class="o">+</span> <span class="n">trans</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">sites</span><span class="p">:</span>
+                    <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                    <span class="n">kinds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+                    <span class="n">kinds_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">kind</span><span class="p">]))</span>
+                    <span class="k">continue</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">site</span> <span class="o">-</span> <span class="n">sites</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">symprec</span><span class="p">)</span> <span class="o">|</span>
+                              <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">symprec</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                    <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">ind</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the first</span>
+                    <span class="k">if</span> <span class="n">kinds</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="n">kind</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">elif</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;keep&#39;</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="k">elif</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;replace&#39;</span><span class="p">:</span>
+                        <span class="n">kinds</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">kind</span>
+                    <span class="k">elif</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;warn&#39;</span><span class="p">:</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;scaled_positions </span><span class="si">%d</span><span class="s1"> and </span><span class="si">%d</span><span class="s1"> &#39;</span>
+                                      <span class="s1">&#39;are equivalent&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kinds</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">kind</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">SpacegroupValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;scaled_positions </span><span class="si">%d</span><span class="s1"> and </span><span class="si">%d</span><span class="s1"> are equivalent&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                <span class="n">kinds</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">kind</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;return&#39;</span><span class="p">:</span> <span class="c1"># new, count as &quot;keep&quot; for kinds</span>
+                        <span class="n">kinds_all</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">SpacegroupValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;Argument &quot;onduplicates&quot; must be one of: &#39;</span>
+                            <span class="s1">&#39;&quot;keep&quot;, &quot;replace&quot;, &quot;warn&quot; or &quot;error&quot;.&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+                    <span class="n">kinds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+                    <span class="n">kinds_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">kind</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rotations</span> <span class="o">=</span> <span class="n">rots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">translations</span> <span class="o">=</span> <span class="n">transs</span>
+        <span class="k">if</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s1">&#39;return&#39;</span><span class="p">:</span> <span class="c1"># new</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sites</span><span class="p">),</span> <span class="n">kinds</span><span class="p">,</span> <span class="n">kinds_all</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sites</span><span class="p">),</span> <span class="n">kinds</span></div>
+
+<div class="viewcode-block" id="spg.cif_connectivity"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.cif_connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">cif_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_xyz</span><span class="p">,</span> <span class="n">atypes</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">cif_column</span><span class="p">(</span><span class="n">column</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            label: labels of atoms involved in the bonds according to unsymmetrized cif file</span>
+<span class="sd">            sym: symmetries of positions of atoms in the bonds</span>
+<span class="sd">            op: symmetry operations as per order of symmetry</span>
+<span class="sd">            pos: image positions according to CIF convention</span>
+<span class="sd">            abc: image position according to molsys convention</span>
+<span class="sd">            frac: fractional coordinates of bonding atoms</span>
+<span class="sd">            rots: rotations of atoms in the bonds</span>
+<span class="sd">            transs: translations of atoms in the bonds</span>
+<span class="sd">            atoms: atoms in the bonds</span>
+<span class="sd">            xyz: coordinates of atoms in the bonds</span>
+<span class="sd">            diff: difference in coordinates between the new symmetric sites and the seleceted</span>
+<span class="sd">                bonding atoms</span>
+<span class="sd">            mask: True if</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s2">&quot;_geom_bond_atom_site_label_</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">column</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s2">&quot;_geom_bond_site_symmetry_</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">column</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">sym_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">sym_split</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sym_ar</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="n">sym_list</span> <span class="o">=</span> <span class="n">sym_split</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">op</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">sym_list</span><span class="p">)</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">op</span> <span class="o">-=</span> <span class="mi">1</span> <span class="c1"># python convention</span>
+            <span class="c1">### symmetry positions 1</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">apos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">//</span><span class="mi">100</span>
+            <span class="n">bpos</span> <span class="o">=</span> <span class="n">pos</span><span class="o">//</span><span class="mi">10</span>  <span class="o">-</span>  <span class="mi">10</span><span class="o">*</span><span class="n">apos</span>
+            <span class="n">cpos</span> <span class="o">=</span> <span class="n">pos</span>      <span class="o">-</span> <span class="mi">100</span><span class="o">*</span><span class="n">apos</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">bpos</span>
+            <span class="n">abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">apos</span><span class="p">,</span> <span class="n">bpos</span><span class="p">,</span> <span class="n">cpos</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">abc</span> <span class="o">-=</span> <span class="mi">5</span> <span class="c1"># cif convention</span>
+            <span class="n">abc</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="c1">### general ###</span>
+            <span class="n">frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">atypes2frac</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">label</span><span class="p">])</span>
+            <span class="n">rots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotations</span><span class="p">[</span><span class="n">op</span><span class="p">]</span>
+            <span class="n">transs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translations</span><span class="p">[</span><span class="n">op</span><span class="p">]</span>
+            <span class="c1">#find allowed bond types</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">unsym_label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">label</span><span class="p">]</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">frac_xyz</span><span class="p">[</span><span class="n">atoms</span><span class="p">]</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;aij,aj-&gt;ai&#39;</span><span class="p">,</span> <span class="n">rots</span><span class="p">,</span> <span class="n">xyz</span><span class="p">)</span> <span class="o">+</span> <span class="n">transs</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_xyz</span>
+            <span class="n">diff</span> <span class="o">-=</span> <span class="p">(</span><span class="n">diff</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">//</span> <span class="mi">1</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># which elements project to </span>
+            <span class="n">where</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+            <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">where</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">frac_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="n">atypes2frac</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">atypes</span><span class="p">,</span> <span class="n">frac_xyz</span><span class="p">))</span>
+        <span class="n">unsym_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s1">&#39;_atom_site_label&#39;</span><span class="p">]</span>
+        <span class="n">iwhere</span> <span class="o">=</span> <span class="n">cif_column</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">jwhere</span> <span class="o">=</span> <span class="n">cif_column</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new_ctab</span></div>
+    
+<div class="viewcode-block" id="spg.cif_connectivity_alternative"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.cif_connectivity_alternative">[docs]</a>    <span class="k">def</span> <span class="nf">cif_connectivity_alternative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get made bonds -&gt; extend at all possible bonds with found symmetry.</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">frac_xyz</span><span class="p">[</span><span class="n">jatoms</span><span class="p">]</span> <span class="o">-</span> <span class="n">frac_xyz</span><span class="p">[</span><span class="n">iatoms</span><span class="p">]</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">du</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span> <span class="c1"># unique distances (fourth decimal) -&gt; unique bond types</span>
+        <span class="n">btypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">du</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the first</span>
+            <span class="n">ik</span><span class="p">,</span> <span class="n">jk</span> <span class="o">=</span> <span class="n">iatoms</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">jatoms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">iat</span><span class="p">,</span> <span class="n">jat</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">ik</span><span class="p">],</span> <span class="n">elems</span><span class="p">[</span><span class="n">jk</span><span class="p">]</span>
+            <span class="n">btypes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">]</span><span class="o">+</span><span class="nb">sorted</span><span class="p">([</span><span class="n">iat</span><span class="p">,</span> <span class="n">jat</span><span class="p">]))</span>
+        <span class="c1">#find symmetrized bonds</span>
+        <span class="n">new_elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[:]</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">new_xyz</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">-</span><span class="n">new_xyz</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">dx</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span><span class="n">iat</span><span class="p">,</span><span class="n">jat</span> <span class="ow">in</span> <span class="n">btypes</span><span class="p">:</span>
+            <span class="n">dev</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">u</span><span class="p">)</span>
+            <span class="n">bwhere</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">))</span>
+            <span class="n">bselect</span> <span class="o">=</span> <span class="n">bwhere</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">bwhere</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># prevent double bonds</span>
+            <span class="n">bwhere</span> <span class="o">=</span> <span class="n">bwhere</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">bselect</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">bwhere</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">bselect</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">bonds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">bwhere</span><span class="p">)</span>
+            <span class="n">bt</span> <span class="o">=</span> <span class="p">[</span><span class="n">iat</span><span class="p">,</span> <span class="n">jat</span><span class="p">]</span>
+            <span class="c1">#check whether the bonds connect the right couple of elements</span>
+            <span class="c1">#N.B.: reverse list so that last can be removed w/o messing with idxs</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="o">=</span> <span class="n">bonds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">new_elems</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">new_elems</span><span class="p">[</span><span class="n">j</span><span class="p">]])</span> <span class="o">!=</span> <span class="n">bt</span><span class="p">:</span> <span class="c1">#then remove</span>
+                    <span class="n">bonds</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">new_ctab</span> <span class="o">+=</span> <span class="n">bonds</span></div>
+
+<div class="viewcode-block" id="spg.make_P1"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.make_P1">[docs]</a>    <span class="k">def</span> <span class="nf">make_P1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spgnum</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sg_setting</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">onduplicates</span><span class="o">=</span><span class="s2">&quot;keep&quot;</span><span class="p">,</span> <span class="n">conn_thresh</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        to be implemented by Julian from his topo tools</span>
+
+<span class="sd">        :Parameters:</span>
+
+<span class="sd">            - spgnum : integer space group number</span>
+
+<span class="sd">        :KNOWN BUGS:</span>
+<span class="sd">            - scaled_positions could be equivalent from a cif file, so it fails to make_P1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">return</span><span class="se">\&quot;</span><span class="s2"> mode on duplicates&quot;</span><span class="p">)</span>
+        <span class="c1"># how to convert international spgnum to hall number</span>
+        <span class="c1"># apply operations to self.mol and generate a new mol object</span>
+        <span class="c1"># use detect_conn etc to complete it.</span>
+        
+        <span class="c1">#Okay, what i did was to use ASE as:</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="kn">from</span> <span class="nn">ase.spacegroup</span> <span class="k">import</span> <span class="n">Spacegroup</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;make_P1 requires ASE (i.e. ase.lattice.spacegroup) to function properly&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># 1) if provided, use the spacegroup set by the user</span>
+        <span class="c1"># 2) the spacegroup number is supplied with the cif</span>
+        <span class="c1"># 3) there is at least the H-M symbol of it, try to find it via the dictionary!</span>
+        
+        <span class="k">if</span> <span class="n">spgnum</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">spgnum_cif</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s1">&#39;_symmetry_int_tables_number&#39;</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">spgsym_cif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s1">&#39;_symmetry_space_group_name_H-M&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">sgs</span> <span class="o">=</span> <span class="n">spacegroups</span><span class="o">.</span><span class="n">spacegroups</span>
+                    <span class="n">spgsym_cif</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sgs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">sgs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">spgsym_cif</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;using spacegroup number from cif file: </span><span class="si">%i</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spgnum_cif</span><span class="p">,</span><span class="n">spgsym_cif</span><span class="p">))</span>
+                <span class="n">spgnum</span><span class="o">=</span><span class="n">spgnum_cif</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">spgsym_cif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">cifdata</span><span class="p">[</span><span class="s1">&#39;_symmetry_space_group_name_H-M&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="n">spgnum_cif</span> <span class="o">=</span> <span class="n">spacegroups</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">(</span><span class="n">spgsym_cif</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">spgnum_cif</span> <span class="o">==</span><span class="kc">None</span><span class="p">:</span> 
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;spacegroup </span><span class="si">%s</span><span class="s1"> could not be found, add it to spacegroups.py ?!&#39;</span> <span class="o">%</span><span class="n">spgsym_cif</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;make_P1 failed&#39;</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;using spacegroup symbol from cif file, sgnumber looked up: </span><span class="si">%i</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spgnum_cif</span><span class="p">,</span><span class="n">spgsym_cif</span><span class="p">))</span>
+                    <span class="n">spgnum</span> <span class="o">=</span> <span class="n">spgnum_cif</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;I do not have any spacegroup informations, make_P1 failed!&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_symmetry_from_database</span><span class="p">(</span><span class="n">spgnum</span><span class="p">)</span>
+        <span class="c1">#print(dataset) ### DEBUG</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sg</span> <span class="o">=</span> <span class="n">Spacegroup</span><span class="p">(</span><span class="n">spgnum</span><span class="p">,</span><span class="n">setting</span><span class="o">=</span><span class="n">sg_setting</span><span class="p">)</span><span class="c1">#,sprec = 1e-3)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sg</span> <span class="o">=</span> <span class="n">Spacegroup</span><span class="p">(</span><span class="n">spgnum</span><span class="p">)</span><span class="c1">#,sprec = 1e-3)</span>
+        
+        <span class="n">new_xyz</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_elems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_atypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_fragtypes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">new_fragnumbers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">frac_xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="n">old_atypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">atypes</span><span class="p">[:]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span>
+                <span class="n">new_xyz</span><span class="p">,</span> <span class="n">kinds</span><span class="p">,</span> <span class="n">kinds_all</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">(</span><span class="n">frac_xyz</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span> <span class="n">onduplicates</span><span class="o">=</span><span class="n">onduplicates</span><span class="p">)</span>
+                <span class="n">kinds_all</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kinds_all</span><span class="p">]</span>
+                <span class="n">dkinds_</span> <span class="o">=</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ka</span><span class="p">):</span><span class="n">k</span> <span class="k">for</span> <span class="n">ka</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kinds_all</span><span class="p">,</span><span class="n">kinds</span><span class="p">)}</span>
+                <span class="n">dkinds</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">dkinds_</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dkinds</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dkinds_</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_xyz</span><span class="p">,</span> <span class="n">kinds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_sites</span><span class="p">(</span><span class="n">frac_xyz</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">,</span> <span class="n">onduplicates</span><span class="o">=</span><span class="n">onduplicates</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">sys</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;could not get equivalent sites, &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1">#now do the new elems and stuff:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kinds</span><span class="p">):</span>
+            <span class="n">new_elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">new_atypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">atypes</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">new_fragtypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">fragtypes</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">new_fragnumbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># keep to detect new connectivity</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">elems</span><span class="p">[:]</span>
+        <span class="n">ctab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">ctab</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_natoms</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_xyz</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_xyz_from_frac</span><span class="p">(</span><span class="n">new_xyz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_elems</span><span class="p">(</span><span class="n">new_elems</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_atypes</span><span class="p">(</span><span class="n">new_atypes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_fragtypes</span><span class="p">(</span><span class="n">new_fragtypes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_fragnumbers</span><span class="p">(</span><span class="n">new_fragnumbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_empty_conn</span><span class="p">()</span> <span class="c1"># for debugging</span>
+        <span class="c1"># now we try to get the connectivity right and find duplicates during the search</span>
+        <span class="k">if</span> <span class="n">onduplicates</span> <span class="o">==</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span>
+            <span class="n">new_ctab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cif_connectivity</span><span class="p">(</span><span class="n">new_xyz</span><span class="p">,</span> <span class="n">old_atypes</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">set_ctab</span><span class="p">(</span><span class="n">new_ctab</span><span class="p">,</span> <span class="n">conn_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">remove_duplicates</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">detect_conn</span><span class="p">(</span><span class="n">thresh</span> <span class="o">=</span> <span class="n">conn_thresh</span><span class="p">,</span> <span class="n">remove_duplicates</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="spg.get_primitive_cell"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.get_primitive_cell">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the primitve cell as a new mol object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span> <span class="o">!=</span> <span class="kc">None</span>
+        <span class="n">new_spgcell</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">find_primitive</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_spgcell</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Search for primitive cell failed with symprec </span><span class="si">%f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">symprec</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">new_mol</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="p">()</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_natoms</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_xyz</span><span class="p">(</span><span class="n">new_mol</span><span class="o">.</span><span class="n">get_xyz_from_frac</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1">#new_mol.set_xyz_from_frac(new_spgcell[1])</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_elems_number</span><span class="p">(</span><span class="n">new_spgcell</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># now add the connectivity</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">detect_conn</span><span class="p">()</span>
+        <span class="c1"># RS: we could do atomtyping ... but this would have to be a method of mol ...</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_atypes</span><span class="p">([</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">*</span><span class="n">new_mol</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">())</span>
+        <span class="n">new_mol</span><span class="o">.</span><span class="n">set_nofrags</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new_mol</span></div>
+
+<div class="viewcode-block" id="spg.get_symmetry"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.get_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns lists of rotations, translations and equivalent atoms according to the spgcell</span>
+<span class="sd">        n.b.: spgcell must be generated with generate_spgcell</span>
+<span class="sd">        example:</span>
+<span class="sd">        &gt;&gt;&gt; import molsys</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; m = molsys.mol()</span>
+<span class="sd">        &gt;&gt;&gt; m.read(filename)</span>
+<span class="sd">        &gt;&gt;&gt; m.addon(&quot;spg&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; m.spg.generate_spgcell()</span>
+<span class="sd">        &gt;&gt;&gt; sym = m.spg.get_symmetry()</span>
+<span class="sd">        &gt;&gt;&gt; n=0 #just an example, n could be any btw. 0 and len(sym)-1</span>
+<span class="sd">        &gt;&gt;&gt; rota, tran = sym[&#39;rotations&#39;][n], sym[&#39;translations&#39;][n]</span>
+<span class="sd">        &gt;&gt;&gt; new_vector = rota*old_vector[:,np.newaxis] + tran</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find space group symmetries&quot;</span><span class="p">)</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Found </span><span class="si">%s</span><span class="s2"> symmetries and </span><span class="si">%s</span><span class="s2"> equiv. atom/s&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;rotations&#39;</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">])))</span>
+        <span class="k">return</span> <span class="n">sym</span><span class="p">[</span><span class="s1">&#39;rotations&#39;</span><span class="p">],</span> <span class="n">sym</span><span class="p">[</span><span class="s1">&#39;translations&#39;</span><span class="p">],</span> <span class="n">sym</span><span class="p">[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="spg.generate_symmetries"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.generate_symmetries">[docs]</a>    <span class="k">def</span> <span class="nf">generate_symmetries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate list of coordinates by symmetries</span>
+<span class="sd">        scale (same scale as per supercell) ###TBI: non-orthorombic cells</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Get space group symmetries&quot;</span><span class="p">)</span>
+        <span class="c1">### INITIALIZE ###</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argsyms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">### GENERATE SPACE POINT GROUP SYMMETRIES ###</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_spgcell</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_symmetry</span><span class="p">()</span> <span class="c1">###TBI equivalent atoms</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symops</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">### REMOVE EQUIVALENT ATOMS</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">rot</span><span class="p">,</span><span class="n">tra</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ops</span><span class="p">)):</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">frac</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">tra</span>
+            <span class="c1">###sym -= sort_by_columns(sym)[0] #np.min(sym,axis=0) ### EXPERIMENTAL ###</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">syms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argsyms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">argsort_by_columns</span><span class="p">(</span><span class="n">sym</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="spg.generate_symperms"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.generate_symperms">[docs]</a>    <span class="nd">@timer</span><span class="p">(</span><span class="s2">&quot;generate symmetry permutations&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">generate_symperms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Each symmetry permutation stores the indices that would sort an array</span>
+<span class="sd">        according to each symmetry operation in the symmetry space group.</span>
+
+<span class="sd">        &gt;&gt;&gt; m.addon(&#39;spg&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; m.spg.generate_spgcell()</span>
+<span class="sd">        &gt;&gt;&gt; m.spg.generate_symmetries()</span>
+<span class="sd">        &gt;&gt;&gt; m.spg.generate_symperms()</span>
+
+<span class="sd">        ### OLD LOOP IMPLEMENTATION ###</span>
+<span class="sd">        &gt;&gt;&gt; for i,isym in enumerate(self.syms):</span>
+<span class="sd">        &gt;&gt;&gt;     symperm = []</span>
+<span class="sd">        &gt;&gt;&gt;     for c in isym:</span>
+<span class="sd">        &gt;&gt;&gt;         frac -= c</span>
+<span class="sd">        &gt;&gt;&gt;         fracadd = abs(frac)+.5</span>
+<span class="sd">        &gt;&gt;&gt;         gap = (abs(fracadd-np.floor(fracadd)-.5) &lt; eps)</span>
+<span class="sd">        &gt;&gt;&gt;         sype = np.where(gap.all(axis=1))[0][0]</span>
+<span class="sd">        &gt;&gt;&gt;         symperm.append(sype)</span>
+<span class="sd">        it is slow with respect to the broadcasting</span>
+<span class="sd">        </span>
+<span class="sd">        N.B. to avoid that -0. = 0 an older implementation used np.isclose to substitute 0/1 floats to exact 0/1 integers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_symmetries</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set </span><span class="si">%s</span><span class="s2"> space group symmetry permutations&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syms</span><span class="p">))</span>
+        <span class="n">natoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syms</span><span class="p">)</span>
+        <span class="n">sp</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">natoms</span><span class="p">),</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">sp_</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">isym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">syms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="mi">100</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="n">tot</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">isatty</span><span class="p">():</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> of </span><span class="si">%s</span><span class="s2"> symmetry permutations&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tot</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">isatty</span><span class="p">():</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="n">tot</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">isp</span> <span class="o">=</span> <span class="n">get_frac_match</span><span class="p">(</span><span class="n">frac</span><span class="p">,</span> <span class="n">isym</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">isp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">natoms</span><span class="p">:</span> 
+                <span class="c1">### STANDARD: match position -&gt; match permutation index ###</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sp</span><span class="p">,</span> <span class="n">isp</span><span class="p">])</span> <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">isp</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">### EXPERIMENTAL, w/ pivot and distances ###</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">frac</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">-</span><span class="n">isym</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="o">.</span><span class="mi">5</span><span class="p">))]</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">+</span><span class="n">eps</span>
+                <span class="n">x</span><span class="o">-=</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="o">+.</span><span class="mi">5</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#pivot, any</span>
+                    <span class="n">w_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">p</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#[0] is [0,..,N]</span>
+                    <span class="k">if</span> <span class="n">w_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">natoms</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">w_</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">natoms</span><span class="p">:</span> <span class="c1">### sanity check</span>
+                            <span class="n">sp_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sp_</span><span class="p">,</span> <span class="n">w_</span><span class="p">])</span> <span class="k">if</span> <span class="n">sp_</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="n">w_</span>
+        <span class="k">if</span> <span class="n">sp_</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sp_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">({</span><span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sp_</span><span class="p">})</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sp_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">sp_</span>
+        <span class="n">symperms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">sp</span><span class="p">,</span><span class="n">sp_</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symperms</span> <span class="o">=</span> <span class="n">symperms</span>
+        <span class="k">return</span> <span class="n">symperms</span></div>
+
+<div class="viewcode-block" id="spg.find_symmetry"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.find_symmetry">[docs]</a>    <span class="k">def</span> <span class="nf">find_symmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyzref</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a match is found, return True. Else, return False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Seeking symmetry match&quot;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">isp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symperms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="n">isp</span><span class="p">],</span> <span class="n">xyzref</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find symmetry!</span><span class="se">\n</span><span class="s2">Index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">Permutation: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">isp</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">isp</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="spg.find_symmetry_from_frac"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.find_symmetry_from_frac">[docs]</a>    <span class="k">def</span> <span class="nf">find_symmetry_from_frac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fracref</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a match is found, return True. Else, return False.</span>
+<span class="sd">        N.B.:</span>
+<span class="sd">        self.find_symmetry_from_colors(sel.colors[m.spg.symperms[i]],symperms=self.symperms) == i</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Seeking symmetry match&quot;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">get_frac_xyz</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">isp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">symperms</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">frac</span><span class="p">[</span><span class="n">isp</span><span class="p">],</span> <span class="n">fracref</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find symmetry!</span><span class="se">\n</span><span class="s2">Index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">Permutation: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">isp</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">isp</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="spg.find_symmetry_from_colors"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.find_symmetry_from_colors">[docs]</a>    <span class="k">def</span> <span class="nf">find_symmetry_from_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symperms</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If a match is found, return True. Else, return False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">symperms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">symperms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symperms</span>
+        <span class="k">if</span> <span class="n">colref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">colref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">colors</span> <span class="c1">#deprecated [RA]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Seeking symmetry match&quot;</span><span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">colors</span> <span class="c1">###???</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">isp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">symperms</span><span class="p">):</span> <span class="c1">###???</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="n">isp</span><span class="p">],</span> <span class="n">colref</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Find symmetry!</span><span class="se">\n</span><span class="s2">Index: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">Permutation: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">isp</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">isp</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No symmetry found&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="spg.get_frac_match"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.get_frac_match">[docs]</a>    <span class="k">def</span> <span class="nf">get_frac_match</span><span class="p">(</span><span class="n">frac</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mf">5e-6</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;retrieve equivalent </span>
+<span class="sd">        </span>
+<span class="sd">        [description]</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            frac {(N,3) numpy array of floats} -- </span>
+<span class="sd">            sym  {(N,3) numpy array of floats} -- </span>
+<span class="sd">        </span>
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            thresh {[type]} -- [description] (default: {5e-6})</span>
+<span class="sd">            eps {[type]} -- [description] (default: {1e-8})</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            [type] -- [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">symperm</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">frac</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span><span class="o">-</span><span class="n">sym</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">whereint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">))</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">whereint</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">whereint</span><span class="p">])</span> <span class="o">+</span> <span class="n">eps</span>
+        <span class="n">x</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1">### np.round does not work! [?RA]</span>
+        <span class="n">symperm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span><span class="o">&lt;</span><span class="n">thresh</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">symperm</span></div>
+
+<div class="viewcode-block" id="spg.generate_symmetry_dataset"><a class="viewcode-back" href="../../../_api/molsys.addon.html#molsys.addon.spg.spg.generate_symmetry_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">generate_symmetry_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1e-13</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Set up the data necessary to exploit symmetry within weaver.</span>
+<span class="sd">            transformations in the end contains a set of rotations and translations</span>
+<span class="sd">            for every vertex.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">spglib</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RT</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;rotations&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;translations&#39;</span><span class="p">])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;rotations&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;translations&#39;</span><span class="p">]</span>
+        <span class="n">equiv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;equivalent_atoms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">equiv_set</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">equiv</span><span class="p">))</span>
+        <span class="n">base_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">equiv</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">equiv_set</span><span class="p">]</span>
+        <span class="n">derived_indices</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">equiv</span><span class="p">)</span> <span class="k">if</span> <span class="p">((</span><span class="n">e</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">))]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">equiv_set</span><span class="p">]</span>
+        
+        <span class="n">transformations</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spgcell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">ie</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">equiv_set</span><span class="p">):</span>
+            <span class="n">exyz</span> <span class="o">=</span> <span class="n">frac</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+            <span class="n">M_exyz</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">R</span><span class="p">,</span><span class="n">exyz</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#% 1.0</span>
+            <span class="k">for</span> <span class="nb">id</span><span class="p">,</span><span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">derived_indices</span><span class="p">[</span><span class="n">ie</span><span class="p">]):</span>
+                <span class="n">dxyz</span>  <span class="o">=</span> <span class="n">frac</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+                <span class="n">distvects</span> <span class="o">=</span> <span class="n">M_exyz</span><span class="o">-</span><span class="n">dxyz</span>
+                <span class="n">whereint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">distvects</span><span class="p">),</span> <span class="n">distvects</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">))</span>
+                <span class="n">distvects</span><span class="p">[</span><span class="n">whereint</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">distvects</span><span class="p">[</span><span class="n">whereint</span><span class="p">])</span> <span class="o">+</span> <span class="n">eps</span>
+                <span class="n">distvects</span> <span class="o">-=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">distvects</span><span class="p">)</span>
+                
+                <span class="n">dists</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">distvects</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">idx_dmin</span>  <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">dist</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1">#idx_dmin = numpy.argmin(dists)</span>
+                <span class="k">if</span> <span class="n">dists</span><span class="p">[</span><span class="n">idx_dmin</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;no transformation found! for </span><span class="si">%i</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="p">,))</span>
+                <span class="c1">#print id,d,numpy.min(dists), numpy.argmin(dists)</span>
+                <span class="n">transformations</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RT</span><span class="p">[</span><span class="n">idx_dmin</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span> <span class="o">=</span> <span class="n">transformations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">equiv</span> <span class="o">=</span> <span class="n">equiv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">equiv_set</span> <span class="o">=</span> <span class="n">equiv_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_indices</span> <span class="o">=</span> <span class="n">base_indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">derived_indices</span> <span class="o">=</span> <span class="n">derived_indices</span>
+        
+        <span class="k">return</span> <span class="n">transformations</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

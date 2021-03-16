@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>1. Quickstart &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Addons" href="user_addon.html" />
+    <link rel="prev" title="MOLSYS" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basics">1.1. Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#periodic-systems">1.2. Periodic Systems</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_addon.html">2. Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><span class="section-number">1. </span>Quickstart</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_quickstart.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quickstart">
+<h1><span class="section-number">1. </span>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>This section gives a few examples on how to use the <em>molsys</em> <em>mol</em> object to give you a flavor of what to do with it.
+This docu is by far not complete and refers to some other topics like file formats, which are discussed elsewhere.</p>
+<div class="section" id="basics">
+<h2><span class="section-number">1.1. </span>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+<p>We start working with a molecular system. Let us assume you have made a xyz coordinate file benz.xyz for benzene using molden. It looks like this (you should know how
+to make benzene with molden, but in order to proceed feel free to copy&amp;paste this file):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="mi">12</span>
+ 
+ <span class="n">C</span>     <span class="mf">0.000000</span>     <span class="mf">0.000000</span>     <span class="mf">0.000000</span>
+ <span class="n">C</span>     <span class="mf">0.000000</span>     <span class="mf">0.000000</span>     <span class="mf">1.400000</span>
+ <span class="n">C</span>     <span class="mf">1.212436</span>     <span class="mf">0.000000</span>     <span class="mf">2.100000</span>
+ <span class="n">C</span>     <span class="mf">2.424871</span>     <span class="mf">0.000000</span>     <span class="mf">1.400000</span>
+ <span class="n">C</span>     <span class="mf">2.424871</span>     <span class="mf">0.000000</span>     <span class="mf">0.000000</span>
+ <span class="n">C</span>     <span class="mf">1.212436</span>     <span class="mf">0.000000</span>    <span class="o">-</span><span class="mf">0.700000</span>
+ <span class="n">H</span>    <span class="o">-</span><span class="mf">0.943102</span>     <span class="mf">0.000000</span>     <span class="mf">1.944500</span>
+ <span class="n">H</span>     <span class="mf">1.212436</span>     <span class="mf">0.000000</span>     <span class="mf">3.189000</span>
+ <span class="n">H</span>     <span class="mf">3.367973</span>     <span class="mf">0.000000</span>     <span class="mf">1.944500</span>
+ <span class="n">H</span>     <span class="mf">3.367973</span>     <span class="mf">0.000000</span>    <span class="o">-</span><span class="mf">0.544500</span>
+ <span class="n">H</span>     <span class="mf">1.212436</span>     <span class="mf">0.000000</span>    <span class="o">-</span><span class="mf">1.789000</span>
+ <span class="n">H</span>    <span class="o">-</span><span class="mf">0.943102</span>     <span class="mf">0.000000</span>    <span class="o">-</span><span class="mf">0.544500</span>
+</pre></div>
+</div>
+<p>Now let us generate a molsys object and read the xyz file in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;benz.xyz&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that we can shortcut this with <code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">=</span> <span class="pre">molsys.mol.from_file(&quot;benz.xyz&quot;)</span></code>. The file IO detects the file type by the extension.
+Now we can get the basic info for the mol object <strong>m</strong> :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_natoms</span><span class="p">()</span>
+<span class="go">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_elems</span><span class="p">()</span>
+<span class="go">[&#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+<span class="go">array([[ 0.     ,  0.     ,  0.     ],</span>
+<span class="go">    [ 0.     ,  0.     ,  1.4    ],</span>
+<span class="go">    [ 1.21244,  0.     ,  2.1    ],</span>
+<span class="go">    [ 2.42487,  0.     ,  1.4    ],</span>
+<span class="go">    [ 2.42487,  0.     ,  0.     ],</span>
+<span class="go">    [ 1.21244,  0.     , -0.7    ],</span>
+<span class="go">    [-0.9431 ,  0.     ,  1.9445 ],</span>
+<span class="go">    [ 1.21244,  0.     ,  3.189  ],</span>
+<span class="go">    [ 3.36797,  0.     ,  1.9445 ],</span>
+<span class="go">    [ 3.36797,  0.     , -0.5445 ],</span>
+<span class="go">    [ 1.21244,  0.     , -1.789  ],</span>
+<span class="go">    [-0.9431 ,  0.     , -0.5445 ]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_bcond</span><span class="p">()</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_atypes</span><span class="p">()</span>
+<span class="go">[&#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;c&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;, &#39;h&#39;]</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Note that</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>bcond is an integer and defines the PBC</dt><dd><ul>
+<li><p>0 non-periodic</p></li>
+<li><p>1 cubic</p></li>
+<li><p>2 orthorhombic</p></li>
+<li><p>3 triclinic</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>the atomtypes (get_atypes) are not set (map to elements)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Since the system was read from pure coordinates also no connectivity info is available. We use a simple distance base connectivity detection in
+<code class="docutils literal notranslate"><span class="pre">detect_conn()</span></code>. Better check the results. Here is works just fine.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">detect_conn</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()</span>
+<span class="go">[[1, 5, 11], [0, 2, 6], [1, 3, 7], [2, 4, 8], [3, 5, 9], [0, 4, 10], [1], [2], [3], [4], [5], [0]]</span>
+</pre></div>
+</div>
+<p>Atom indices start with 0!
+Now let us write to a file that stores all connectivity information. We use a file format called mfpx which is just an extended tinker (txyz) format.
+In addition to tinker txyz files it stores also fragment info, unit cell data and further meta-data. See the section on file formats <a class="reference internal" href="file_io.html#file-formats"><span class="std std-ref">File Formats</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;benz.mfpx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we can generate atomtype information. <em>molsys</em> generates <em>MOF-FF</em> atomtypes which have the general form &lt;element&gt;&lt;coordination&gt;_[seq:&lt;neighbor elem&gt;&lt;count&gt;].
+As an example c3_c3h1 means a carbon atom with 3 neighbors, 2x carbon and 1x hydrogen. There is a convenience script to generate atomtypes in a mfpx file
+(file will be overwritten).</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>atype benz.mfpx
+</pre></div>
+</div>
+<p>after that the mfpx file looks like this</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># type xyz</span>
+<span class="mi">12</span>
+  <span class="mi">1</span> <span class="n">c</span>      <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">2</span>       <span class="mi">6</span>      <span class="mi">12</span>  
+  <span class="mi">2</span> <span class="n">c</span>      <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">1.400000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">1</span>       <span class="mi">3</span>       <span class="mi">7</span>  
+  <span class="mi">3</span> <span class="n">c</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>    <span class="mf">2.100000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">2</span>       <span class="mi">4</span>       <span class="mi">8</span>  
+  <span class="mi">4</span> <span class="n">c</span>      <span class="mf">2.424871</span>    <span class="mf">0.000000</span>    <span class="mf">1.400000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">3</span>       <span class="mi">5</span>       <span class="mi">9</span>  
+  <span class="mi">5</span> <span class="n">c</span>      <span class="mf">2.424871</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">4</span>       <span class="mi">6</span>      <span class="mi">10</span>  
+  <span class="mi">6</span> <span class="n">c</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.700000</span>   <span class="n">c3_c2h1</span>                 <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">1</span>       <span class="mi">5</span>      <span class="mi">11</span>  
+  <span class="mi">7</span> <span class="n">h</span>     <span class="o">-</span><span class="mf">0.943102</span>    <span class="mf">0.000000</span>    <span class="mf">1.944500</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">2</span>  
+  <span class="mi">8</span> <span class="n">h</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>    <span class="mf">3.189000</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">3</span>  
+  <span class="mi">9</span> <span class="n">h</span>      <span class="mf">3.367973</span>    <span class="mf">0.000000</span>    <span class="mf">1.944500</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">4</span>  
+ <span class="mi">10</span> <span class="n">h</span>      <span class="mf">3.367973</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.544500</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">5</span>  
+ <span class="mi">11</span> <span class="n">h</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">1.789000</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">6</span>  
+ <span class="mi">12</span> <span class="n">h</span>     <span class="o">-</span><span class="mf">0.943102</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.544500</span>   <span class="n">h1_c1</span>                   <span class="o">-</span><span class="mi">1</span>                  <span class="o">-</span><span class="mi">1</span>       <span class="mi">1</span>  
+</pre></div>
+</div>
+<p>The script for this operation is very simple and tells you how to use the atomtyper within python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">molsys.mol</span> <span class="k">as</span> <span class="nn">mol</span>
+<span class="kn">import</span> <span class="nn">molsys.util.atomtyper</span> <span class="k">as</span> <span class="nn">atomtyper</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="n">name</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">mol</span><span class="p">()</span>
+<span class="n">m</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="n">at</span> <span class="o">=</span> <span class="n">atomtyper</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="n">at</span><span class="p">()</span>
+
+<span class="n">m</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As a last step we want to assign fragments (or fragment names) to this system, which are used in MOF-FF to assign force fields. For this to work, a couple of
+things are needed. Potential fragments are downloaded from <a class="reference external" href="https://www.mofplus.org">MOF+</a> and you need to register there as a user. You also need to provide
+your credentials for this to work. The most efficient way is to set the environment variables <strong>MFPUSER</strong> with your username (email used for registration) and
+<strong>MFPPW</strong> with your password (best in your .bashrc, make it readable only by you).
+Either use a script (this also does the atomtyping)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>fragmentize benz.mfpx
+</pre></div>
+</div>
+<p>or do it in python by instantiating a fragmentizer and passing the mol object to it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">molsys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;benz.mfpx&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frag</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">fragmentizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frag</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;benz.mfpx&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is the final result</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># type xyz</span>
+<span class="mi">12</span>
+  <span class="mi">1</span> <span class="n">c</span>      <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>       <span class="mi">6</span>      <span class="mi">12</span>  
+  <span class="mi">2</span> <span class="n">c</span>      <span class="mf">0.000000</span>    <span class="mf">0.000000</span>    <span class="mf">1.400000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">1</span>       <span class="mi">3</span>       <span class="mi">7</span>  
+  <span class="mi">3</span> <span class="n">c</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>    <span class="mf">2.100000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>       <span class="mi">4</span>       <span class="mi">8</span>  
+  <span class="mi">4</span> <span class="n">c</span>      <span class="mf">2.424871</span>    <span class="mf">0.000000</span>    <span class="mf">1.400000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">3</span>       <span class="mi">5</span>       <span class="mi">9</span>  
+  <span class="mi">5</span> <span class="n">c</span>      <span class="mf">2.424871</span>    <span class="mf">0.000000</span>    <span class="mf">0.000000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">4</span>       <span class="mi">6</span>      <span class="mi">10</span>  
+  <span class="mi">6</span> <span class="n">c</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.700000</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">1</span>       <span class="mi">5</span>      <span class="mi">11</span>  
+  <span class="mi">7</span> <span class="n">h</span>     <span class="o">-</span><span class="mf">0.943102</span>    <span class="mf">0.000000</span>    <span class="mf">1.944500</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>  
+  <span class="mi">8</span> <span class="n">h</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>    <span class="mf">3.189000</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">3</span>  
+  <span class="mi">9</span> <span class="n">h</span>      <span class="mf">3.367973</span>    <span class="mf">0.000000</span>    <span class="mf">1.944500</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">4</span>  
+ <span class="mi">10</span> <span class="n">h</span>      <span class="mf">3.367973</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.544500</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">5</span>  
+ <span class="mi">11</span> <span class="n">h</span>      <span class="mf">1.212436</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">1.789000</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">6</span>  
+ <span class="mi">12</span> <span class="n">h</span>     <span class="o">-</span><span class="mf">0.943102</span>    <span class="mf">0.000000</span>   <span class="o">-</span><span class="mf">0.544500</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">1</span>  
+</pre></div>
+</div>
+<p>All atoms belong the the fragment <strong>ph</strong> for phenyl and to fragment number 0</p>
+</div>
+<div class="section" id="periodic-systems">
+<h2><span class="section-number">1.2. </span>Periodic Systems<a class="headerlink" href="#periodic-systems" title="Permalink to this headline">¶</a></h2>
+<p>Periodic systems are not that easy to generate as the benzene molecule shown above. Therefore we use a mfpx file of a MOF that can be downloaded
+from <a class="reference external" href="https://www.mofplus.org">MOF+</a>. Under <strong>Frameworks</strong> search for the MOF name “hkust” and check out the MOF with the <em>tbo</em> net.
+Or you just follow this <a class="reference external" href="https://www.mofplus.org/mofs/mof/1">link</a> and then dopwnload the coordinates as mfpx (the other option is cif).
+The file you get looks like this (at least the first 20 lines)
+NOTE: This is one of the first frameworks we generated on MOF+ and it contains the wrong fragment names. In order to fix this please run
+<em>fragmentize hkust1.mfpx</em> on the downloaded file. We will fix this at some point.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># type xyz</span>
+<span class="c1"># cellvect    26.432700     0.000000     0.000000     0.000000    26.432700     0.000000     0.000000     0.000000    26.432700</span>
+<span class="mi">624</span>
+  <span class="mi">1</span> <span class="n">c</span>      <span class="mf">8.514918</span>   <span class="mf">10.230492</span>    <span class="mf">8.514938</span>   <span class="n">c3_c3</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>       <span class="mi">6</span>     <span class="mi">243</span>  
+  <span class="mi">2</span> <span class="n">c</span>      <span class="mf">9.667390</span>    <span class="mf">9.667595</span>    <span class="mf">7.949603</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">1</span>       <span class="mi">3</span>       <span class="mi">7</span>  
+  <span class="mi">3</span> <span class="n">c</span>     <span class="mf">10.230591</span>    <span class="mf">8.515087</span>    <span class="mf">8.514554</span>   <span class="n">c3_c3</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>       <span class="mi">4</span>     <span class="mi">345</span>  
+  <span class="mi">4</span> <span class="n">c</span>      <span class="mf">9.667782</span>    <span class="mf">7.949827</span>    <span class="mf">9.667106</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">3</span>       <span class="mi">5</span>       <span class="mi">8</span>  
+  <span class="mi">5</span> <span class="n">c</span>      <span class="mf">8.515328</span>    <span class="mf">8.514814</span>   <span class="mf">10.230376</span>   <span class="n">c3_c3</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">4</span>       <span class="mi">6</span>     <span class="mi">409</span>  
+  <span class="mi">6</span> <span class="n">c</span>      <span class="mf">7.950080</span>    <span class="mf">9.667360</span>    <span class="mf">9.667538</span>   <span class="n">c3_c2h1</span>                 <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">1</span>       <span class="mi">5</span>       <span class="mi">9</span>  
+  <span class="mi">7</span> <span class="n">h</span>     <span class="mf">10.115371</span>   <span class="mf">10.115863</span>    <span class="mf">7.055787</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">2</span>  
+  <span class="mi">8</span> <span class="n">h</span>     <span class="mf">10.116082</span>    <span class="mf">7.056026</span>   <span class="mf">10.115085</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">4</span>  
+  <span class="mi">9</span> <span class="n">h</span>      <span class="mf">7.056390</span>   <span class="mf">10.115457</span>   <span class="mf">10.115934</span>   <span class="n">h1_c1</span>                   <span class="n">ph</span>                   <span class="mi">0</span>       <span class="mi">6</span>  
+ <span class="mi">10</span> <span class="n">cu</span>     <span class="mf">7.496964</span>    <span class="mf">0.000052</span>    <span class="mf">7.496513</span>   <span class="n">cu5_cu1o4</span>               <span class="n">cu2</span>                <span class="mi">128</span>      <span class="mi">11</span>      <span class="mi">14</span>      <span class="mi">17</span>      <span class="mi">20</span>      <span class="mi">23</span>  
+ <span class="mi">11</span> <span class="n">cu</span>     <span class="mf">5.719782</span>    <span class="mf">0.000040</span>    <span class="mf">5.719666</span>   <span class="n">cu5_cu1o4</span>               <span class="n">cu2</span>                <span class="mi">128</span>      <span class="mi">10</span>      <span class="mi">12</span>      <span class="mi">15</span>      <span class="mi">18</span>      <span class="mi">21</span>  
+ <span class="mi">12</span> <span class="n">o</span>      <span class="mf">4.838797</span>   <span class="o">-</span><span class="mf">1.385574</span>    <span class="mf">6.778543</span>   <span class="n">o2_c1cu1</span>                <span class="n">co2</span>                 <span class="mi">32</span>      <span class="mi">11</span>      <span class="mi">13</span>  
+ <span class="mi">13</span> <span class="n">c</span>      <span class="mf">5.369076</span>   <span class="o">-</span><span class="mf">1.826955</span>    <span class="mf">7.847557</span>   <span class="n">c3_c1o2</span>                 <span class="n">co2</span>                 <span class="mi">32</span>      <span class="mi">12</span>      <span class="mi">14</span>     <span class="mi">384</span>  
+ <span class="mi">14</span> <span class="n">o</span>      <span class="mf">6.438234</span>   <span class="o">-</span><span class="mf">1.385687</span>    <span class="mf">8.377659</span>   <span class="n">o2_c1cu1</span>                <span class="n">co2</span>                 <span class="mi">32</span>      <span class="mi">10</span>      <span class="mi">13</span>  
+ <span class="mi">15</span> <span class="n">o</span>      <span class="mf">4.838920</span>    <span class="mf">1.385602</span>    <span class="mf">6.778673</span>   <span class="n">o2_c1cu1</span>                <span class="n">co2</span>                 <span class="mi">33</span>      <span class="mi">11</span>      <span class="mi">16</span>  
+ <span class="mi">16</span> <span class="n">c</span>      <span class="mf">5.369201</span>    <span class="mf">1.827025</span>    <span class="mf">7.847673</span>   <span class="n">c3_c1o2</span>                 <span class="n">co2</span>                 <span class="mi">33</span>      <span class="mi">15</span>      <span class="mi">17</span>     <span class="mi">616</span>  
+ <span class="mi">17</span> <span class="n">o</span>      <span class="mf">6.438380</span>    <span class="mf">1.385823</span>    <span class="mf">8.377772</span>   <span class="n">o2_c1cu1</span>                <span class="n">co2</span>                 <span class="mi">33</span>      <span class="mi">10</span>      <span class="mi">16</span>  
+</pre></div>
+</div>
+<p>As you can see in mfpx the cell parameter are stored as metadata (lines with <em>#</em> at the top). The system is automatically detected as cubic.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="kn">import</span> <span class="nn">molsys</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="n">molsys</span><span class="o">.</span><span class="n">mol</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;hkust1.mfpx&quot;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">get_bcond</span><span class="p">()</span>
+<span class="mi">1</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+<span class="n">array</span><span class="p">([[</span><span class="mf">26.4327</span><span class="p">,</span>  <span class="mf">0.</span>    <span class="p">,</span>  <span class="mf">0.</span>    <span class="p">],</span>
+    <span class="p">[</span> <span class="mf">0.</span>    <span class="p">,</span> <span class="mf">26.4327</span><span class="p">,</span>  <span class="mf">0.</span>    <span class="p">],</span>
+    <span class="p">[</span> <span class="mf">0.</span>    <span class="p">,</span>  <span class="mf">0.</span>    <span class="p">,</span> <span class="mf">26.4327</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">get_cellparams</span><span class="p">()</span>
+<span class="p">[</span><span class="mf">26.4327</span><span class="p">,</span> <span class="mf">26.4327</span><span class="p">,</span> <span class="mf">26.4327</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>One of the powerful tools of the native <em>mol</em> class (without using any addons) is to generate supercells of periodic systems with an automatic
+generation of the connectivity of the supercell. You can use the method <a class="reference internal" href="_api/molsys.html#molsys.mol.make_supercell" title="molsys.mol.make_supercell"><code class="xref py py-class docutils literal notranslate"><span class="pre">molsys.mol.make_supercell</span></code></a> for that.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user_addon.html" class="btn btn-neutral float-right" title="2. Addons" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="MOLSYS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

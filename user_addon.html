@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>2. Addons &mdash; molsys 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2.1. The FF addon" href="user_addon_ff.html" />
+    <link rel="prev" title="1. Quickstart" href="user_quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> molsys
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_quickstart.html">1. Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Addons</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html">2.1. The FF addon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html">2.2. The ACAB addon</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_util.html">3. Utility Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Stuff</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tech_api.html">1. API Documentation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">File Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_io.html">1. File Formats</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">molsys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li><span class="section-number">2. </span>Addons</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/user_addon.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="addons">
+<h1><span class="section-number">2. </span>Addons<a class="headerlink" href="#addons" title="Permalink to this headline">¶</a></h1>
+<p>Molsys features several addons. In general instances of addon classes can be attached to a mol object <strong>m</strong>
+in the following way.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="o">.</span><span class="n">addon</span><span class="p">(</span><span class="s2">&quot;name_of_addon&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Methods and attributes of the corrsponding addon object are then available under m.name_of_addon.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_addon_ff.html">2.1. The FF addon</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html#introduction">2.1.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html#assignment-scheme">2.1.2. Assignment Scheme</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_ff.html#general-idea">2.1.2.1. General Idea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_ff.html#further-feautures">2.1.2.2. Further Feautures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html#technical-details">2.1.3. Technical Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_ff.html#file-io">2.1.3.1. File IO</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_ff.html#examples">2.1.4. Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_ff.html#assignment">2.1.4.1. Assignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_ff.html#preparation-of-a-parameterization-run">2.1.4.2. Preparation of a parameterization run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_addon_acab.html">2.2. The ACAB addon</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#introduction">2.2.1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#disclaimer">2.2.1.1. Disclaimer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#motivation">2.2.2. Motivation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#isoreticular-isomerism">2.2.2.1. Isoreticular Isomerism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#block-multiplicity">2.2.2.2. Block multiplicity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#why-colors">2.2.2.3. Why colors?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#overview">2.2.3. Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#advanced-reverse-topological-approach">2.2.3.1. <em>advanced</em> Reverse Topological Approach</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#workflow">2.2.3.2. Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#installation">2.2.4. Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#scip-and-pyscipopt">2.2.4.1. SCIP and PySCIPOpt</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#examples">2.2.5. Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#edge-colored-unit-cell-pcu">2.2.5.1. 2,1-edge colored unit cell <strong>pcu</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#id17">2.2.5.2. 1,1-edge colored unit cell <strong>pcu</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#edge-colored-supercell-pcu">2.2.5.3. 2,1-edge colored supercell <strong>pcu</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#edge-colored-pcu-with-an-axial-constraint">2.2.5.4. 2,1-edge colored <strong>pcu</strong> with an “axial” constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#edge-colored-apo-with-an-axial-constraint">2.2.5.5. 2,1-edge colored <strong>apo</strong> with an axial constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#edge-colored-rtl-with-an-axial-constraint">2.2.5.6. 2,1-edge colored <strong>rtl</strong> with an axial constraint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#algorithm">2.2.6. Algorithm</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#domain">2.2.6.1. Domain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#problem">2.2.6.2. Problem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#solver">2.2.6.3. Solver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#solutions">2.2.6.4. Solutions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#loop">2.2.6.5. Loop</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#id30">2.2.7. Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#feature-tests">2.2.7.1. Feature tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#technical-details">2.2.8. Technical Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#file-i-o">2.2.8.1. File I/O</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#glossary-wip">2.2.9. Glossary (<em>WiP</em>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#improvements">2.2.10. Improvements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#new-tests">2.2.10.1. New Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#new-examples">2.2.10.2. New Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_addon_acab.html#clearer-documentation">2.2.10.3. Clearer Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#credits">2.2.11. Credits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#license">2.2.12. License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#notes">2.2.13. Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_addon_acab.html#references">2.2.14. References</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="user_addon_ff.html" class="btn btn-neutral float-right" title="2.1. The FF addon" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_quickstart.html" class="btn btn-neutral float-left" title="1. Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2019-2021, Roberto Amabile, Johannes P. Duerholt, Julian Keupp, Rochus Schmid.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
